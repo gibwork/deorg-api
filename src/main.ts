@@ -31,7 +31,8 @@ class ServerBootstrap {
     this.configGlobalExceptionFilter();
     this.configMiddlewares();
     this.configRequestLogger();
-    if (process.env.NODE_ENV === 'LOCAL') this.configSwagger();
+    if (process.env.NODE_ENV === 'LOCAL' || process.env.NODE_ENV === 'DEV')
+      this.configSwagger();
     // this.configRateLimit();
 
     await this.app.listen(process.env.PORT || 3333);
