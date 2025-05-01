@@ -1,0 +1,11 @@
+export const FEE_DEPOSIT_PERCENT = 5;
+export const FEE_WITHDRAW_PERCENT = 5;
+export const FEE_WITHDRAW_DECAF_PERCENT = 8;
+
+export const FEE_SERVICE_FIXED = 10; //USD
+
+export const REFERRAL_VERIFIED_PERCENT = 50;
+export const REFERRAL_UNVERIFIED_PERCENT = 25;
+
+export const FEE_DEPOSIT_FIXED = 0.01;
+export const FEE_WITHDRAW_FIXED = 0.005;
