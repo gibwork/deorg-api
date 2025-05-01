@@ -4,7 +4,7 @@
 
 ## Description
 
-Gibwork v2 api
+Deorg api
 
 ## Installation
 
@@ -26,12 +26,13 @@ $ yarn run start:prod
 ```
 
 ## Migrations
+
 Migrations will run automatically on start of the application.
 
 ```bash
 # generate migration
 # then go to `src/core/infra/database/migrations/rename_migration.ts` and rename the class name to something more meaningful
-$ yarn migration:generate 
+$ yarn migration:generate
 
 # create empty migration
 # then go to `src/core/infra/database/migrations/rename_migration.ts` and rename the class name to something more meaningful
