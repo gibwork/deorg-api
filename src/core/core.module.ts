@@ -11,8 +11,6 @@ import {
 import { S3Storage } from '@core/infra/storage/s3.storage';
 import { XcrowService } from '@core/services/xcrow/xcrow.service';
 import { HealthController } from '@core/controllers/health.controller';
-import { ClerkService } from '@core/services/clerk/clerk.service';
-import { GithubService } from './services/github/github.service';
 import { DiscordService } from '@core/services/discord/discord.service';
 import { EventSQS } from '@core/services/sqs/sqs.service';
 import { DecafService } from '@core/services/decaf/decaf.service';
@@ -29,8 +27,6 @@ const providers = [
   XcrowService,
   DecafService,
   WalletSignature,
-  GithubService,
-  ClerkService,
   DiscordService,
   CacheService,
   EventSQS,
