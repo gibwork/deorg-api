@@ -9,9 +9,7 @@ export class JWTService {
   }
 
   verify<T>(token: string) {
-    return jwt.verify(token, String(process.env.PUBLIC_KEY), {
-      algorithms: ['RS256']
-    }) as T;
+    return jwt.verify(token, String(process.env.JWT_SECRET)) as T;
   }
 
   decode<T>(token: string) {

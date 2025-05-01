@@ -1,5 +1,15 @@
 import { plainToInstance } from 'class-transformer';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { TransactionEntity } from '@domains/transactions/entities/transaction.entity';
+import { OrganizationEntity } from '@domains/organizations/entities/organization.entity';
+import { OrganizationMemberEntity } from '@domains/organizations/entities/organization-member.entity';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  UpdateDateColumn,
+  CreateDateColumn
+} from 'typeorm';
 
 @Entity('users')
 export class UserEntity {
@@ -14,6 +24,21 @@ export class UserEntity {
 
   @Column()
   profilePicture: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @OneToMany(() => TransactionEntity, (transaction) => transaction.user)
+  transactions: TransactionEntity[];
+
+  @OneToMany(() => OrganizationEntity, (organization) => organization.user)
+  organizations: OrganizationEntity[];
+
+  @OneToMany(() => OrganizationMemberEntity, (member) => member.user)
+  organizationMembers: OrganizationMemberEntity[];
 
   constructor(props: Partial<UserEntity>) {
     const entity = plainToInstance(UserEntity, props);

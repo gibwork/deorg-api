@@ -5,6 +5,7 @@ import { sleep } from '@utils/sleep';
 @Injectable()
 export class HeliusService {
   rpcUrl = `https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`;
+  devnetRpcUrl = `https://devnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`;
 
   constructor() {
     axios.defaults.timeout = 10000;

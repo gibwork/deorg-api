@@ -19,6 +19,7 @@ import { WalletSignature } from '@core/services/wallet-signature/wallet-signatur
 import { HeliusService } from '@core/services/helius/helius.service';
 import { TeleswapService } from '@core/services/teleswap/teleswap.service';
 import { TransactionBuilderService } from '@core/services/solana/transaction-builder.service';
+import { VotingProgramService } from '@core/services/voting-program/voting-program.service';
 
 const providers = [
   JWTService,
@@ -33,6 +34,7 @@ const providers = [
   HeliusService,
   TeleswapService,
   TransactionBuilderService,
+  VotingProgramService,
   {
     provide: STORAGE_SERVICE_LOCAL,
     useClass: FilesystemStorage

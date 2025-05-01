@@ -4,10 +4,14 @@ import { ServiceProvider } from '@core/service-provider';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { UsersProvider } from './users/users.provider';
 import { AuthProvider } from './auth/auth.provider';
+import { OrganizationsProvider } from './organizations/organizations.provider';
+import { TransactionsProvider } from './transactions/transactions.provider';
 
 const serviceProvider = ServiceProvider.buildByProviders([
   UsersProvider,
-  AuthProvider
+  AuthProvider,
+  OrganizationsProvider,
+  TransactionsProvider
 ]);
 serviceProvider.addImport(CoreModule);
 
