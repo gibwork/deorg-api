@@ -17,6 +17,9 @@ export class UserEntity {
   id: string;
 
   @Column()
+  externalId: string;
+
+  @Column()
   username: string;
 
   @Column()

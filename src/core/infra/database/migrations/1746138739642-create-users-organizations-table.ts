@@ -1,9 +1,9 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateOrganizationsTable1746126323907
+export class CreateUsersOrganizationsTable1746138739642
   implements MigrationInterface
 {
-  name = 'CreateOrganizationsTable1746126323907';
+  name = 'CreateUsersOrganizationsTable1746138739642';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
@@ -19,10 +19,7 @@ export class CreateOrganizationsTable1746126323907
       `CREATE TABLE "organizations" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "token" jsonb NOT NULL DEFAULT '{}', "name" character varying NOT NULL, "logo_url" character varying NOT NULL, "created_by" uuid NOT NULL, "account_address" character varying NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_6b031fcd0863e3f6b44230163f9" PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
-      `ALTER TABLE "users" ADD "created_at" TIMESTAMP NOT NULL DEFAULT now()`
-    );
-    await queryRunner.query(
-      `ALTER TABLE "users" ADD "updated_at" TIMESTAMP NOT NULL DEFAULT now()`
+      `CREATE TABLE "users" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "external_id" character varying NOT NULL, "username" character varying NOT NULL, "wallet_address" character varying NOT NULL, "profile_picture" character varying NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433" PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
       `ALTER TABLE "transactions" ADD CONSTRAINT "FK_77e84561125adeccf287547f66e" FOREIGN KEY ("created_by") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`
@@ -51,8 +48,7 @@ export class CreateOrganizationsTable1746126323907
     await queryRunner.query(
       `ALTER TABLE "transactions" DROP CONSTRAINT "FK_77e84561125adeccf287547f66e"`
     );
-    await queryRunner.query(`ALTER TABLE "users" DROP COLUMN "updated_at"`);
-    await queryRunner.query(`ALTER TABLE "users" DROP COLUMN "created_at"`);
+    await queryRunner.query(`DROP TABLE "users"`);
     await queryRunner.query(`DROP TABLE "organizations"`);
     await queryRunner.query(`DROP TABLE "organization_members"`);
     await queryRunner.query(
