@@ -12,13 +12,15 @@ import { Transaction } from '@solana/web3.js';
 import { Connection } from '@solana/web3.js';
 import { HeliusService } from '@core/services/helius/helius.service';
 import { OrganizationRole } from '../entities/organization-member.entity';
+import { ClerkService } from '@core/services/clerk/clerk.service';
 @Injectable()
 export class CreateOrganizationUsecase {
   constructor(
     private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
     private readonly transactionService: TransactionService,
-    private readonly heliusService: HeliusService
+    private readonly heliusService: HeliusService,
+    private readonly clerkService: ClerkService
   ) {}
 
   private connection = new Connection(this.heliusService.devnetRpcUrl);
@@ -89,10 +91,17 @@ export class CreateOrganizationUsecase {
       );
     }
 
+    const clerkOrganization = await this.clerkService.createOrganization(
+      dto.name,
+      user.externalId
+    );
+
     const organization = await this.organizationService.create({
       id: transaction.response['organizationId'],
       name: dto.name,
-      logoUrl: dto.token?.imageUrl,
+      externalId: clerkOrganization.id,
+      slug: clerkOrganization.slug || undefined,
+      logoUrl: clerkOrganization.imageUrl || undefined,
       createdBy: userId,
       token: dto.token && {
         symbol: dto.token.symbol,

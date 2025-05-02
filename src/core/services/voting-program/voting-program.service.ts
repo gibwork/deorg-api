@@ -14,16 +14,19 @@ type CreateOrganizationDto = {
   contributorProposalValidityPeriod: number;
   contributorValidityPeriod: number;
   contributorProposalQuorumPercentage: number;
-  projectProposalValidityPeriod: number;
   projectProposalThreshold: number;
+  projectProposalValidityPeriod: number;
   minimumTokenRequirement: number;
+  treasuryTransferThresholdPercentage?: number;
+  treasuryTransferProposalValidityPeriod?: number;
+  treasuryTransferQuorumPercentage?: number;
   userPrimaryWallet: string;
   organizationId: string;
 };
 
 @Injectable()
 export class VotingProgramService {
-  PROGRAM_ID = new PublicKey('BwbgqNkBWiSWxryLycL3wPv7MijCE4XEjrtvKCQxVaxj');
+  PROGRAM_ID = new PublicKey('J71VLY6cxH9G9WA5Z1W3mhqMpVVx65vvCYtixegTUKG4');
   constructor(private readonly heliusService: HeliusService) {}
 
   async createOrganization(dto: CreateOrganizationDto) {
@@ -91,6 +94,24 @@ export class VotingProgramService {
       8
     );
 
+    // Treasury parameters
+    const treasuryTransferThresholdBuf = serializeNumber(
+      dto.treasuryTransferThresholdPercentage || 70,
+      1
+    );
+    const treasuryTransferValidityPeriodBuf = serializeBN(
+      new BN(
+        dto.treasuryTransferProposalValidityPeriod
+          ? dto.treasuryTransferProposalValidityPeriod * 24 * 60 * 60
+          : 14 * 24 * 60 * 60
+      ),
+      8
+    );
+    const treasuryTransferQuorumBuf = serializeNumber(
+      dto.treasuryTransferQuorumPercentage || 40,
+      1
+    );
+
     const data = Buffer.concat([
       discriminator,
       uuidBuf, // UUID
@@ -102,7 +123,10 @@ export class VotingProgramService {
       contributorProposalQuorumPercentageBuf,
       projectProposalThresholdBuf,
       projectProposalValidityPeriodBuf,
-      minimumTokenRequirementBuf
+      minimumTokenRequirementBuf,
+      treasuryTransferThresholdBuf,
+      treasuryTransferValidityPeriodBuf,
+      treasuryTransferQuorumBuf
     ]);
 
     const tokenMint = new PublicKey(

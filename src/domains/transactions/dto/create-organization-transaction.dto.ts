@@ -58,4 +58,25 @@ export class DepositOrganizationDto {
   })
   @IsNumber()
   minimumTokenRequirement: number;
+
+  @ApiProperty({
+    description: 'The treasury transfer threshold percentage',
+    example: 70
+  })
+  @IsNumber()
+  treasuryTransferThresholdPercentage: number;
+
+  @ApiProperty({
+    description: 'The treasury transfer proposal validity period',
+    example: 14
+  })
+  @IsNumber()
+  treasuryTransferProposalValidityPeriod: number;
+
+  @ApiProperty({
+    description: 'The treasury transfer quorum percentage',
+    example: 40
+  })
+  @IsNumber()
+  treasuryTransferQuorumPercentage: number;
 }

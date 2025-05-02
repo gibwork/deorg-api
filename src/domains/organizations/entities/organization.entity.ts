@@ -24,11 +24,14 @@ export class OrganizationEntity {
   @PrimaryGeneratedColumn('uuid')
   id: number;
 
-  @Column({ type: 'jsonb', default: {} })
-  token?: Token;
-
   @Column()
   name: string;
+
+  @Column()
+  slug: string;
+
+  @Column()
+  externalId: string;
 
   @Column()
   logoUrl: string;
@@ -38,6 +41,9 @@ export class OrganizationEntity {
 
   @Column()
   accountAddress: string;
+
+  @Column({ type: 'jsonb', default: {} })
+  token?: Token;
 
   @ManyToOne(() => UserEntity, (user) => user.organizations)
   @JoinColumn({ name: 'created_by' })

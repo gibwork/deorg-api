@@ -34,6 +34,11 @@ export class CreateOrganizationTransactionsUsecase {
         projectProposalValidityPeriod: dto.projectProposalValidityPeriod,
         projectProposalThreshold: dto.projectProposalThreshold,
         minimumTokenRequirement: dto.minimumTokenRequirement,
+        treasuryTransferThresholdPercentage:
+          dto.treasuryTransferThresholdPercentage,
+        treasuryTransferProposalValidityPeriod:
+          dto.treasuryTransferProposalValidityPeriod,
+        treasuryTransferQuorumPercentage: dto.treasuryTransferQuorumPercentage,
         userPrimaryWallet: user.walletAddress,
         organizationId
       });
