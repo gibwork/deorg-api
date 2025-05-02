@@ -8,7 +8,7 @@ import { WalletSignIngUseCaseDto } from '../dto/wallet-sign-in.dto';
 export class AuthController {
   constructor(private readonly signinUseCase: SigninUseCase) {}
 
-  @Post('/signin')
+  @Post('/wallet-signin')
   @HttpCode(200)
   @ApiResponse({
     status: 200,

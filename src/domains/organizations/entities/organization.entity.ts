@@ -11,7 +11,7 @@ import {
 } from 'typeorm';
 import { UserEntity } from '@domains/users/entities/user.entity';
 import { OrganizationMemberEntity } from './organization-member.entity';
-
+import { ProposalEntity } from '@domains/proposals/entities/proposal.entity';
 export interface Token {
   symbol: string;
   mintAddress: string;
@@ -45,6 +45,12 @@ export class OrganizationEntity {
   @Column({ type: 'jsonb', default: {} })
   token: Token;
 
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
   @ManyToOne(() => UserEntity, (user) => user.organizations)
   @JoinColumn({ name: 'created_by' })
   user: UserEntity;
@@ -54,11 +60,10 @@ export class OrganizationEntity {
   })
   members: OrganizationMemberEntity[];
 
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @OneToMany(() => ProposalEntity, (proposal) => proposal.organization, {
+    cascade: true
+  })
+  proposals: ProposalEntity[];
 
   constructor(props: Partial<OrganizationEntity>) {
     const entity = plainToInstance(OrganizationEntity, props);

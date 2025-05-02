@@ -1,3 +1,10 @@
 import { ModuleMetadata } from '@nestjs/common';
+import { ProposalRepository } from './repositories/proposal.repository';
+import { ProposalService } from './services/proposal.service';
+import { ProposalsController } from './controllers/proposals.controller';
+import { ListProposalsUsecase } from './usecases/list-proposals.usecase';
 
-export const ProposalsProvider: ModuleMetadata = {};
+export const ProposalsProvider: ModuleMetadata = {
+  controllers: [ProposalsController],
+  providers: [ProposalRepository, ProposalService, ListProposalsUsecase]
+};

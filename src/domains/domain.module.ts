@@ -6,12 +6,14 @@ import { UsersProvider } from './users/users.provider';
 import { AuthProvider } from './auth/auth.provider';
 import { OrganizationsProvider } from './organizations/organizations.provider';
 import { TransactionsProvider } from './transactions/transactions.provider';
+import { ProposalsProvider } from './proposals/proposal.provider';
 
 const serviceProvider = ServiceProvider.buildByProviders([
   UsersProvider,
   AuthProvider,
   OrganizationsProvider,
-  TransactionsProvider
+  TransactionsProvider,
+  ProposalsProvider
 ]);
 serviceProvider.addImport(CoreModule);
 
