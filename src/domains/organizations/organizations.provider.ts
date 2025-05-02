@@ -3,12 +3,20 @@ import { OrganizationService } from './services/organization.service';
 import { OrganizationRepository } from './repositories/organization.repository';
 import { OrganizationController } from './controllers/organization.controller';
 import { CreateOrganizationUsecase } from './usecases/create-organization.usecase';
+import { ListOrganizationsUsecase } from './usecases/list-organizations.usecase';
+import { JoinOrganizationUsecase } from './usecases/join-organization.usecase';
+import { OrganizationMemberService } from './services/organization-member.service';
+import { OrganizationMemberRepository } from './repositories/organization-member.repository';
 
 export const OrganizationsProvider: ModuleMetadata = {
   controllers: [OrganizationController],
   providers: [
     OrganizationService,
     OrganizationRepository,
-    CreateOrganizationUsecase
+    OrganizationMemberService,
+    OrganizationMemberRepository,
+    CreateOrganizationUsecase,
+    ListOrganizationsUsecase,
+    JoinOrganizationUsecase
   ]
 };

@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 import { OrganizationEntity } from './organization.entity';
 import { UserEntity } from '@domains/users/entities/user.entity';
-
+import { plainToInstance } from 'class-transformer';
 export enum OrganizationRole {
   ADMIN = 'ADMIN',
   MEMBER = 'MEMBER'
@@ -15,8 +15,8 @@ export enum OrganizationRole {
 
 @Entity('organization_members')
 export class OrganizationMemberEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   organizationId: string;
@@ -39,4 +39,9 @@ export class OrganizationMemberEntity {
 
   @ManyToOne(() => UserEntity, (user) => user.organizationMembers)
   user: UserEntity;
+
+  constructor(parameters: Partial<OrganizationMemberEntity>) {
+    const entity = plainToInstance(OrganizationMemberEntity, parameters);
+    Object.assign(this, entity);
+  }
 }

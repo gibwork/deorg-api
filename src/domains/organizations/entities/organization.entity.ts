@@ -22,7 +22,7 @@ export interface Token {
 @Entity('organizations')
 export class OrganizationEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   @Column()
   name: string;
@@ -43,7 +43,7 @@ export class OrganizationEntity {
   accountAddress: string;
 
   @Column({ type: 'jsonb', default: {} })
-  token?: Token;
+  token: Token;
 
   @ManyToOne(() => UserEntity, (user) => user.organizations)
   @JoinColumn({ name: 'created_by' })

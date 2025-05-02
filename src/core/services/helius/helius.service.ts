@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
 import { sleep } from '@utils/sleep';
+import { StableCoin } from '@utils/stable-coin';
+import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 
 @Injectable()
 export class HeliusService {
@@ -35,6 +37,105 @@ export class HeliusService {
       }
     }
     throw new Error('Max retries reached');
+  }
+
+  async getBalance(input: {
+    publicKey: string;
+    network: string;
+  }): Promise<Array<TokenInfo>> {
+    try {
+      const url =
+        input.network === 'devnet'
+          ? this.rpcUrl.replace('mainnet', 'devnet')
+          : this.rpcUrl;
+
+      const response = await this.retryRequest(() =>
+        axios.post(url, {
+          id: 1,
+          jsonrpc: '2.0',
+          method: 'searchAssets',
+          params: {
+            ownerAddress: input.publicKey,
+            tokenType: 'fungible',
+            displayOptions: {
+              showNativeBalance: true
+            }
+          }
+        })
+      );
+
+      const splTokenBalances = response.data?.result?.items ?? [];
+      const nativeToken = response.data.result.nativeBalance;
+
+      // Fetch all token prices in parallel
+      const tokensWithPrices = await Promise.all(
+        splTokenBalances.map(async (element) => {
+          const { token_info: tokenInfo } = element || {};
+          const tokenMintAddress = element?.id || null;
+          if (tokenInfo.decimals === 0 || !element?.content?.metadata?.name) {
+            return null;
+          }
+
+          if (!tokenInfo.price_info && tokenMintAddress) {
+            const tokenPrice = await this.getPrice(tokenMintAddress);
+
+            tokenInfo.price_info = {
+              total_price:
+                getDisplayDecimalAmountFromAsset(
+                  tokenInfo.balance,
+                  tokenInfo.decimals
+                ) * (tokenPrice ?? 0)
+            };
+          }
+
+          if (StableCoin.check(tokenMintAddress) && !!tokenInfo.price_info) {
+            tokenInfo.price_info.price_per_token = 1;
+          }
+
+          return {
+            address: tokenMintAddress,
+            symbol: element?.content?.metadata?.symbol || '',
+            name: element?.content?.metadata?.name || '',
+            logoURI: element?.content?.links?.image || '',
+            tokenInfo
+          };
+        })
+      );
+
+      const tokens = tokensWithPrices.filter(
+        (token): token is TokenInfo => token !== null
+      );
+
+      const solToken: TokenInfo = {
+        address: 'So11111111111111111111111111111111111111112',
+        symbol: 'SOL',
+        name: 'Wrapped SOL',
+        logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/5426.png',
+        tokenInfo: {
+          balance: nativeToken.lamports,
+          supply: -1,
+          decimals: 9,
+          symbol: 'SOL',
+          token_program: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
+          associated_token_address: '',
+          price_info: {
+            price_per_token: nativeToken.price_per_sol,
+            total_price:
+              (nativeToken.lamports / LAMPORTS_PER_SOL) *
+              (nativeToken.price_per_sol ?? 0),
+            currency: 'SOL'
+          }
+        }
+      };
+
+      return [...tokens, solToken];
+    } catch (error) {
+      if (error.response.status === 429) {
+        throw new Error('Rate limit exceeded');
+      }
+
+      throw new Error('Unable to fetch token balances.');
+    }
   }
 
   async getNFTsFromAccount(input: {
@@ -115,6 +216,27 @@ export class HeliusService {
       throw new Error('Unable to fetch transactions');
     }
   }
+
+  async getPrice(mintAddress: string) {
+    try {
+      if (StableCoin.check(mintAddress)) {
+        return 1;
+      }
+
+      const response = await axios.get(
+        `https://api.jup.ag/price/v2?ids=${mintAddress}`
+      );
+
+      const price = response.data.data[mintAddress]?.price;
+
+      if (!price) return undefined;
+
+      return Number(price);
+    } catch (error) {
+      Logger.error(error.message, error.stack, 'PriceService.getPrice');
+      throw error;
+    }
+  }
 }
 
 interface Transaction {
@@ -152,3 +274,7 @@ export interface TokenInfo {
     };
   };
 }
+
+const getDisplayDecimalAmountFromAsset = (amount: number, decimals: number) => {
+  return amount / Math.pow(10, decimals);
+};
