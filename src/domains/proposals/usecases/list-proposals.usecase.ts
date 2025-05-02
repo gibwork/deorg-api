@@ -25,13 +25,65 @@ export class ListProposalsUsecase {
     });
 
     const programProposals =
-      await this.votingProgramService.getOrganizationProposals(
+      (await this.votingProgramService.getOrganizationProposals(
         organization.accountAddress
-      );
+      )) || [];
 
-    return {
-      proposals,
-      programProposals
-    };
+    // Create a map of program proposals by their address for quick lookup
+    const programProposalsMap = new Map(
+      programProposals.map((proposal) => [proposal.proposalAddress, proposal])
+    );
+
+    // Merge proposals and programProposals
+    const mergedProposals = proposals.map((proposal) => {
+      const programProposal = programProposalsMap.get(proposal.accountAddress);
+      return {
+        ...proposal,
+        ...(programProposal && {
+          programProposal: {
+            proposalAddress: programProposal.proposalAddress,
+            organization: programProposal.organization,
+            candidate: programProposal.candidate,
+            proposer: programProposal.proposer,
+            proposedRate: programProposal.proposedRate,
+            createdAt: programProposal.createdAt,
+            expiresAt: programProposal.expiresAt,
+            votesFor: programProposal.votesFor,
+            votesAgainst: programProposal.votesAgainst,
+            votesTotal: programProposal.votesTotal,
+            status: programProposal.status
+          }
+        })
+      };
+    });
+
+    // Add any program proposals that don't have a matching database proposal
+    const unmatchedProgramProposals = programProposals.filter(
+      (programProposal) =>
+        !proposals.some(
+          (p) => p.accountAddress === programProposal.proposalAddress
+        )
+    );
+
+    const finalProposals = [
+      ...mergedProposals,
+      ...unmatchedProgramProposals.map((programProposal) => ({
+        programProposal: {
+          proposalAddress: programProposal.proposalAddress,
+          organization: programProposal.organization,
+          candidate: programProposal.candidate,
+          proposer: programProposal.proposer,
+          proposedRate: programProposal.proposedRate,
+          createdAt: programProposal.createdAt,
+          expiresAt: programProposal.expiresAt,
+          votesFor: programProposal.votesFor,
+          votesAgainst: programProposal.votesAgainst,
+          votesTotal: programProposal.votesTotal,
+          status: programProposal.status
+        }
+      }))
+    ];
+
+    return finalProposals;
   }
 }

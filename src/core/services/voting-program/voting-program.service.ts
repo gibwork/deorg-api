@@ -354,15 +354,10 @@ export class VotingProgramService {
           organizationAccount
         );
 
-        // First try to search using direct filters that match the PDA structure
-        const programID = new PublicKey(
-          'BwbgqNkBWiSWxryLycL3wPv7MijCE4XEjrtvKCQxVaxj'
-        );
-
         console.log('Getting all program accounts without filters...');
         // Due to Base58 encoding issues, we'll fetch all accounts and filter client-side
         const allProgramAccounts = await connection.getProgramAccounts(
-          programID,
+          this.PROGRAM_ID,
           {
             commitment: 'confirmed'
           }
@@ -477,9 +472,6 @@ export class VotingProgramService {
     candidateWallet: string,
     proposerWallet: string
   ) {
-    const PROGRAM_ID = new PublicKey(
-      'BwbgqNkBWiSWxryLycL3wPv7MijCE4XEjrtvKCQxVaxj'
-    );
     const propoerRate = 100;
     const connection: any = new Connection(this.heliusService.devnetRpcUrl);
 
@@ -509,7 +501,7 @@ export class VotingProgramService {
         organization.toBuffer(),
         candidate.toBuffer()
       ],
-      PROGRAM_ID
+      this.PROGRAM_ID
     );
 
     // Create instruction data
@@ -526,7 +518,7 @@ export class VotingProgramService {
         organization.toBuffer(),
         candidate.toBuffer()
       ],
-      PROGRAM_ID
+      this.PROGRAM_ID
     );
 
     console.log('Contributor PDA:', contributorPDA.toString());
@@ -546,7 +538,7 @@ export class VotingProgramService {
         { pubkey: proposerTokenAccount, isSigner: false, isWritable: false },
         { pubkey: SystemProgram.programId, isSigner: false, isWritable: false }
       ],
-      programId: PROGRAM_ID,
+      programId: this.PROGRAM_ID,
       data
     });
 

@@ -21,6 +21,9 @@ export class ProposalEntity {
   description: string;
 
   @Column()
+  accountAddress: string;
+
+  @Column()
   organizationId: string;
 
   @Column()
