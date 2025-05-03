@@ -234,10 +234,6 @@ export class VotingProgramService {
     console.log('Contributor PDA:', contributorPDA.toString());
 
     const instruction = program.instruction.proposeContributor(
-      organization,
-      candidate,
-      proposerTokenAccount,
-      contributorPDA,
       new BN(propoerRate),
       {
         accounts: {
