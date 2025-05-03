@@ -18,13 +18,13 @@ export class SigninUseCase {
     const message = `Please sign this message to verify your identity: ${dto.publicKey}`;
     const encodedMessage = new TextEncoder().encode(message);
 
-    // const verified = this.walletSignature.verify({
-    //   message: encodedMessage,
-    //   publicKey: dto.publicKey,
-    //   signature: dto.signature
-    // });
+    const verified = this.walletSignature.verify({
+      message: encodedMessage,
+      publicKey: dto.publicKey,
+      signature: dto.signature
+    });
 
-    // if (!verified) throw new UnauthorizedException('Invalid signature');
+    if (!verified) throw new UnauthorizedException('Invalid signature');
 
     const user = await this.userService.findOne({
       where: { walletAddress: dto.publicKey }
