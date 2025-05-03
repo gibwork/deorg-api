@@ -6,6 +6,6 @@ export class GetUserInfoUsecase {
   constructor(private readonly userService: UserService) {}
 
   async execute(userId: string) {
-    return this.userService.findOne({ where: { id: userId } });
+    return this.userService.findOne({ where: { externalId: userId } });
   }
 }
