@@ -8,7 +8,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ListOrganizationsUsecase } from '../usecases/list-organizations.usecase';
 import { JoinOrganizationUsecase } from '../usecases/join-organization.usecase';
 import { GetOrganizationDetailsUsecase } from '../usecases/get-organization-details.usecase';
-
+import { CheckOrganizationMembershipUsecase } from '../usecases/check-organization-membership.usecase';
 @Controller('organizations')
 @ApiTags('Organizations')
 export class OrganizationController {
@@ -16,7 +16,8 @@ export class OrganizationController {
     private readonly createOrganizationUsecase: CreateOrganizationUsecase,
     private readonly listOrganizationsUsecase: ListOrganizationsUsecase,
     private readonly joinOrganizationUsecase: JoinOrganizationUsecase,
-    private readonly getOrganizationDetailsUsecase: GetOrganizationDetailsUsecase
+    private readonly getOrganizationDetailsUsecase: GetOrganizationDetailsUsecase,
+    private readonly checkMembershipUsecase: CheckOrganizationMembershipUsecase
   ) {}
 
   @Get()
@@ -27,6 +28,16 @@ export class OrganizationController {
   @Get(':id')
   async getOrganization(@Param('id') id: string) {
     return this.getOrganizationDetailsUsecase.execute(id);
+  }
+
+  @Get(':id/check-membership')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  async checkMembership(
+    @Param('id') id: string,
+    @UserDecorator() user: UserEntity
+  ) {
+    return this.checkMembershipUsecase.execute(id, user);
   }
 
   @Post()

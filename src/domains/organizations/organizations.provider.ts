@@ -8,6 +8,7 @@ import { JoinOrganizationUsecase } from './usecases/join-organization.usecase';
 import { OrganizationMemberService } from './services/organization-member.service';
 import { OrganizationMemberRepository } from './repositories/organization-member.repository';
 import { GetOrganizationDetailsUsecase } from './usecases/get-organization-details.usecase';
+import { CheckOrganizationMembershipUsecase } from './usecases/check-organization-membership.usecase';
 
 export const OrganizationsProvider: ModuleMetadata = {
   controllers: [OrganizationController],
@@ -19,6 +20,7 @@ export const OrganizationsProvider: ModuleMetadata = {
     CreateOrganizationUsecase,
     ListOrganizationsUsecase,
     JoinOrganizationUsecase,
-    GetOrganizationDetailsUsecase
+    GetOrganizationDetailsUsecase,
+    CheckOrganizationMembershipUsecase
   ]
 };

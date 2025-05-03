@@ -6,19 +6,27 @@ import { AuthGuard } from '@core/guards/auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { UserEntity } from '../entities/user.entity';
 import { GetUserBalanceUseCase } from '../usecases/get-user-balance.usecase';
-
+import { GetUserOrganizationsUsecase } from '../usecases/get-user-organizations.usecase';
 @Controller('users')
 export class UsersController {
   constructor(
     private readonly getUserInfoUsecase: GetUserInfoUsecase,
-    private readonly getUserBalanceUseCase: GetUserBalanceUseCase
+    private readonly getUserBalanceUseCase: GetUserBalanceUseCase,
+    private readonly getUserOrganizationsUsecase: GetUserOrganizationsUsecase
   ) {}
 
-  @Get(`info`)
+  @Get('info')
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard)
   async getUserInfo(@Param('id') id: string) {
     return this.getUserInfoUsecase.execute(id);
+  }
+
+  @Get('organizations')
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard)
+  async getUserOrganizations(@UserDecorator() user: UserEntity) {
+    return this.getUserOrganizationsUsecase.execute(user.id);
   }
 
   @Get('/balance')
