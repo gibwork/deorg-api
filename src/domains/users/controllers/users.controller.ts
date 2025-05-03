@@ -20,7 +20,6 @@ export class UsersController {
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard)
   async getUserInfo(@UserDecorator() user: User) {
-    console.log('user', user);
     return this.getUserInfoUsecase.execute(user.externalId);
   }
 
