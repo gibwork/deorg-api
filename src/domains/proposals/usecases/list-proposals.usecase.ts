@@ -80,6 +80,9 @@ export class ListProposalsUsecase {
       }))
     ];
 
-    return finalProposals;
+    return finalProposals.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
   }
 }
