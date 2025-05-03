@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { GetUserInfoUsecase } from '../usecases/get-user-info.usecase';
 import { Network } from '@utils/network';
 import { UserDecorator } from '@core/decorators/user.decorator';
@@ -7,6 +7,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { UserEntity } from '../entities/user.entity';
 import { GetUserBalanceUseCase } from '../usecases/get-user-balance.usecase';
 import { GetUserOrganizationsUsecase } from '../usecases/get-user-organizations.usecase';
+import { User } from '@core/decorators/types';
 @Controller('users')
 export class UsersController {
   constructor(
@@ -18,8 +19,9 @@ export class UsersController {
   @Get('info')
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard)
-  async getUserInfo(@Param('id') id: string) {
-    return this.getUserInfoUsecase.execute(id);
+  async getUserInfo(@UserDecorator() user: User) {
+    console.log('user', user);
+    return this.getUserInfoUsecase.execute(user.externalId);
   }
 
   @Get('organizations')
