@@ -1,9 +1,4 @@
-import {
-  Connection,
-  PublicKey,
-  SystemProgram,
-  TransactionInstruction
-} from '@solana/web3.js';
+import { Connection, PublicKey, SystemProgram } from '@solana/web3.js';
 import { HeliusService } from '../helius/helius.service';
 import BN from 'bn.js';
 import { Injectable } from '@nestjs/common';
@@ -14,7 +9,7 @@ import { CreateOrganizationDto, Proposal } from './types';
 
 @Injectable()
 export class VotingProgramService {
-  PROGRAM_ID = new PublicKey('o7S2AKHnDyx7nPqoTu4LRKFUf1xPWfrovTgEMqyLoFT');
+  PROGRAM_ID = new PublicKey(idl.address);
 
   constructor(private readonly heliusService: HeliusService) {}
 
@@ -231,8 +226,6 @@ export class VotingProgramService {
       this.PROGRAM_ID
     );
 
-    console.log('Contributor PDA:', contributorPDA.toString());
-
     const instruction = program.instruction.proposeContributor(
       new BN(propoerRate),
       {
@@ -260,13 +253,17 @@ export class VotingProgramService {
     vote: boolean;
     proposerWallet: string;
   }) {
+    const connection: any = new Connection(this.heliusService.devnetRpcUrl);
+    const program = new anchor.Program<GibworkVotingProgram>(
+      idl as GibworkVotingProgram,
+      connection
+    );
+
     const organization = new PublicKey(params.organizationAddress);
     const proposal = new PublicKey(params.proposalAddress);
     const tokenMint = new PublicKey(
       'Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'
     );
-
-    const connection: any = new Connection(this.heliusService.devnetRpcUrl);
 
     const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
       new PublicKey(params.proposerWallet),
@@ -279,16 +276,6 @@ export class VotingProgramService {
 
     const voterTokenAccount = tokenAccounts.value[0].pubkey;
 
-    // Create instruction data
-    // Anchor discriminator for voteOnContributorProposal is [103, 215, 229, 85, 252, 164, 113, 142]
-    const discriminator = Buffer.from([103, 215, 229, 85, 252, 164, 113, 142]);
-
-    // Create a buffer for the vote boolean
-    const voteBuffer = Buffer.alloc(1);
-    voteBuffer.writeUInt8(params.vote ? 1 : 0, 0);
-
-    const data = Buffer.concat([discriminator, voteBuffer]);
-
     // Calculate PDA for the contributor account that will be created/updated
     const [contributorPDA] = await PublicKey.findProgramAddress(
       [
@@ -300,178 +287,23 @@ export class VotingProgramService {
       this.PROGRAM_ID
     );
 
-    console.log('Contributor PDA:', contributorPDA.toString());
-
-    // Create instruction
-    const instruction = new TransactionInstruction({
-      keys: [
-        {
-          pubkey: new PublicKey(params.proposerWallet),
-          isSigner: true,
-          isWritable: true
-        },
-        { pubkey: organization, isSigner: false, isWritable: true },
-        { pubkey: proposal, isSigner: false, isWritable: true },
-        { pubkey: contributorPDA, isSigner: false, isWritable: true },
-        { pubkey: voterTokenAccount, isSigner: false, isWritable: false },
-        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false }
-      ],
-      programId: this.PROGRAM_ID,
-      data
-    });
+    const instruction = program.instruction.voteOnContributorProposal(
+      new BN(params.vote ? 1 : 0),
+      {
+        accounts: {
+          organization,
+          proposal,
+          contributor: contributorPDA,
+          voterTokenAccount,
+          systemProgram: SystemProgram.programId,
+          voter: new PublicKey(params.proposerWallet)
+        }
+      }
+    );
 
     return {
       instruction,
       contributorPDA
-    };
-  }
-}
-
-function serializeBN(bn: BN, byteLength: number): Buffer {
-  const buf = Buffer.alloc(byteLength);
-  const arr = bn.toArray().reverse();
-  arr.forEach((value: number, index: number) => {
-    if (index < byteLength) {
-      buf.writeUInt8(value, index);
-    }
-  });
-  return buf;
-}
-
-/**
- * Parse contributor proposal account data
- */
-export function parseContributorProposalData(
-  data: Buffer,
-  pubkey: PublicKey
-): any {
-  try {
-    // Skip the 8-byte discriminator
-    if (data.length < 8) {
-      throw new Error('Account data too short');
-    }
-
-    const dataBuffer = data.slice(8);
-
-    // Expected contributor proposal structure:
-    // - 32 bytes organization pubkey
-    // - 32 bytes candidate pubkey
-    // - 32 bytes proposer pubkey
-    // - 8 bytes proposed_rate (u64)
-    // - 8 bytes created_at (i64)
-    // - 8 bytes expires_at (i64)
-    // - 1 byte votes_for (u8)
-    // - 1 byte votes_against (u8)
-    // - 1 byte status
-    // - 4 bytes voters array length + N * 32 bytes voters
-
-    if (dataBuffer.length < 32 + 32 + 32 + 8 + 8 + 8 + 1 + 1 + 1 + 4) {
-      throw new Error('Account data too short for contributor proposal');
-    }
-
-    let offset = 0;
-
-    // Extract organization (32 bytes)
-    const organization = new PublicKey(dataBuffer.slice(offset, offset + 32));
-    offset += 32;
-
-    // Extract candidate (32 bytes)
-    const candidate = new PublicKey(dataBuffer.slice(offset, offset + 32));
-    offset += 32;
-
-    // Extract proposer (32 bytes)
-    const proposer = new PublicKey(dataBuffer.slice(offset, offset + 32));
-    offset += 32;
-
-    // Extract proposed_rate (8 bytes)
-    const proposedRate = dataBuffer.readBigUInt64LE(offset);
-    offset += 8;
-
-    // Extract created_at (8 bytes)
-    const createdAt = dataBuffer.readBigInt64LE(offset);
-    offset += 8;
-
-    // Extract expires_at (8 bytes)
-    const expiresAt = dataBuffer.readBigInt64LE(offset);
-    offset += 8;
-
-    // Extract votes_for (1 byte)
-    const votesFor = dataBuffer.readUInt8(offset);
-    offset += 1;
-
-    // Extract votes_against (1 byte)
-    const votesAgainst = dataBuffer.readUInt8(offset);
-    offset += 1;
-
-    // Extract status (1 byte)
-    const statusValue = dataBuffer.readUInt8(offset);
-    offset += 1;
-
-    // Map status value to string
-    let status: 'Active' | 'Approved' | 'Rejected' | 'Expired';
-    switch (statusValue) {
-      case 0:
-        status = 'Active';
-        break;
-      case 1:
-        status = 'Approved';
-        break;
-      case 2:
-        status = 'Rejected';
-        break;
-      case 3:
-        status = 'Expired';
-        break;
-      default:
-        status = 'Active'; // Default to Active if unknown
-    }
-
-    // Extract voters
-    const votersLength = dataBuffer.readUInt32LE(offset);
-    offset += 4;
-
-    // Validate voters length is reasonable
-    if (votersLength > 1000 || offset + votersLength * 32 > dataBuffer.length) {
-      throw new Error(`Invalid voters length: ${votersLength}`);
-    }
-
-    const voters: PublicKey[] = [];
-    for (let i = 0; i < votersLength; i++) {
-      const voterPubkey = new PublicKey(dataBuffer.slice(offset, offset + 32));
-      voters.push(voterPubkey);
-      offset += 32;
-    }
-
-    // Return the parsed data
-    return {
-      proposalAddress: pubkey,
-      organization,
-      candidate,
-      proposer,
-      proposedRate,
-      createdAt,
-      expiresAt,
-      votesFor,
-      votesAgainst,
-      status,
-      voters
-    };
-  } catch (error) {
-    console.error('Error parsing contributor proposal data:', error);
-
-    // Return a default object with the pubkey
-    return {
-      proposalAddress: pubkey,
-      organization: PublicKey.default,
-      candidate: PublicKey.default,
-      proposer: PublicKey.default,
-      proposedRate: BigInt(0),
-      createdAt: BigInt(0),
-      expiresAt: BigInt(0),
-      votesFor: 0,
-      votesAgainst: 0,
-      status: 'Active',
-      voters: []
     };
   }
 }
