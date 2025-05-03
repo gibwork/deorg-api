@@ -79,6 +79,7 @@ export class VoteProposalUsecase {
         response: { txHash: signature }
       });
     } catch (error) {
+      console.log(error);
       throw new BadRequestException('Failed to send transaction');
     }
 

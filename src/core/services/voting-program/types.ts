@@ -1,6 +1,12 @@
 import { PublicKey } from '@solana/web3.js';
 
+export enum ProposalType {
+  CONTRIBUTOR = 'CONTRIBUTOR',
+  PROJECT = 'PROJECT'
+}
+
 export type Proposal = {
+  type: ProposalType;
   proposalAddress: string;
   organization: string;
   candidate: string;

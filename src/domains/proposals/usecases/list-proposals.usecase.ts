@@ -40,6 +40,7 @@ export class ListProposalsUsecase {
       return {
         ...proposal,
         ...(programProposal && {
+          type: programProposal.type,
           proposalAddress: programProposal.proposalAddress,
           organization: programProposal.organization,
           candidate: programProposal.candidate,
@@ -66,6 +67,7 @@ export class ListProposalsUsecase {
     const finalProposals = [
       ...mergedProposals,
       ...unmatchedProgramProposals.map((programProposal) => ({
+        type: programProposal.type,
         proposalAddress: programProposal.proposalAddress,
         organization: programProposal.organization,
         candidate: programProposal.candidate,

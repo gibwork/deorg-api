@@ -12,7 +12,11 @@ import { VoteProposalDto } from '../dto/vote-proposal.dto';
 import { HeliusService } from '@core/services/helius/helius.service';
 import { TransactionService } from '../services/transaction.service';
 import { TransactionType } from '../entities/transaction.entity';
-
+import {
+  ProposalEntity,
+  ProposalType
+} from '@domains/proposals/entities/proposal.entity';
+import { UserEntity } from '@domains/users/entities/user.entity';
 @Injectable()
 export class CreateVoteProposalUseCase {
   constructor(
@@ -70,19 +74,21 @@ export class CreateVoteProposalUseCase {
       );
     }
 
-    const { instruction } = await this.votingProgramService.voteProposal({
-      organizationAddress: proposal.organization.accountAddress!,
-      proposalAddress: proposal.accountAddress,
-      proposerWallet: user.walletAddress,
-      vote: dto.vote
-    });
+    const { instruction } = await this.createTransaction(
+      proposal,
+      user,
+      dto.vote
+    );
 
     const transaction = await this.transactionService.create({
-      type: TransactionType.VOTE_CONTRIBUTOR_PROPOSAL,
+      type:
+        proposal.type === ProposalType.CONTRIBUTOR
+          ? TransactionType.VOTE_CONTRIBUTOR_PROPOSAL
+          : TransactionType.VOTE_PROJECT_PROPOSAL,
       createdBy: user.id,
       request: {
-        title: `Vote on ${proposal.organization.name} contributor proposal`,
-        description: 'Vote on a contributor proposal',
+        title: `Vote on ${proposal.organization.name} ${proposal.type === ProposalType.CONTRIBUTOR ? 'contributor' : 'project'} proposal`,
+        description: `Vote on ${proposal.organization.name} ${proposal.type === ProposalType.CONTRIBUTOR ? 'contributor' : 'project'} proposal`,
         organizationId,
         proposalId,
         createdBy: user.id,
@@ -101,5 +107,36 @@ export class CreateVoteProposalUseCase {
         .toString('base64'),
       transactionId: transaction.id
     };
+  }
+
+  private async createTransaction(
+    proposal: ProposalEntity,
+    user: UserEntity,
+    vote: boolean
+  ) {
+    if (proposal.type === ProposalType.PROJECT) {
+      const { instruction } =
+        await this.votingProgramService.voteProjectProposal({
+          organizationAddress: proposal.organization.accountAddress!,
+          proposalAddress: proposal.accountAddress,
+          proposerWallet: user.walletAddress,
+          vote
+        });
+
+      return {
+        instruction
+      };
+    } else {
+      const { instruction } = await this.votingProgramService.voteProposal({
+        organizationAddress: proposal.organization.accountAddress!,
+        proposalAddress: proposal.accountAddress,
+        proposerWallet: user.walletAddress,
+        vote
+      });
+
+      return {
+        instruction
+      };
+    }
   }
 }

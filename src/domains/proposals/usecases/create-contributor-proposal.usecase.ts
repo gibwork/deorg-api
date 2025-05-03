@@ -13,7 +13,7 @@ import { UserService } from '@domains/users/services/user.service';
 import { ClerkService } from '@core/services/clerk/clerk.service';
 import { OrganizationRole } from '@domains/organizations/entities/organization-member.entity';
 import { OrganizationMemberService } from '@domains/organizations/services/organization-member.service';
-
+import { ProposalType } from '@domains/proposals/entities/proposal.entity';
 @Injectable()
 export class CreateContributorProposalUsecase {
   constructor(
@@ -102,7 +102,8 @@ export class CreateContributorProposalUsecase {
       title: `Propose ${transaction.request['candidateWallet']} as a contributor`,
       description: `Propose ${transaction.request['candidateWallet']} as a contributor to the organization ${organization.name}`,
       accountAddress: transaction.request['proposalPDA'],
-      createdBy: transaction.createdBy
+      createdBy: transaction.createdBy,
+      type: ProposalType.CONTRIBUTOR
     });
 
     const userWallet = transaction.request['candidateWallet'];

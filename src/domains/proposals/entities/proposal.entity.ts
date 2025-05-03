@@ -9,6 +9,11 @@ import {
 } from 'typeorm';
 import { OrganizationEntity } from '@domains/organizations/entities/organization.entity';
 
+export enum ProposalType {
+  CONTRIBUTOR = 'CONTRIBUTOR',
+  PROJECT = 'PROJECT'
+}
+
 @Entity('proposals')
 export class ProposalEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -28,6 +33,13 @@ export class ProposalEntity {
 
   @Column()
   createdBy: string;
+
+  @Column({
+    type: 'enum',
+    enum: ProposalType,
+    default: ProposalType.CONTRIBUTOR
+  })
+  type: ProposalType;
 
   @ManyToOne(() => OrganizationEntity, (organization) => organization.proposals)
   organization: OrganizationEntity;

@@ -9,12 +9,14 @@ import { HeliusService } from '@core/services/helius/helius.service';
 import { TransactionService } from '@domains/transactions/services/transaction.service';
 import { Connection, Transaction } from '@solana/web3.js';
 import { UserEntity } from '@domains/users/entities/user.entity';
-
+import { ProposalService } from '@domains/proposals/services/proposal.service';
+import { ProposalType } from '@domains/proposals/entities/proposal.entity';
 @Injectable()
 export class CreateProjectUsecase {
   constructor(
     private readonly transactionService: TransactionService,
-    private readonly heliusService: HeliusService
+    private readonly heliusService: HeliusService,
+    private readonly proposalService: ProposalService
   ) {}
 
   private connection = new Connection(this.heliusService.devnetRpcUrl);
@@ -77,6 +79,15 @@ export class CreateProjectUsecase {
         `Failed to process transaction: ${error.message}`
       );
     }
+
+    await this.proposalService.create({
+      title: `Propose to create project ${transaction.request.name}`,
+      accountAddress: transaction.request.proposalPDA,
+      description: `Propose to create project ${transaction.request.name}`,
+      organizationId: transaction.request.organizationId,
+      createdBy: user.id,
+      type: ProposalType.PROJECT
+    });
 
     return {
       ok: true
