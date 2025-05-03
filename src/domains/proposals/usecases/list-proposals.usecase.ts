@@ -68,19 +68,17 @@ export class ListProposalsUsecase {
     const finalProposals = [
       ...mergedProposals,
       ...unmatchedProgramProposals.map((programProposal) => ({
-        programProposal: {
-          proposalAddress: programProposal.proposalAddress,
-          organization: programProposal.organization,
-          candidate: programProposal.candidate,
-          proposer: programProposal.proposer,
-          proposedRate: programProposal.proposedRate,
-          createdAt: programProposal.createdAt,
-          expiresAt: programProposal.expiresAt,
-          votesFor: programProposal.votesFor,
-          votesAgainst: programProposal.votesAgainst,
-          votesTotal: programProposal.votesTotal,
-          status: programProposal.status
-        }
+        proposalAddress: programProposal.proposalAddress,
+        organization: programProposal.organization,
+        candidate: programProposal.candidate,
+        proposer: programProposal.proposer,
+        proposedRate: programProposal.proposedRate,
+        createdAt: programProposal.createdAt,
+        expiresAt: programProposal.expiresAt,
+        votesFor: programProposal.votesFor,
+        votesAgainst: programProposal.votesAgainst,
+        votesTotal: programProposal.votesTotal,
+        status: programProposal.status
       }))
     ];
 
