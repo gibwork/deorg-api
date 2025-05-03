@@ -10,7 +10,8 @@ import { UserEntity } from '@domains/users/entities/user.entity';
 
 export enum TransactionType {
   CREATE_ORGANIZATION = 'CREATE_ORGANIZATION',
-  PROPOSAL_CONTRIBUTOR = 'PROPOSAL_CONTRIBUTOR'
+  PROPOSAL_CONTRIBUTOR = 'PROPOSAL_CONTRIBUTOR',
+  VOTE_CONTRIBUTOR_PROPOSAL = 'VOTE_CONTRIBUTOR_PROPOSAL'
 }
 
 @Entity('transactions')
