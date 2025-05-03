@@ -120,6 +120,26 @@ export type GibworkVotingProgram = {
           };
         },
         {
+          name: 'creatorContributor';
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                value: [99, 111, 110, 116, 114, 105, 98, 117, 116, 111, 114];
+              },
+              {
+                kind: 'account';
+                path: 'organization';
+              },
+              {
+                kind: 'account';
+                path: 'creator';
+              }
+            ];
+          };
+        },
+        {
           name: 'tokenMint';
         },
         {
@@ -180,6 +200,10 @@ export type GibworkVotingProgram = {
         {
           name: 'treasuryTransferQuorumPercentage';
           type: 'u8';
+        },
+        {
+          name: 'creatorRate';
+          type: 'u64';
         }
       ];
     },

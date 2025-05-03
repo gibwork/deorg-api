@@ -36,6 +36,15 @@ export class VotingProgramService {
     );
     console.log('organizationPDA', organizationPDA.toString());
 
+    const [creatorContributorPDA] = await PublicKey.findProgramAddress(
+      [
+        Buffer.from('contributor'),
+        organizationPDA.toBuffer(),
+        walletPublicKey.toBuffer()
+      ],
+      this.PROGRAM_ID
+    );
+
     const tokenMint = new PublicKey(
       'Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'
     );
@@ -59,10 +68,12 @@ export class VotingProgramService {
       dto.treasuryTransferThresholdPercentage || 70,
       new BN((dto.treasuryTransferProposalValidityPeriod || 14) * 24 * 60 * 60),
       dto.treasuryTransferQuorumPercentage || 40,
+      new BN(100),
       {
         accounts: {
           creator: walletPublicKey,
           organization: organizationPDA,
+          creatorContributor: creatorContributorPDA,
           tokenMint: tokenMint,
           creatorTokenAccount: creatorTokenAccount,
           systemProgram: SystemProgram.programId
@@ -306,6 +317,22 @@ export class VotingProgramService {
       contributorPDA
     };
   }
+
+  // async createProjectProposal() {
+  //   const connection: any = new Connection(this.heliusService.devnetRpcUrl);
+  //   const program = new anchor.Program<GibworkVotingProgram>(
+  //     idl as GibworkVotingProgram,
+  //     connection
+  //   );
+
+  //   const instruction = program.instruction.proposeProject(
+  //     new BN(100),
+  //     {
+  //       accounts: {
+  //         organization,
+  //       }
+  //     }
+  // }
 }
 
 /**

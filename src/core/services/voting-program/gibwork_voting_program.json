@@ -37,12 +37,10 @@
           "writable": true
         },
         {
-          "name": "assignee_token_account",
-          "writable": true
+          "name": "assignee_token_account"
         },
         {
-          "name": "vault_token_account",
-          "writable": true
+          "name": "vault_token_account"
         },
         {
           "name": "vault_authority",
@@ -134,6 +132,38 @@
           }
         },
         {
+          "name": "creator_contributor",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  116,
+                  114,
+                  105,
+                  98,
+                  117,
+                  116,
+                  111,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "organization"
+              },
+              {
+                "kind": "account",
+                "path": "creator"
+              }
+            ]
+          }
+        },
+        {
           "name": "token_mint"
         },
         {
@@ -197,6 +227,10 @@
         {
           "name": "treasury_transfer_quorum_percentage",
           "type": "u8"
+        },
+        {
+          "name": "creator_rate",
+          "type": "u64"
         }
       ]
     },
@@ -804,52 +838,6 @@
         {
           "name": "rent",
           "address": "SysvarRent111111111111111111111111111111111"
-        }
-      ],
-      "args": []
-    },
-    {
-      "name": "withdraw_task_funds",
-      "discriminator": [
-        186,
-        41,
-        159,
-        218,
-        61,
-        79,
-        95,
-        193
-      ],
-      "accounts": [
-        {
-          "name": "assignee",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "project"
-        },
-        {
-          "name": "task"
-        },
-        {
-          "name": "task_vault",
-          "writable": true
-        },
-        {
-          "name": "assignee_token_account",
-          "writable": true
-        },
-        {
-          "name": "vault_token_account",
-          "writable": true
-        },
-        {
-          "name": "vault_authority"
-        },
-        {
-          "name": "token_program",
-          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         }
       ],
       "args": []
@@ -1700,6 +1688,15 @@
           "writable": true
         },
         {
+          "name": "linked_task",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "project",
+          "optional": true
+        },
+        {
           "name": "voter_token_account"
         },
         {
@@ -1745,12 +1742,115 @@
           "writable": true
         },
         {
+          "name": "token_mint"
+        },
+        {
+          "name": "task_vault",
+          "writable": true,
+          "optional": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  97,
+                  115,
+                  107,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "linked_task"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault_token_account",
+          "writable": true,
+          "optional": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "linked_task"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "linked_task"
+              }
+            ]
+          }
+        },
+        {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
         },
         {
           "name": "token_program",
           "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "rent",
+          "address": "SysvarRent111111111111111111111111111111111"
         }
       ],
       "args": [
@@ -1881,12 +1981,113 @@
           "writable": true
         },
         {
+          "name": "token_mint"
+        },
+        {
+          "name": "task_vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  97,
+                  115,
+                  107,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "task"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault_token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116,
+                  95,
+                  116,
+                  111,
+                  107,
+                  101,
+                  110,
+                  95,
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "task"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "task"
+              }
+            ]
+          }
+        },
+        {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
         },
         {
           "name": "token_program",
           "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "rent",
+          "address": "SysvarRent111111111111111111111111111111111"
         }
       ],
       "args": [
@@ -1895,6 +2096,80 @@
           "type": "bool"
         }
       ]
+    },
+    {
+      "name": "withdraw_task_funds",
+      "discriminator": [
+        251,
+        24,
+        140,
+        184,
+        59,
+        197,
+        66,
+        166
+      ],
+      "accounts": [
+        {
+          "name": "assignee",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "project"
+        },
+        {
+          "name": "task"
+        },
+        {
+          "name": "task_vault",
+          "writable": true
+        },
+        {
+          "name": "assignee_token_account",
+          "writable": true
+        },
+        {
+          "name": "vault_token_account",
+          "writable": true
+        },
+        {
+          "name": "vault_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "task"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
     }
   ],
   "accounts": [
@@ -2093,6 +2368,19 @@
         122,
         192,
         141
+      ]
+    },
+    {
+      "name": "TaskPaymentEvent",
+      "discriminator": [
+        114,
+        107,
+        151,
+        191,
+        73,
+        103,
+        96,
+        165
       ]
     },
     {
@@ -2411,6 +2699,16 @@
       "code": 6036,
       "name": "WithdrawalAlreadyEnabled",
       "msg": "Withdrawal already enabled for this task vault"
+    },
+    {
+      "code": 6037,
+      "name": "ReviewerCannotBeAssignee",
+      "msg": "Reviewer must not be the task assignee"
+    },
+    {
+      "code": 6038,
+      "name": "TaskNotCompleted",
+      "msg": "Task must be completed before enabling withdrawal"
     }
   ],
   "types": [
@@ -2929,6 +3227,38 @@
       }
     },
     {
+      "name": "TaskPaymentEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "project",
+            "type": "pubkey"
+          },
+          {
+            "name": "task",
+            "type": "pubkey"
+          },
+          {
+            "name": "assignee",
+            "type": "pubkey"
+          },
+          {
+            "name": "payment_amount",
+            "type": "u64"
+          },
+          {
+            "name": "token_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
       "name": "TaskStatus",
       "type": {
         "kind": "enum",
@@ -3070,6 +3400,10 @@
           },
           {
             "name": "assignee",
+            "type": "pubkey"
+          },
+          {
+            "name": "reviewer",
             "type": "pubkey"
           },
           {
