@@ -6,6 +6,8 @@ export class ListOrganizationsUsecase {
   constructor(private readonly organizationService: OrganizationService) {}
 
   async execute() {
-    return this.organizationService.find({});
+    return this.organizationService.find({
+      relations: { members: true }
+    });
   }
 }
