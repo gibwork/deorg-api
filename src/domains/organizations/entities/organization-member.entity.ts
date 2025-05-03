@@ -10,7 +10,8 @@ import { UserEntity } from '@domains/users/entities/user.entity';
 import { plainToInstance } from 'class-transformer';
 export enum OrganizationRole {
   ADMIN = 'ADMIN',
-  MEMBER = 'MEMBER'
+  MEMBER = 'MEMBER',
+  CONTRIBUTOR = 'CONTRIBUTOR'
 }
 
 @Entity('organization_members')

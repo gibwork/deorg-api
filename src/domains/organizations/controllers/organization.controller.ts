@@ -9,6 +9,8 @@ import { ListOrganizationsUsecase } from '../usecases/list-organizations.usecase
 import { JoinOrganizationUsecase } from '../usecases/join-organization.usecase';
 import { GetOrganizationDetailsUsecase } from '../usecases/get-organization-details.usecase';
 import { CheckOrganizationMembershipUsecase } from '../usecases/check-organization-membership.usecase';
+import { GetOrganizationMembersUseCase } from '../usecases/get-organization-members.use-case';
+
 @Controller('organizations')
 @ApiTags('Organizations')
 export class OrganizationController {
@@ -17,7 +19,8 @@ export class OrganizationController {
     private readonly listOrganizationsUsecase: ListOrganizationsUsecase,
     private readonly joinOrganizationUsecase: JoinOrganizationUsecase,
     private readonly getOrganizationDetailsUsecase: GetOrganizationDetailsUsecase,
-    private readonly checkMembershipUsecase: CheckOrganizationMembershipUsecase
+    private readonly checkMembershipUsecase: CheckOrganizationMembershipUsecase,
+    private readonly getOrganizationMembersUseCase: GetOrganizationMembersUseCase
   ) {}
 
   @Get()
@@ -28,6 +31,11 @@ export class OrganizationController {
   @Get(':id')
   async getOrganization(@Param('id') id: string) {
     return this.getOrganizationDetailsUsecase.execute(id);
+  }
+
+  @Get(':id/members')
+  async getOrganizationMembers(@Param('id') organizationId: string) {
+    return this.getOrganizationMembersUseCase.execute(organizationId);
   }
 
   @Get(':id/check-membership')
