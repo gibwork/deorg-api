@@ -8,7 +8,7 @@ export class GetOrganizationDetailsUsecase {
   async execute(id: string) {
     return this.organizationService.findOne({
       where: { id },
-      relations: { members: true }
+      relations: { members: { user: true } }
     });
   }
 }

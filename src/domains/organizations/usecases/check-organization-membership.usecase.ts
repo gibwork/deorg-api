@@ -14,7 +14,7 @@ export class CheckOrganizationMembershipUsecase {
   async execute(organizationId: string, user: UserEntity) {
     const organization = await this.organizationService.findOne({
       where: { id: organizationId },
-      relations: { members: true }
+      relations: { members: { user: true } }
     });
 
     if (!organization) {

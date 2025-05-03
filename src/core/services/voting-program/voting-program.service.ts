@@ -26,7 +26,7 @@ type CreateOrganizationDto = {
 
 @Injectable()
 export class VotingProgramService {
-  PROGRAM_ID = new PublicKey('J71VLY6cxH9G9WA5Z1W3mhqMpVVx65vvCYtixegTUKG4');
+  PROGRAM_ID = new PublicKey('o7S2AKHnDyx7nPqoTu4LRKFUf1xPWfrovTgEMqyLoFT');
   constructor(private readonly heliusService: HeliusService) {}
 
   async createOrganization(dto: CreateOrganizationDto) {

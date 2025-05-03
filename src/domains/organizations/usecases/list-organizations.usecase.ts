@@ -7,7 +7,7 @@ export class ListOrganizationsUsecase {
 
   async execute() {
     return this.organizationService.find({
-      relations: { members: true }
+      relations: { members: { user: true } }
     });
   }
 }

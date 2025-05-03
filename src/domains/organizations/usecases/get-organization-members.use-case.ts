@@ -22,8 +22,7 @@ export class GetOrganizationMembersUseCase {
       relations: {
         members: {
           user: true
-        },
-        token: true
+        }
       }
     });
 

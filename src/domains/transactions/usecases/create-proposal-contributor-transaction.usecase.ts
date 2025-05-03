@@ -48,12 +48,6 @@ export class CreateProposalContributorTransactionUsecase {
       throw new BadRequestException('Candidate is already a contributor');
     }
 
-    console.log({
-      organization: organization.accountAddress,
-      candidate: dto.candidateWallet,
-      proposer: user.walletAddress
-    });
-
     const { instruction, proposalPDA } =
       await this.votingProgramService.createContributorProposal(
         organization.accountAddress,

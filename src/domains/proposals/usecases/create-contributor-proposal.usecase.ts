@@ -9,6 +9,10 @@ import { OrganizationService } from '@domains/organizations/services/organizatio
 import { TransactionService } from '@domains/transactions/services/transaction.service';
 import { Connection, Transaction } from '@solana/web3.js';
 import { HeliusService } from '@core/services/helius/helius.service';
+import { UserService } from '@domains/users/services/user.service';
+import { ClerkService } from '@core/services/clerk/clerk.service';
+import { OrganizationRole } from '@domains/organizations/entities/organization-member.entity';
+import { OrganizationMemberService } from '@domains/organizations/services/organization-member.service';
 
 @Injectable()
 export class CreateContributorProposalUsecase {
@@ -16,7 +20,10 @@ export class CreateContributorProposalUsecase {
     private readonly proposalService: ProposalService,
     private readonly organizationService: OrganizationService,
     private readonly transactionService: TransactionService,
-    private readonly heliusService: HeliusService
+    private readonly heliusService: HeliusService,
+    private readonly userService: UserService,
+    private readonly clerkService: ClerkService,
+    private readonly organizationMemberService: OrganizationMemberService
   ) {}
 
   private connection = new Connection(this.heliusService.devnetRpcUrl);
@@ -97,6 +104,55 @@ export class CreateContributorProposalUsecase {
       accountAddress: transaction.request['proposalPDA'],
       createdBy: transaction.createdBy
     });
+
+    const userWallet = transaction.request['candidateWallet'];
+
+    let user = await this.userService.findOne({
+      where: {
+        walletAddress: userWallet
+      }
+    });
+
+    if (!user) {
+      const existingUser = await this.clerkService.findUserByUsername(
+        userWallet.slice(0, 6).toLowerCase()
+      );
+
+      if (existingUser) {
+        user = await this.userService.create({
+          externalId: existingUser.id,
+          walletAddress: userWallet,
+          username: existingUser.username!,
+          profilePicture: existingUser.image_url
+        });
+      } else {
+        const newUser = await this.clerkService.createUser(
+          userWallet.toLowerCase()
+        );
+
+        user = await this.userService.create({
+          externalId: newUser.id,
+          walletAddress: userWallet,
+          username: newUser.username!,
+          profilePicture: newUser.imageUrl
+        });
+      }
+    }
+
+    const member = await this.organizationMemberService.findOne({
+      where: {
+        organizationId,
+        userId: user.id
+      }
+    });
+
+    if (!member) {
+      await this.organizationMemberService.create({
+        organizationId,
+        userId: user.id,
+        role: OrganizationRole.MEMBER
+      });
+    }
 
     return proposal;
   }
