@@ -36,6 +36,7 @@ export class CreateOrganizationUsecase {
 
     const transaction = await this.transactionService.findOne({
       where: {
+        id: dto.transactionId,
         createdBy: userId,
         type: TransactionType.CREATE_ORGANIZATION
       }
@@ -97,7 +98,7 @@ export class CreateOrganizationUsecase {
     );
 
     const organization = await this.organizationService.create({
-      id: transaction.response['organizationId'],
+      id: transaction.request['organizationId'],
       name: dto.name,
       externalId: clerkOrganization.id,
       slug: clerkOrganization.slug || undefined,
