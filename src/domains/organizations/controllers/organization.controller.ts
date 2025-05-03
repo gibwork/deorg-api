@@ -7,18 +7,26 @@ import { UserEntity } from '@domains/users/entities/user.entity';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ListOrganizationsUsecase } from '../usecases/list-organizations.usecase';
 import { JoinOrganizationUsecase } from '../usecases/join-organization.usecase';
+import { GetOrganizationDetailsUsecase } from '../usecases/get-organization-details.usecase';
+
 @Controller('organizations')
 @ApiTags('Organizations')
 export class OrganizationController {
   constructor(
     private readonly createOrganizationUsecase: CreateOrganizationUsecase,
     private readonly listOrganizationsUsecase: ListOrganizationsUsecase,
-    private readonly joinOrganizationUsecase: JoinOrganizationUsecase
+    private readonly joinOrganizationUsecase: JoinOrganizationUsecase,
+    private readonly getOrganizationDetailsUsecase: GetOrganizationDetailsUsecase
   ) {}
 
   @Get()
   async listOrganizations() {
     return this.listOrganizationsUsecase.execute();
+  }
+
+  @Get(':id')
+  async getOrganization(@Param('id') id: string) {
+    return this.getOrganizationDetailsUsecase.execute(id);
   }
 
   @Post()

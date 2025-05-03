@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class DepositOrganizationDto {
@@ -64,6 +64,7 @@ export class DepositOrganizationDto {
     example: 70
   })
   @IsNumber()
+  @IsOptional()
   treasuryTransferThresholdPercentage: number;
 
   @ApiProperty({
@@ -71,6 +72,7 @@ export class DepositOrganizationDto {
     example: 14
   })
   @IsNumber()
+  @IsOptional()
   treasuryTransferProposalValidityPeriod: number;
 
   @ApiProperty({
@@ -78,5 +80,6 @@ export class DepositOrganizationDto {
     example: 40
   })
   @IsNumber()
+  @IsOptional()
   treasuryTransferQuorumPercentage: number;
 }
