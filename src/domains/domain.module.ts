@@ -8,6 +8,7 @@ import { OrganizationsProvider } from './organizations/organizations.provider';
 import { TransactionsProvider } from './transactions/transactions.provider';
 import { ProposalsProvider } from './proposals/proposal.provider';
 import { TokensProvider } from './tokens/tokens.provider';
+import { ProjectsProvider } from './projects/projects.provider';
 
 const serviceProvider = ServiceProvider.buildByProviders([
   UsersProvider,
@@ -15,7 +16,8 @@ const serviceProvider = ServiceProvider.buildByProviders([
   OrganizationsProvider,
   TransactionsProvider,
   ProposalsProvider,
-  TokensProvider
+  TokensProvider,
+  ProjectsProvider
 ]);
 serviceProvider.addImport(CoreModule);
 

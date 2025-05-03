@@ -5,7 +5,11 @@ import { Injectable } from '@nestjs/common';
 import idl from './gibwork_voting_program.json';
 import { GibworkVotingProgram } from './gibwork_voting_program';
 import * as anchor from '@coral-xyz/anchor';
-import { CreateOrganizationDto, Proposal } from './types';
+import {
+  CreateOrganizationDto,
+  CreateProjectProposalDto,
+  Proposal
+} from './types';
 
 @Injectable()
 export class VotingProgramService {
@@ -103,11 +107,6 @@ export class VotingProgramService {
         }
       }
     ]);
-
-    console.log(
-      'contributors',
-      contributors.map((contributor) => contributor.account.authority)
-    );
 
     return contributors.map((contributor) => contributor.account.authority);
   }
@@ -318,21 +317,62 @@ export class VotingProgramService {
     };
   }
 
-  // async createProjectProposal() {
-  //   const connection: any = new Connection(this.heliusService.devnetRpcUrl);
-  //   const program = new anchor.Program<GibworkVotingProgram>(
-  //     idl as GibworkVotingProgram,
-  //     connection
-  //   );
+  async createProjectProposal(dto: CreateProjectProposalDto) {
+    const connection: any = new Connection(this.heliusService.devnetRpcUrl);
+    const program = new anchor.Program<GibworkVotingProgram>(
+      idl as GibworkVotingProgram,
+      connection
+    );
 
-  //   const instruction = program.instruction.proposeProject(
-  //     new BN(100),
-  //     {
-  //       accounts: {
-  //         organization,
-  //       }
-  //     }
-  // }
+    const organization = new PublicKey(dto.organizationAddress);
+
+    // Calculate PDA for contributor proposal
+    const [proposalPDA] = await PublicKey.findProgramAddress(
+      [
+        Buffer.from('project_proposal'),
+        organization.toBuffer(),
+        Buffer.from(dto.name)
+      ],
+      this.PROGRAM_ID
+    );
+
+    const tokenMint = new PublicKey(
+      'Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'
+    );
+
+    // Find proposer token account
+    const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
+      new PublicKey(dto.proposerWallet),
+      { mint: tokenMint }
+    );
+
+    if (tokenAccounts.value.length === 0) {
+      throw new Error('No token account found for the organization token mint');
+    }
+
+    const proposerTokenAccount = tokenAccounts.value[0].pubkey;
+
+    const instruction = program.instruction.proposeProject(
+      dto.name,
+      dto.members,
+      dto.projectProposalThreshold,
+      new BN(dto.projectProposalValidityPeriod * 24 * 60 * 60),
+      {
+        accounts: {
+          organization,
+          proposal: proposalPDA,
+          proposerTokenAccount,
+          systemProgram: SystemProgram.programId,
+          proposer: new PublicKey(dto.proposerWallet)
+        }
+      }
+    );
+
+    return {
+      instruction,
+      proposalPDA
+    };
+  }
 }
 
 /**

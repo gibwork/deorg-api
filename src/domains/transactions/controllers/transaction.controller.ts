@@ -9,6 +9,8 @@ import { CreateProposalContributorTransactionUsecase } from '../usecases/create-
 import { CreateProposalContributorTransactionDto } from '../dto/create-proposal-contributor-transaction.dto';
 import { VoteProposalDto } from '../dto/vote-proposal.dto';
 import { CreateVoteProposalUseCase } from '../usecases/create-vote-proposal';
+import { CreateProposalProjectTransactionDto } from '../dto/create-proposal-project-transaction.dto';
+import { CreateProposalProjectTransactionUsecase } from '../usecases/create-proposal-project-transaction.usecase';
 
 @Controller('transactions')
 @ApiTags('Transactions')
@@ -17,7 +19,8 @@ export class TransactionController {
   constructor(
     private readonly createOrganizationTransactionsUsecase: CreateOrganizationTransactionsUsecase,
     private readonly createContributorProposalUsecase: CreateProposalContributorTransactionUsecase,
-    private readonly createVoteProposalUseCase: CreateVoteProposalUseCase
+    private readonly createVoteProposalUseCase: CreateVoteProposalUseCase,
+    private readonly createProposalProjectTransactionUsecase: CreateProposalProjectTransactionUsecase
   ) {}
 
   @Post('organization')
@@ -48,5 +51,13 @@ export class TransactionController {
       user.id,
       body.organizationId
     );
+  }
+
+  @Post('proposals/projects')
+  async createProject(
+    @Body() body: CreateProposalProjectTransactionDto,
+    @UserDecorator() user: UserEntity
+  ) {
+    return this.createProposalProjectTransactionUsecase.execute(body, user);
   }
 }

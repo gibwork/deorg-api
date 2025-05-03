@@ -1,3 +1,5 @@
+import { PublicKey } from '@solana/web3.js';
+
 export type Proposal = {
   proposalAddress: string;
   organization: string;
@@ -26,4 +28,13 @@ export type CreateOrganizationDto = {
   treasuryTransferQuorumPercentage?: number;
   userPrimaryWallet: string;
   organizationId: string;
+};
+
+export type CreateProjectProposalDto = {
+  name: string;
+  members: PublicKey[];
+  organizationAddress: string;
+  projectProposalThreshold: number;
+  projectProposalValidityPeriod: number;
+  proposerWallet: string;
 };
