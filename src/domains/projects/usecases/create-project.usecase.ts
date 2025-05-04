@@ -11,13 +11,15 @@ import { Connection, Transaction } from '@solana/web3.js';
 import { UserEntity } from '@domains/users/entities/user.entity';
 import { ProposalService } from '@domains/proposals/services/proposal.service';
 import { ProposalType } from '@domains/proposals/entities/proposal.entity';
+import { OrganizationService } from '@domains/organizations/services/organization.service';
 
 @Injectable()
 export class CreateProjectUsecase {
   constructor(
     private readonly transactionService: TransactionService,
     private readonly heliusService: HeliusService,
-    private readonly proposalService: ProposalService
+    private readonly proposalService: ProposalService,
+    private readonly organizationService: OrganizationService
   ) {}
 
   private connection = new Connection(this.heliusService.devnetRpcUrl);
@@ -81,14 +83,22 @@ export class CreateProjectUsecase {
       );
     }
 
-    await this.proposalService.create({
-      title: `Propose to create project ${transaction.request.name}`,
-      accountAddress: transaction.request.proposalPDA,
-      description: `Propose to create project ${transaction.request.name}`,
-      organizationId: transaction.request.organizationId,
-      createdBy: user.id,
-      type: ProposalType.PROJECT
+    const organization = await this.organizationService.findOne({
+      where: {
+        accountAddress: transaction.request.organizationAccountAddress
+      }
     });
+
+    if (organization) {
+      await this.proposalService.create({
+        title: `Propose to create project ${transaction.request.name}`,
+        accountAddress: transaction.request.proposalPDA,
+        description: `Propose to create project ${transaction.request.name}`,
+        organizationId: organization.id,
+        createdBy: user.id,
+        type: ProposalType.PROJECT
+      });
+    }
 
     return {
       ok: true

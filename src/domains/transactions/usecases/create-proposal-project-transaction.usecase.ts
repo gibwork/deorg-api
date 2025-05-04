@@ -70,7 +70,8 @@ export class CreateProposalProjectTransactionUsecase {
       createdBy: user.id,
       type: TransactionType.PROPOSAL_PROJECT,
       request: {
-        organizationId: dto.organizationId,
+        organizationAccountAddress: onChainOrganization.accountAddress,
+        organizationId: onChainOrganization.uuid,
         name: dto.name,
         members: dto.members,
         proposalPDA: proposalPDA.toBase58()
