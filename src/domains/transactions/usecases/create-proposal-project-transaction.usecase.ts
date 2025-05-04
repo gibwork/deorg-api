@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { TransactionType } from '../entities/transaction.entity';
 import { TransactionService } from '../services/transaction.service';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class CreateProposalProjectTransactionUsecase {
@@ -60,8 +61,11 @@ export class CreateProposalProjectTransactionUsecase {
       throw new BadRequestException('All members must be contributors');
     }
 
+    const projectId = uuidv4();
+
     const { instruction, proposalPDA } =
       await this.votingProgramService.createProjectProposal({
+        id: projectId,
         name: dto.name,
         members,
         organizationAddress: organization.accountAddress,

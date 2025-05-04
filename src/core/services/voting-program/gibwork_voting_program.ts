@@ -1644,8 +1644,16 @@ export type GibworkVotingProgram = {
           name: 'voterTokenAccount';
         },
         {
+          name: 'project';
+          writable: true;
+        },
+        {
           name: 'systemProgram';
           address: '11111111111111111111111111111111';
+        },
+        {
+          name: 'rent';
+          address: 'SysvarRent111111111111111111111111111111111';
         }
       ];
       args: [
@@ -2122,81 +2130,86 @@ export type GibworkVotingProgram = {
     },
     {
       code: 6023;
+      name: 'invalidProjectAccount';
+      msg: 'The provided project account does not match the expected PDA';
+    },
+    {
+      code: 6024;
       name: 'insufficientTreasuryBalance';
       msg: 'Insufficient funds in treasury for this transfer';
     },
     {
-      code: 6024;
+      code: 6025;
       name: 'treasuryNotInitialized';
       msg: 'Treasury not initialized for this organization';
     },
     {
-      code: 6025;
+      code: 6026;
       name: 'proposalAlreadyExecuted';
       msg: 'This proposal has already been executed';
     },
     {
-      code: 6026;
+      code: 6027;
       name: 'invalidTransferAmount';
       msg: 'Invalid transfer amount';
     },
     {
-      code: 6027;
+      code: 6028;
       name: 'tokenNotRegistered';
       msg: 'Token not registered with treasury';
     },
     {
-      code: 6028;
+      code: 6029;
       name: 'registryAlreadyExists';
       msg: 'Registry already exists for this organization';
     },
     {
-      code: 6029;
+      code: 6030;
       name: 'maximumTokensReached';
       msg: 'Maximum number of treasury tokens reached';
     },
     {
-      code: 6030;
+      code: 6031;
       name: 'taskVaultAlreadyExists';
       msg: 'Task vault already exists for this task';
     },
     {
-      code: 6031;
+      code: 6032;
       name: 'taskNotReadyForVault';
       msg: 'Task not ready for vault creation';
     },
     {
-      code: 6032;
+      code: 6033;
       name: 'transferProposalNotLinked';
       msg: 'Transfer proposal not linked to task';
     },
     {
-      code: 6033;
+      code: 6034;
       name: 'taskVaultNotFound';
       msg: 'Task vault not found';
     },
     {
-      code: 6034;
+      code: 6035;
       name: 'unauthorizedWithdrawal';
       msg: 'Unauthorized withdrawal attempt';
     },
     {
-      code: 6035;
+      code: 6036;
       name: 'withdrawalNotEnabled';
       msg: 'Withdrawal not enabled for this task vault';
     },
     {
-      code: 6036;
+      code: 6037;
       name: 'withdrawalAlreadyEnabled';
       msg: 'Withdrawal already enabled for this task vault';
     },
     {
-      code: 6037;
+      code: 6038;
       name: 'reviewerCannotBeAssignee';
       msg: 'Reviewer must not be the task assignee';
     },
     {
-      code: 6038;
+      code: 6039;
       name: 'taskNotCompleted';
       msg: 'Task must be completed before enabling withdrawal';
     }

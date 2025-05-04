@@ -417,6 +417,7 @@ export class VotingProgramService {
 
     const organization = new PublicKey(params.organizationAddress);
     const proposal = new PublicKey(params.proposalAddress);
+
     const tokenMint = new PublicKey(
       'Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'
     );
@@ -432,13 +433,14 @@ export class VotingProgramService {
 
     const voterTokenAccount = tokenAccounts.value[0].pubkey;
 
-    console.log({
-      organization,
-      proposal,
-      voterTokenAccount,
-      systemProgram: SystemProgram.programId,
-      voter: new PublicKey(params.proposerWallet)
-    });
+    const proposalKeyBuffer = proposal.toBuffer();
+    const projectUuid = proposalKeyBuffer.slice(0, 16);
+
+    // Find the expected PDA for the project
+    const [projectPDA] = await PublicKey.findProgramAddress(
+      [Buffer.from('project'), organization.toBuffer(), projectUuid],
+      this.PROGRAM_ID
+    );
 
     const instruction = program.instruction.voteOnProjectProposal(
       new BN(params.vote ? 1 : 0),
@@ -448,7 +450,9 @@ export class VotingProgramService {
           proposal,
           voterTokenAccount,
           systemProgram: SystemProgram.programId,
-          voter: new PublicKey(params.proposerWallet)
+          voter: new PublicKey(params.proposerWallet),
+          project: projectPDA,
+          rent: new PublicKey('SysvarRent111111111111111111111111111111111')
         }
       }
     );
@@ -456,6 +460,47 @@ export class VotingProgramService {
     return {
       instruction
     };
+  }
+
+  async getOrganizationProjects(organizationAddress: string) {
+    const connection: any = new Connection(this.heliusService.devnetRpcUrl);
+
+    // Create a dummy wallet provider for read-only operations
+    const dummyWallet = {
+      publicKey: PublicKey.default,
+      signTransaction: async (tx: any) => tx,
+      signAllTransactions: async (txs: any[]) => txs
+    } as anchor.Wallet;
+
+    const provider = new anchor.AnchorProvider(connection, dummyWallet, {
+      commitment: 'confirmed',
+      preflightCommitment: 'confirmed'
+    });
+
+    const program = new anchor.Program<GibworkVotingProgram>(
+      idl as GibworkVotingProgram,
+      provider
+    );
+
+    const projects = await program.account.project.all([
+      {
+        memcmp: {
+          offset: 8,
+          bytes: organizationAddress
+        }
+      }
+    ]);
+
+    return projects.map((project) => ({
+      accountAddress: project.publicKey.toBase58(),
+      organization: project.account.organization.toBase58(),
+      uuid: project.account.uuid,
+      title: project.account.title,
+      members: project.account.members.map((member) => member.toBase58()),
+      taskApprovalThreshold: project.account.taskApprovalThreshold,
+      validityEndTime: project.account.validityEndTime.toNumber(),
+      isActive: project.account.isActive
+    }));
   }
 }
 

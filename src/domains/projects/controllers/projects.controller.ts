@@ -1,16 +1,25 @@
 import { UserEntity } from '@domains/users/entities/user.entity';
 import { UserDecorator } from '@core/decorators/user.decorator';
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Param } from '@nestjs/common';
 import { CreateProjectDto } from '../dto/create-project.dto';
 import { CreateProjectUsecase } from '../usecases/create-project.usecase';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@core/guards/auth.guard';
+import { ListProjectsUsecase } from '../usecases/list-projects.usecase';
 
 @Controller('projects')
 @ApiTags('Projects')
 @UseGuards(AuthGuard)
 export class ProjectsController {
-  constructor(private readonly createProjectUsecase: CreateProjectUsecase) {}
+  constructor(
+    private readonly createProjectUsecase: CreateProjectUsecase,
+    private readonly listProjectsUsecase: ListProjectsUsecase
+  ) {}
+
+  @Get('/organization/:organizationId')
+  async listProjects(@Param('organizationId') organizationId: string) {
+    return this.listProjectsUsecase.execute(organizationId);
+  }
 
   @Post()
   async createProject(
