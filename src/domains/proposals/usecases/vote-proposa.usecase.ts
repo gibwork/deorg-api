@@ -19,10 +19,10 @@ export class VoteProposalUsecase {
 
   private connection = new Connection(this.heliusService.devnetRpcUrl);
 
-  async execute(proposalId: string, dto: VoteProposalDto) {
+  async execute(proposalAccountAddress: string, dto: VoteProposalDto) {
     const proposal = await this.proposalService.findOne({
       where: {
-        id: proposalId
+        accountAddress: proposalAccountAddress
       }
     });
 

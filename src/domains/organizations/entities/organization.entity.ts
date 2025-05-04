@@ -25,9 +25,6 @@ export class OrganizationEntity {
   id: string;
 
   @Column()
-  name: string;
-
-  @Column()
   slug: string;
 
   @Column()
@@ -39,7 +36,7 @@ export class OrganizationEntity {
   @Column()
   createdBy: string;
 
-  @Column()
+  @Column({ unique: true })
   accountAddress: string;
 
   @Column({ type: 'jsonb', default: {} })

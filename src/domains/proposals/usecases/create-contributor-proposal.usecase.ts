@@ -14,6 +14,7 @@ import { ClerkService } from '@core/services/clerk/clerk.service';
 import { OrganizationRole } from '@domains/organizations/entities/organization-member.entity';
 import { OrganizationMemberService } from '@domains/organizations/services/organization-member.service';
 import { ProposalType } from '@domains/proposals/entities/proposal.entity';
+import { VotingProgramService } from '@core/services/voting-program/voting-program.service';
 @Injectable()
 export class CreateContributorProposalUsecase {
   constructor(
@@ -23,7 +24,8 @@ export class CreateContributorProposalUsecase {
     private readonly heliusService: HeliusService,
     private readonly userService: UserService,
     private readonly clerkService: ClerkService,
-    private readonly organizationMemberService: OrganizationMemberService
+    private readonly organizationMemberService: OrganizationMemberService,
+    private readonly votingProgramService: VotingProgramService
   ) {}
 
   private connection = new Connection(this.heliusService.devnetRpcUrl);
@@ -38,6 +40,11 @@ export class CreateContributorProposalUsecase {
     if (!organization) {
       throw new NotFoundException('Organization not found');
     }
+
+    const onChainOrganization =
+      await this.votingProgramService.getOrganizationDetails(
+        organization.accountAddress
+      );
 
     const transaction = await this.transactionService.findOne({
       where: {
@@ -100,7 +107,7 @@ export class CreateContributorProposalUsecase {
     const proposal = await this.proposalService.create({
       organizationId,
       title: `Propose ${transaction.request['candidateWallet']} as a contributor`,
-      description: `Propose ${transaction.request['candidateWallet']} as a contributor to the organization ${organization.name}`,
+      description: `Propose ${transaction.request['candidateWallet']} as a contributor to the organization ${onChainOrganization.name}`,
       accountAddress: transaction.request['proposalPDA'],
       createdBy: transaction.createdBy,
       type: ProposalType.CONTRIBUTOR

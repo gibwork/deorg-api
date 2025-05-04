@@ -11,6 +11,7 @@ import {
   Proposal,
   ProposalType
 } from './types';
+import { convertUuid } from '@utils/convertUuid';
 
 @Injectable()
 export class VotingProgramService {
@@ -112,6 +113,49 @@ export class VotingProgramService {
     return contributors.map((contributor) => contributor.account.authority);
   }
 
+  async getOrganizations() {
+    const connection: any = new Connection(this.heliusService.devnetRpcUrl);
+    const program = new anchor.Program<GibworkVotingProgram>(
+      idl as GibworkVotingProgram,
+      {
+        connection
+      }
+    );
+
+    const organizations = await program.account.organization.all([]);
+
+    return organizations.map((organization) => ({
+      accountAddress: organization.publicKey.toBase58(),
+      creator: organization.account.creator.toBase58(),
+      uuid: convertUuid(organization.account.uuid),
+      name: organization.account.name,
+      contributors: organization.account.contributors.map((contributor) =>
+        contributor.toBase58()
+      ),
+      contributorProposalThresholdPercentage:
+        organization.account.contributorProposalThresholdPercentage,
+      contributorProposalValidityPeriod:
+        organization.account.contributorProposalValidityPeriod.toNumber(),
+      treasuryTransferQuorumPercentage:
+        organization.account.treasuryTransferQuorumPercentage,
+      tokenMint: organization.account.tokenMint.toBase58(),
+      treasuryTransferThresholdPercentage:
+        organization.account.treasuryTransferThresholdPercentage,
+      treasuryTransferProposalValidityPeriod:
+        organization.account.treasuryTransferProposalValidityPeriod.toNumber(),
+      minimumTokenRequirement:
+        organization.account.minimumTokenRequirement.toNumber(),
+      contributorValidityPeriod:
+        organization.account.contributorValidityPeriod.toNumber(),
+      projectProposalValidityPeriod:
+        organization.account.projectProposalValidityPeriod.toNumber(),
+      contributorProposalQuorumPercentage:
+        organization.account.contributorProposalQuorumPercentage,
+      projectProposalThresholdPercentage:
+        organization.account.projectProposalThresholdPercentage
+    }));
+  }
+
   async getOrganizationDetails(organizationAccount: string) {
     const connection: any = new Connection(this.heliusService.devnetRpcUrl);
 
@@ -136,7 +180,35 @@ export class VotingProgramService {
       new PublicKey(organizationAccount)
     );
 
-    return organization;
+    return {
+      accountAddress: organizationAccount,
+      creator: organization.creator.toBase58(),
+      uuid: convertUuid(organization.uuid),
+      name: organization.name,
+      contributors: organization.contributors.map((contributor) =>
+        contributor.toBase58()
+      ),
+      contributorProposalThresholdPercentage:
+        organization.contributorProposalThresholdPercentage,
+      contributorProposalValidityPeriod:
+        organization.contributorProposalValidityPeriod.toNumber(),
+      treasuryTransferQuorumPercentage:
+        organization.treasuryTransferQuorumPercentage,
+      tokenMint: organization.tokenMint.toBase58(),
+      treasuryTransferThresholdPercentage:
+        organization.treasuryTransferThresholdPercentage,
+      treasuryTransferProposalValidityPeriod:
+        organization.treasuryTransferProposalValidityPeriod.toNumber(),
+      minimumTokenRequirement: organization.minimumTokenRequirement.toNumber(),
+      contributorValidityPeriod:
+        organization.contributorValidityPeriod.toNumber(),
+      projectProposalValidityPeriod:
+        organization.projectProposalValidityPeriod.toNumber(),
+      contributorProposalQuorumPercentage:
+        organization.contributorProposalQuorumPercentage,
+      projectProposalThresholdPercentage:
+        organization.projectProposalThresholdPercentage
+    };
   }
 
   async getOrganizationProposals(

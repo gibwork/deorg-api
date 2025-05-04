@@ -12,9 +12,9 @@ export class CheckOrganizationMembershipUsecase {
     private readonly organizationMemberService: OrganizationMemberService
   ) {}
 
-  async execute(organizationId: string, user: UserEntity) {
+  async execute(accountAddress: string, user: UserEntity) {
     const organization = await this.organizationService.findOne({
-      where: { id: organizationId },
+      where: { accountAddress },
       relations: { members: { user: true } }
     });
 
@@ -22,7 +22,7 @@ export class CheckOrganizationMembershipUsecase {
       throw new NotFoundException('Organization not found');
     }
     const isMember = await this.organizationMemberService.findOne({
-      where: { organizationId, userId: user.id }
+      where: { organizationId: organization.id, userId: user.id }
     });
 
     const userBalance = await this.getUserBalanceUseCase.execute(

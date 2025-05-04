@@ -99,7 +99,6 @@ export class CreateOrganizationUsecase {
 
     const organization = await this.organizationService.create({
       id: transaction.request['organizationId'],
-      name: dto.name,
       externalId: clerkOrganization.id,
       slug: clerkOrganization.slug || undefined,
       logoUrl: clerkOrganization.imageUrl || undefined,

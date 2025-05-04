@@ -28,24 +28,26 @@ export class OrganizationController {
     return this.listOrganizationsUsecase.execute();
   }
 
-  @Get(':id')
-  async getOrganization(@Param('id') id: string) {
-    return this.getOrganizationDetailsUsecase.execute(id);
+  @Get(':accountAddress')
+  async getOrganization(@Param('accountAddress') accountAddress: string) {
+    return this.getOrganizationDetailsUsecase.execute(accountAddress);
   }
 
-  @Get(':id/members')
-  async getOrganizationMembers(@Param('id') organizationId: string) {
-    return this.getOrganizationMembersUseCase.execute(organizationId);
+  @Get(':accountAddress/members')
+  async getOrganizationMembers(
+    @Param('accountAddress') accountAddress: string
+  ) {
+    return this.getOrganizationMembersUseCase.execute(accountAddress);
   }
 
-  @Get(':id/check-membership')
+  @Get(':accountAddress/check-membership')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   async checkMembership(
-    @Param('id') id: string,
+    @Param('accountAddress') accountAddress: string,
     @UserDecorator() user: UserEntity
   ) {
-    return this.checkMembershipUsecase.execute(id, user);
+    return this.checkMembershipUsecase.execute(accountAddress, user);
   }
 
   @Post()
@@ -58,13 +60,13 @@ export class OrganizationController {
     return this.createOrganizationUsecase.execute(body, user.id);
   }
 
-  @Post(':id/join')
+  @Post(':accountAddress/join')
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   async joinOrganization(
-    @Param('id') id: string,
+    @Param('accountAddress') accountAddress: string,
     @UserDecorator() user: UserEntity
   ) {
-    return this.joinOrganizationUsecase.execute(id, user.id);
+    return this.joinOrganizationUsecase.execute(accountAddress, user.id);
   }
 }

@@ -6,7 +6,7 @@ import { CreateContributorProposalUsecase } from '../usecases/create-contributor
 import { VoteProposalDto } from '../dto/vote-proposal.dto';
 import { VoteProposalUsecase } from '../usecases/vote-proposa.usecase';
 
-@Controller('/organizations/:organizationId/proposals')
+@Controller('/organizations/:orgAccountAddress/proposals')
 @ApiTags('Proposals')
 export class ProposalsController {
   constructor(
@@ -16,23 +16,26 @@ export class ProposalsController {
   ) {}
 
   @Get()
-  async listProposals(@Param('organizationId') organizationId: string) {
-    return this.listProposalsUsecase.execute(organizationId);
+  async listProposals(@Param('orgAccountAddress') orgAccountAddress: string) {
+    return this.listProposalsUsecase.execute(orgAccountAddress);
   }
 
-  @Post(':proposalId/vote')
+  @Post(':proposalAccountAddress/vote')
   async voteProposal(
-    @Param('proposalId') proposalId: string,
+    @Param('proposalAccountAddress') proposalAccountAddress: string,
     @Body() body: VoteProposalDto
   ) {
-    return this.voteProposalUsecase.execute(proposalId, body);
+    return this.voteProposalUsecase.execute(proposalAccountAddress, body);
   }
 
   @Post('/contributor')
   async createContributorProposal(
-    @Param('organizationId') organizationId: string,
+    @Param('orgAccountAddress') orgAccountAddress: string,
     @Body() body: CreateContributorProposalDto
   ) {
-    return this.createContributorProposalUsecase.execute(organizationId, body);
+    return this.createContributorProposalUsecase.execute(
+      orgAccountAddress,
+      body
+    );
   }
 }

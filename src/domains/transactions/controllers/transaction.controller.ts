@@ -42,15 +42,15 @@ export class TransactionController {
     return this.createContributorProposalUsecase.execute(body, user);
   }
 
-  @Post('proposals/:proposalId/vote')
+  @Post('proposals/:proposalAccountAddress/vote')
   async voteProposal(
     @Body() body: VoteProposalDto,
-    @Param('proposalId') proposalId: string,
+    @Param('proposalAccountAddress') proposalAccountAddress: string,
     @UserDecorator() user: UserEntity
   ) {
     return this.createVoteProposalUseCase.execute(
       body,
-      proposalId,
+      proposalAccountAddress,
       user.id,
       body.organizationId
     );

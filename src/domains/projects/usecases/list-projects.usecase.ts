@@ -1,9 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { VotingProgramService } from '@core/services/voting-program/voting-program.service';
-import { OrganizationService } from '@domains/organizations/services/organization.service';
 import { UserEntity } from '@domains/users/entities/user.entity';
 import { UserService } from '@domains/users/services/user.service';
 import { ClerkService } from '@core/services/clerk/clerk.service';
+import { convertUuid } from '@utils/convertUuid';
 
 export interface ProjectWithMembers {
   uuid: string;
@@ -15,23 +15,17 @@ export interface ProjectWithMembers {
 export class ListProjectsUsecase {
   constructor(
     private readonly votingProgramService: VotingProgramService,
-    private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
     private readonly clerkService: ClerkService
   ) {}
 
-  async execute(organizationId: string): Promise<ProjectWithMembers[]> {
-    const organization = await this.organizationService.findOne({
-      where: { id: organizationId }
-    });
+  async execute(orgAccountAddress: string): Promise<ProjectWithMembers[]> {
+    await this.votingProgramService.getOrganizationDetails(orgAccountAddress);
 
-    if (!organization) {
-      throw new NotFoundException('Organization not found');
-    }
-
-    const projects = await this.votingProgramService.getOrganizationProjects(
-      organization.accountAddress!
-    );
+    const projects =
+      await this.votingProgramService.getOrganizationProjects(
+        orgAccountAddress
+      );
 
     const projectsWithMembers = await this.enrichProjectsWithMembers(projects);
     return projectsWithMembers;
@@ -114,19 +108,4 @@ export class ListProjectsUsecase {
 
     return null;
   }
-}
-
-function convertUuid(uuidArray: number[]): string {
-  const hex = uuidArray.map((b) => b.toString(16).padStart(2, '0'));
-
-  // Monta no formato padrão de UUID
-  const uuid = [
-    hex.slice(0, 4).join(''), // 8 chars
-    hex.slice(4, 6).join(''), // 4 chars
-    hex.slice(6, 8).join(''), // 4 chars
-    hex.slice(8, 10).join(''), // 4 chars
-    hex.slice(10, 16).join('') // 12 chars
-  ].join('-');
-
-  return uuid;
 }

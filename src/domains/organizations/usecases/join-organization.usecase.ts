@@ -20,10 +20,10 @@ export class JoinOrganizationUsecase {
     private readonly clerkService: ClerkService
   ) {}
 
-  async execute(organizationId: string, userId: string) {
+  async execute(accountAddress: string, userId: string) {
     const organization = await this.organizationService.findOne({
       where: {
-        id: organizationId
+        accountAddress
       }
     });
 
@@ -31,14 +31,9 @@ export class JoinOrganizationUsecase {
       throw new NotFoundException('Organization not found');
     }
 
-    console.log({
-      organizationId,
-      userId
-    });
-
     const organizationMember = await this.organizationMemberService.findOne({
       where: {
-        organizationId,
+        organizationId: organization.id,
         userId
       }
     });
@@ -78,7 +73,7 @@ export class JoinOrganizationUsecase {
     }
 
     const member = await this.organizationMemberService.create({
-      organizationId,
+      organizationId: organization.id,
       userId,
       role: OrganizationRole.MEMBER
     });

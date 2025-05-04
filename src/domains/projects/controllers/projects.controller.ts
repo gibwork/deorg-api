@@ -16,9 +16,9 @@ export class ProjectsController {
     private readonly listProjectsUsecase: ListProjectsUsecase
   ) {}
 
-  @Get('/organization/:organizationId')
-  async listProjects(@Param('organizationId') organizationId: string) {
-    return this.listProjectsUsecase.execute(organizationId);
+  @Get('/organization/:orgAccountAddress')
+  async listProjects(@Param('orgAccountAddress') orgAccountAddress: string) {
+    return this.listProjectsUsecase.execute(orgAccountAddress);
   }
 
   @Post()

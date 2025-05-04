@@ -29,13 +29,13 @@ export class CreateVoteProposalUseCase {
 
   async execute(
     dto: VoteProposalDto,
-    proposalId: string,
+    proposalAccountAddress: string,
     userId: string,
     organizationId: string
   ) {
     const proposal = await this.proposalService.findOne({
       where: {
-        id: proposalId,
+        accountAddress: proposalAccountAddress,
         organizationId
       },
       relations: {
@@ -48,6 +48,11 @@ export class CreateVoteProposalUseCase {
     if (!proposal) {
       throw new NotFoundException('Proposal not found');
     }
+
+    const onChainOrganization =
+      await this.votingProgramService.getOrganizationDetails(
+        proposal.organization.accountAddress!
+      );
 
     const user = await this.userService.findOne({
       where: {
@@ -87,10 +92,10 @@ export class CreateVoteProposalUseCase {
           : TransactionType.VOTE_PROJECT_PROPOSAL,
       createdBy: user.id,
       request: {
-        title: `Vote on ${proposal.organization.name} ${proposal.type === ProposalType.CONTRIBUTOR ? 'contributor' : 'project'} proposal`,
-        description: `Vote on ${proposal.organization.name} ${proposal.type === ProposalType.CONTRIBUTOR ? 'contributor' : 'project'} proposal`,
+        title: `Vote on ${onChainOrganization.name} ${proposal.type === ProposalType.CONTRIBUTOR ? 'contributor' : 'project'} proposal`,
+        description: `Vote on ${onChainOrganization.name} ${proposal.type === ProposalType.CONTRIBUTOR ? 'contributor' : 'project'} proposal`,
         organizationId,
-        proposalId,
+        proposalAccountAddress,
         createdBy: user.id,
         vote: dto.vote
       }

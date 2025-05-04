@@ -16,9 +16,9 @@ export class GetOrganizationMembersUseCase {
     private readonly organizationMemberService: OrganizationMemberService
   ) {}
 
-  async execute(organizationId: string): Promise<OrganizationMemberEntity[]> {
+  async execute(accountAddress: string): Promise<OrganizationMemberEntity[]> {
     const organization = await this.organizationService.findOne({
-      where: { id: organizationId },
+      where: { accountAddress },
       relations: {
         members: {
           user: true
@@ -28,57 +28,55 @@ export class GetOrganizationMembersUseCase {
 
     if (!organization) throw new NotFoundException('Organization not found');
 
-    if (organization.accountAddress) {
-      const contributors =
-        await this.votingProgramService.getOrganizationContributors(
-          organization.accountAddress
-        );
+    const contributors =
+      await this.votingProgramService.getOrganizationContributors(
+        organization.accountAddress
+      );
 
-      // First update existing members' roles
-      organization.members = organization.members.map((member) => {
-        member.role = contributors.find(
-          (contributor) => contributor.toBase58() === member.user.walletAddress
-        )
-          ? OrganizationRole.CONTRIBUTOR
-          : OrganizationRole.MEMBER;
-        return member;
+    // First update existing members' roles
+    organization.members = organization.members.map((member) => {
+      member.role = contributors.find(
+        (contributor) => contributor.toBase58() === member.user.walletAddress
+      )
+        ? OrganizationRole.CONTRIBUTOR
+        : OrganizationRole.MEMBER;
+      return member;
+    });
+
+    // Find contributors that are not yet members
+    const existingWallets = organization.members.map(
+      (member) => member.user.walletAddress
+    );
+
+    const newContributors = contributors.filter(
+      (contributor) => !existingWallets.includes(contributor.toBase58())
+    );
+
+    // Add new contributors as members
+    for (const contributor of newContributors) {
+      const user = await this.userService.findOne({
+        where: { walletAddress: contributor.toBase58() }
       });
 
-      // Find contributors that are not yet members
-      const existingWallets = organization.members.map(
-        (member) => member.user.walletAddress
-      );
-
-      const newContributors = contributors.filter(
-        (contributor) => !existingWallets.includes(contributor.toBase58())
-      );
-
-      // Add new contributors as members
-      for (const contributor of newContributors) {
-        const user = await this.userService.findOne({
-          where: { walletAddress: contributor.toBase58() }
+      if (user) {
+        await this.organizationMemberService.create({
+          organizationId: organization.id,
+          userId: user.id,
+          role: OrganizationRole.MEMBER
         });
 
-        if (user) {
-          await this.organizationMemberService.create({
+        const member = await this.organizationMemberService.findOne({
+          where: {
             organizationId: organization.id,
-            userId: user.id,
-            role: OrganizationRole.MEMBER
-          });
-
-          const member = await this.organizationMemberService.findOne({
-            where: {
-              organizationId: organization.id,
-              userId: user.id
-            },
-            relations: {
-              user: true
-            }
-          });
-
-          if (member) {
-            organization.members.push(member);
+            userId: user.id
+          },
+          relations: {
+            user: true
           }
+        });
+
+        if (member) {
+          organization.members.push(member);
         }
       }
     }
