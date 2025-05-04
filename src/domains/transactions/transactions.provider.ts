@@ -6,6 +6,7 @@ import { TransactionRepository } from './repositories/transaction.repository';
 import { CreateProposalContributorTransactionUsecase } from './usecases/create-proposal-contributor-transaction.usecase';
 import { CreateVoteProposalUseCase } from './usecases/create-vote-proposal';
 import { CreateProposalProjectTransactionUsecase } from './usecases/create-proposal-project-transaction.usecase';
+import { CreateProposalTaskTransactionsUsecase } from './usecases/create-proposal-task-transactions.usecase';
 
 export const TransactionsProvider: ModuleMetadata = {
   controllers: [TransactionController],
@@ -15,6 +16,7 @@ export const TransactionsProvider: ModuleMetadata = {
     CreateOrganizationTransactionsUsecase,
     CreateProposalContributorTransactionUsecase,
     CreateVoteProposalUseCase,
-    CreateProposalProjectTransactionUsecase
+    CreateProposalProjectTransactionUsecase,
+    CreateProposalTaskTransactionsUsecase
   ]
 };

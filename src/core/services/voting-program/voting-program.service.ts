@@ -502,6 +502,253 @@ export class VotingProgramService {
       isActive: project.account.isActive
     }));
   }
+
+  async getProjectDetails(projectAccountAddress: string) {
+    const connection: any = new Connection(this.heliusService.devnetRpcUrl);
+
+    // Create a dummy wallet provider for read-only operations
+    const dummyWallet = {
+      publicKey: PublicKey.default,
+      signTransaction: async (tx: any) => tx,
+      signAllTransactions: async (txs: any[]) => txs
+    } as anchor.Wallet;
+
+    const provider = new anchor.AnchorProvider(connection, dummyWallet, {
+      commitment: 'confirmed',
+      preflightCommitment: 'confirmed'
+    });
+
+    const program = new anchor.Program<GibworkVotingProgram>(
+      idl as GibworkVotingProgram,
+      provider
+    );
+
+    const project = await program.account.project.fetch(
+      new PublicKey(projectAccountAddress)
+    );
+
+    return project;
+  }
+
+  async createTaskProposal(dto: {
+    projectAddress: string;
+    title: string;
+    paymentAmount: number;
+    assignee: string;
+    description: string; // New parameter for description
+    organizationAddress: string; // Organization address
+    userPrimaryWallet: string;
+    nonce?: number; // Optional nonce for unique PDA derivation
+  }) {
+    const connection: any = new Connection(this.heliusService.devnetRpcUrl);
+    const program = new anchor.Program<GibworkVotingProgram>(
+      idl as GibworkVotingProgram,
+      connection
+    );
+
+    // Verify they're valid public keys
+    const project = new PublicKey(dto.projectAddress);
+    const assignee = new PublicKey(dto.assignee);
+    const tokenMint = new PublicKey(
+      'Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'
+    );
+    const organization = new PublicKey(dto.organizationAddress);
+
+    const nonce = dto.nonce || Math.floor(Date.now() / 1000);
+
+    const [taskPDA] = await PublicKey.findProgramAddress(
+      [Buffer.from('task'), project.toBuffer(), Buffer.from(dto.title)],
+      this.PROGRAM_ID
+    );
+
+    console.log(`Task PDA: ${taskPDA.toString()}`);
+
+    // Find treasury registry PDA
+    const [tokenRegistryPDA] = await PublicKey.findProgramAddress(
+      [Buffer.from('treasury_registry'), organization.toBuffer()],
+      this.PROGRAM_ID
+    );
+
+    // Find treasury authority PDA
+    const [treasuryAuthorityPDA] = await PublicKey.findProgramAddress(
+      [Buffer.from('treasury_authority'), organization.toBuffer()],
+      this.PROGRAM_ID
+    );
+
+    // Find treasury token account for the specified mint
+    const treasuryTokenAccounts =
+      await connection.getParsedTokenAccountsByOwner(treasuryAuthorityPDA, {
+        mint: tokenMint
+      });
+
+    if (treasuryTokenAccounts.value.length === 0) {
+      throw new Error('No treasury token account found for the specified mint');
+    }
+
+    const treasuryTokenAccount = treasuryTokenAccounts.value[0].pubkey;
+
+    // Find destination token account for the assignee
+    const destinationTokenAccounts =
+      await connection.getParsedTokenAccountsByOwner(assignee, {
+        mint: tokenMint
+      });
+
+    if (destinationTokenAccounts.value.length === 0) {
+      throw new Error(
+        'No token account found for the assignee for the specified mint'
+      );
+    }
+
+    const destinationTokenAccount = destinationTokenAccounts.value[0].pubkey;
+
+    const organizationAccount = await connection.getAccountInfo(organization);
+    if (!organizationAccount) {
+      throw new Error('Organization account not found');
+    }
+
+    const organizationDetails = await this.getOrganizationDetails(
+      organization.toBase58()
+    );
+
+    console.log(
+      'Organization token mint:',
+      organizationDetails.tokenMint.toString()
+    );
+
+    // Find creator's token account for the organization token
+    const creatorTokenAccounts = await connection.getParsedTokenAccountsByOwner(
+      new PublicKey(dto.userPrimaryWallet),
+      { mint: organizationDetails.tokenMint }
+    );
+
+    if (!creatorTokenAccounts || creatorTokenAccounts.value.length === 0) {
+      throw new Error(
+        'No token account found for the creator for the governance token'
+      );
+    }
+
+    const creatorTokenAccount = creatorTokenAccounts.value[0].pubkey;
+
+    // Calculate PDA for transfer proposal
+    // Get token decimals from mint account
+    const tokenMintInfo = await connection.getAccountInfo(tokenMint);
+
+    // Try to get token decimals - default to 9 if not available
+    let tokenDecimals = 9;
+    try {
+      // SPL token mints store decimals at offset 44
+      if (tokenMintInfo && tokenMintInfo.data.length >= 45) {
+        tokenDecimals = tokenMintInfo.data[44];
+      }
+      console.log(`Token decimal places: ${tokenDecimals}`);
+    } catch (err) {
+      console.log('Could not determine token decimals, using default of 9');
+    }
+
+    const paymentAmountTokenUnits = Math.floor(
+      dto.paymentAmount * Math.pow(10, tokenDecimals)
+    );
+
+    console.log(
+      `Converting payment: ${dto.paymentAmount} → ${paymentAmountTokenUnits} raw units (${tokenDecimals} decimals)`
+    );
+
+    console.log(`Treasury token account: ${treasuryTokenAccount.toString()}`);
+    const treasuryTokenAccountInfo =
+      await connection.getTokenAccountBalance(treasuryTokenAccount);
+    console.log(
+      `Treasury balance: ${treasuryTokenAccountInfo.value.amount} raw units (${treasuryTokenAccountInfo.value.decimals} decimals)`
+    );
+    console.log(
+      `Treasury balance (UI): ${treasuryTokenAccountInfo.value.uiAmount}`
+    );
+
+    const paymentAmountBN = new BN(paymentAmountTokenUnits);
+
+    const [transferProposalPDA] = await PublicKey.findProgramAddress(
+      [
+        Buffer.from('treasury_transfer'),
+        organization.toBuffer(),
+        tokenMint.toBuffer(),
+        Buffer.from(paymentAmountBN.toArray('le', 8)),
+        new PublicKey(dto.userPrimaryWallet).toBuffer(),
+        Buffer.from(new BN(nonce).toArray('le', 8))
+      ],
+      this.PROGRAM_ID
+    );
+
+    const instruction = program.instruction.createTask(
+      dto.title,
+      new BN(paymentAmountTokenUnits),
+      assignee,
+      dto.description,
+      tokenMint,
+      new BN(nonce),
+      {
+        accounts: {
+          creator: new PublicKey(dto.userPrimaryWallet),
+          organization,
+          project,
+          task: taskPDA,
+          tokenRegistry: tokenRegistryPDA,
+          transferProposal: transferProposalPDA,
+          treasuryTokenAccount: treasuryTokenAccount,
+          treasuryAuthority: treasuryAuthorityPDA,
+          destinationTokenAccount: destinationTokenAccount,
+          creatorTokenAccount: creatorTokenAccount,
+          systemProgram: SystemProgram.programId
+        }
+      }
+    );
+
+    return {
+      instruction,
+      taskPDA
+    };
+  }
+
+  async getTasks(projectAddress: string) {
+    const connection: any = new Connection(this.heliusService.devnetRpcUrl);
+
+    // Create a dummy wallet provider for read-only operations
+    const dummyWallet = {
+      publicKey: PublicKey.default,
+      signTransaction: async (tx: any) => tx,
+      signAllTransactions: async (txs: any[]) => txs
+    } as anchor.Wallet;
+
+    const provider = new anchor.AnchorProvider(connection, dummyWallet, {
+      commitment: 'confirmed',
+      preflightCommitment: 'confirmed'
+    });
+
+    const program = new anchor.Program<GibworkVotingProgram>(
+      idl as GibworkVotingProgram,
+      provider
+    );
+
+    const tasks = await program.account.task.all([
+      {
+        memcmp: {
+          offset: 8,
+          bytes: projectAddress
+        }
+      }
+    ]);
+
+    return tasks.map((task) => ({
+      project: task.account.project.toBase58(),
+      title: task.account.title,
+      paymentAmount: task.account.paymentAmount.toNumber(),
+      assignee: task.account.assignee.toBase58(),
+      votesFor: task.account.votesFor,
+      votesAgainst: task.account.votesAgainst,
+      status: Object.keys(task.account.status)[0],
+      voters: task.account.voters.map((voter) => voter.toBase58()),
+      transferProposal: task.account.transferProposal?.toBase58(),
+      vault: task.account.vault?.toBase58()
+    }));
+  }
 }
 
 /**

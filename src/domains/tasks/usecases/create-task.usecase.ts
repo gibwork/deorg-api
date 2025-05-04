@@ -1,33 +1,31 @@
-import { TransactionType } from '@domains/transactions/entities/transaction.entity';
-import { CreateProjectDto } from '../dto/create-project.dto';
 import {
-  NotFoundException,
   BadRequestException,
-  Injectable
+  Injectable,
+  NotFoundException
 } from '@nestjs/common';
-import { HeliusService } from '@core/services/helius/helius.service';
-import { TransactionService } from '@domains/transactions/services/transaction.service';
-import { Connection, Transaction } from '@solana/web3.js';
+import { CreateTaskDto } from '../dto/create-task.dto';
+import { Connection } from '@solana/web3.js';
+import { Transaction } from '@solana/web3.js';
 import { UserEntity } from '@domains/users/entities/user.entity';
-import { ProposalService } from '@domains/proposals/services/proposal.service';
-import { ProposalType } from '@domains/proposals/entities/proposal.entity';
+import { TransactionType } from '@domains/transactions/entities/transaction.entity';
+import { TransactionService } from '@domains/transactions/services/transaction.service';
+import { HeliusService } from '@core/services/helius/helius.service';
 
 @Injectable()
-export class CreateProjectUsecase {
+export class CreateTaskUsecase {
   constructor(
     private readonly transactionService: TransactionService,
-    private readonly heliusService: HeliusService,
-    private readonly proposalService: ProposalService
+    private readonly heliusService: HeliusService
   ) {}
 
   private connection = new Connection(this.heliusService.devnetRpcUrl);
 
-  async execute(dto: CreateProjectDto, user: UserEntity) {
+  async execute(dto: CreateTaskDto, user: UserEntity) {
     const transaction = await this.transactionService.findOne({
       where: {
         id: dto.transactionId,
         createdBy: user.id,
-        type: TransactionType.PROPOSAL_PROJECT
+        type: TransactionType.CREATE_TASK
       }
     });
 
@@ -80,15 +78,6 @@ export class CreateProjectUsecase {
         `Failed to process transaction: ${error.message}`
       );
     }
-
-    await this.proposalService.create({
-      title: `Propose to create project ${transaction.request.name}`,
-      accountAddress: transaction.request.proposalPDA,
-      description: `Propose to create project ${transaction.request.name}`,
-      organizationId: transaction.request.organizationId,
-      createdBy: user.id,
-      type: ProposalType.PROJECT
-    });
 
     return {
       ok: true
