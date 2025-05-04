@@ -35,8 +35,7 @@ export class CreateVoteProposalUseCase {
   ) {
     const proposal = await this.proposalService.findOne({
       where: {
-        accountAddress: proposalAccountAddress,
-        organizationId
+        accountAddress: proposalAccountAddress
       },
       relations: {
         organization: {
