@@ -690,7 +690,7 @@ export class VotingProgramService {
     // Find creator's token account for the organization token
     const creatorTokenAccounts = await connection.getParsedTokenAccountsByOwner(
       new PublicKey(dto.userPrimaryWallet),
-      { mint: organizationDetails.tokenMint }
+      { mint: new PublicKey(organizationDetails.tokenMint) }
     );
 
     if (!creatorTokenAccounts || creatorTokenAccounts.value.length === 0) {
