@@ -3,12 +3,7 @@ import { CreateProposalProjectTransactionDto } from '../dto/create-proposal-proj
 import { Connection, PublicKey, Transaction } from '@solana/web3.js';
 import { UserEntity } from '@domains/users/entities/user.entity';
 import { HeliusService } from '@core/services/helius/helius.service';
-import { OrganizationService } from '@domains/organizations/services/organization.service';
-import {
-  NotFoundException,
-  BadRequestException,
-  Injectable
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { TransactionType } from '../entities/transaction.entity';
 import { TransactionService } from '../services/transaction.service';
 import { v4 as uuidv4 } from 'uuid';
@@ -18,26 +13,20 @@ export class CreateProposalProjectTransactionUsecase {
   constructor(
     private readonly votingProgramService: VotingProgramService,
     private readonly heliusService: HeliusService,
-    private readonly organizationService: OrganizationService,
     private readonly transactionService: TransactionService
   ) {}
 
   async execute(dto: CreateProposalProjectTransactionDto, user: UserEntity) {
     const connection = new Connection(this.heliusService.devnetRpcUrl);
 
-    const organization = await this.organizationService.findOne({
-      where: {
-        id: dto.organizationId
-      }
-    });
-
-    if (!organization) {
-      throw new NotFoundException('Organization not found');
-    }
+    const onChainOrganization =
+      await this.votingProgramService.getOrganizationDetails(
+        dto.organizationId
+      );
 
     const contributors =
       await this.votingProgramService.getOrganizationContributors(
-        organization.accountAddress
+        onChainOrganization.accountAddress
       );
 
     console.log(contributors);
@@ -68,7 +57,7 @@ export class CreateProposalProjectTransactionUsecase {
         id: projectId,
         name: dto.name,
         members,
-        organizationAddress: organization.accountAddress,
+        organizationAddress: onChainOrganization.accountAddress,
         projectProposalThreshold: dto.projectProposalThreshold,
         projectProposalValidityPeriod: dto.projectProposalValidityPeriod,
         proposerWallet: user.walletAddress
