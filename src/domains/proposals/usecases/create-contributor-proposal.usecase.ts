@@ -30,10 +30,10 @@ export class CreateContributorProposalUsecase {
 
   private connection = new Connection(this.heliusService.devnetRpcUrl);
 
-  async execute(organizationId: string, dto: CreateContributorProposalDto) {
+  async execute(orgAccountAddress: string, dto: CreateContributorProposalDto) {
     const organization = await this.organizationService.findOne({
       where: {
-        id: organizationId
+        accountAddress: orgAccountAddress
       }
     });
 
@@ -105,7 +105,7 @@ export class CreateContributorProposalUsecase {
     }
 
     const proposal = await this.proposalService.create({
-      organizationId,
+      organizationId: organization.id,
       title: `Propose ${transaction.request['candidateWallet']} as a contributor`,
       description: `Propose ${transaction.request['candidateWallet']} as a contributor to the organization ${onChainOrganization.name}`,
       accountAddress: transaction.request['proposalPDA'],
@@ -149,14 +149,14 @@ export class CreateContributorProposalUsecase {
 
     const member = await this.organizationMemberService.findOne({
       where: {
-        organizationId,
+        organizationId: organization.id,
         userId: user.id
       }
     });
 
     if (!member) {
       await this.organizationMemberService.create({
-        organizationId,
+        organizationId: organization.id,
         userId: user.id,
         role: OrganizationRole.MEMBER
       });
