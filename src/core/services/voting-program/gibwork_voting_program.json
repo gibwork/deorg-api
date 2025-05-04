@@ -498,10 +498,6 @@
           "type": "pubkey"
         },
         {
-          "name": "description",
-          "type": "string"
-        },
-        {
           "name": "token_mint",
           "type": "pubkey"
         },

@@ -437,10 +437,6 @@ export type GibworkVotingProgram = {
           type: 'pubkey';
         },
         {
-          name: 'description';
-          type: 'string';
-        },
-        {
           name: 'tokenMint';
           type: 'pubkey';
         },

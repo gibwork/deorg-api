@@ -753,7 +753,6 @@ export class VotingProgramService {
       dto.title,
       new BN(paymentAmountTokenUnits),
       assignee,
-      dto.description,
       tokenMint,
       new BN(nonce),
       {
