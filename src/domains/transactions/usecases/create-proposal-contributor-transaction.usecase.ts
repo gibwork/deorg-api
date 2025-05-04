@@ -1,9 +1,5 @@
 import { UserEntity } from '@domains/users/entities/user.entity';
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { VotingProgramService } from '@core/services/voting-program/voting-program.service';
 import { CreateProposalContributorTransactionDto } from '../dto/create-proposal-contributor-transaction.dto';
 import { OrganizationService } from '@domains/organizations/services/organization.service';
@@ -27,19 +23,14 @@ export class CreateProposalContributorTransactionUsecase {
   ) {
     const connection = new Connection(this.heliusService.devnetRpcUrl);
 
-    const organization = await this.organizationService.findOne({
-      where: {
-        id: dto.organizationId
-      }
-    });
-
-    if (!organization) {
-      throw new NotFoundException('Organization not found');
-    }
+    const onChainOrganization =
+      await this.votingProgramService.getOrganizationDetails(
+        dto.organizationId
+      );
 
     const contributors =
       await this.votingProgramService.getOrganizationContributors(
-        organization.accountAddress
+        onChainOrganization.accountAddress
       );
 
     const publicUser = new PublicKey(user.walletAddress);
@@ -50,7 +41,7 @@ export class CreateProposalContributorTransactionUsecase {
 
     const { instruction, proposalPDA } =
       await this.votingProgramService.createContributorProposal(
-        organization.accountAddress,
+        onChainOrganization.accountAddress,
         dto.candidateWallet,
         user.walletAddress
       );
