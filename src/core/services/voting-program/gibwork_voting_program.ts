@@ -2635,6 +2635,10 @@ export type GibworkVotingProgram = {
         kind: 'struct';
         fields: [
           {
+            name: 'organization';
+            type: 'pubkey';
+          },
+          {
             name: 'project';
             type: 'pubkey';
           },

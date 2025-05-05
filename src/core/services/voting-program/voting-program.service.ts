@@ -252,7 +252,14 @@ export class VotingProgramService {
       }
     ]);
 
-    const taskProposals = await program.account.taskProposal.all([]);
+    const taskProposals = await program.account.taskProposal.all([
+      {
+        memcmp: {
+          offset: 8,
+          bytes: organizationAccount
+        }
+      }
+    ]);
 
     const proposals = [
       ...contributorProposals.map((proposal) => ({
@@ -286,7 +293,7 @@ export class VotingProgramService {
       ...taskProposals.map((proposal) => ({
         type: ProposalType.TASK,
         proposalAddress: proposal.publicKey.toBase58(),
-        organization: '',
+        organization: proposal.account.organization.toBase58(),
         candidate: proposal.account.assignee.toBase58(),
         proposer: proposal.account.proposer.toBase58(),
         proposedRate: proposal.account.paymentAmount.toNumber(),
@@ -748,6 +755,7 @@ export class VotingProgramService {
     const [proposalPDA] = await PublicKey.findProgramAddress(
       [
         Buffer.from('task_proposal'),
+        organization.toBuffer(),
         project.toBuffer(),
         Buffer.from(dto.title)
       ],
