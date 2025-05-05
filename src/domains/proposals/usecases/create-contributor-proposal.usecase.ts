@@ -1,13 +1,9 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ProposalService } from '../services/proposal.service';
 import { CreateContributorProposalDto } from '../dto/create-contributor-proposal.dto';
 import { OrganizationService } from '@domains/organizations/services/organization.service';
 import { TransactionService } from '@domains/transactions/services/transaction.service';
-import { Connection, Transaction } from '@solana/web3.js';
+import { Connection } from '@solana/web3.js';
 import { HeliusService } from '@core/services/helius/helius.service';
 import { UserService } from '@domains/users/services/user.service';
 import { ClerkService } from '@core/services/clerk/clerk.service';
@@ -15,6 +11,7 @@ import { OrganizationRole } from '@domains/organizations/entities/organization-m
 import { OrganizationMemberService } from '@domains/organizations/services/organization-member.service';
 import { ProposalType } from '@domains/proposals/entities/proposal.entity';
 import { VotingProgramService } from '@core/services/voting-program/voting-program.service';
+import { sendTransaction } from '@utils/sendTransaction';
 @Injectable()
 export class CreateContributorProposalUsecase {
   constructor(
@@ -56,53 +53,14 @@ export class CreateContributorProposalUsecase {
       throw new NotFoundException('Transaction not found');
     }
 
-    const signedTransaction = Transaction.from(
-      Buffer.from(dto.serializedTransaction, 'base64')
-    );
+    const { signature } = await sendTransaction({
+      serializedTransaction: dto.serializedTransaction,
+      connection: this.connection
+    });
 
-    try {
-      const signature = await this.connection.sendRawTransaction(
-        signedTransaction.serialize()
-      );
-
-      // Wait for confirmation with more robust error handling
-      const confirmation = await this.connection.confirmTransaction(
-        signature,
-        'confirmed'
-      );
-
-      // Check if there were any errors during confirmation
-      if (confirmation.value.err) {
-        throw new BadRequestException(
-          `Transaction failed: ${JSON.stringify(confirmation.value.err)}`
-        );
-      }
-
-      // Get the transaction details to verify success
-      const txDetails = await this.connection.getTransaction(signature, {
-        commitment: 'confirmed',
-        maxSupportedTransactionVersion: 1
-      });
-
-      if (!txDetails) {
-        throw new BadRequestException('Failed to fetch transaction details');
-      }
-
-      if (txDetails.meta?.err) {
-        throw new BadRequestException(
-          `Transaction failed with error: ${JSON.stringify(txDetails.meta.err)}`
-        );
-      }
-
-      await this.transactionService.update(transaction.id, {
-        response: { txHash: signature }
-      });
-    } catch (error) {
-      console.error('Error processing transaction:', error);
-      throw new BadRequestException(
-        `Failed to process transaction: ${error.message}`
-      );
-    }
+    await this.transactionService.update(transaction.id, {
+      response: { txHash: signature }
+    });
 
     const proposal = await this.proposalService.create({
       organizationId: organization.id,
