@@ -304,391 +304,6 @@
       ]
     },
     {
-      "name": "create_task",
-      "discriminator": [
-        194,
-        80,
-        6,
-        180,
-        232,
-        127,
-        48,
-        171
-      ],
-      "accounts": [
-        {
-          "name": "creator",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "organization"
-        },
-        {
-          "name": "project"
-        },
-        {
-          "name": "task",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  116,
-                  97,
-                  115,
-                  107
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "project"
-              },
-              {
-                "kind": "arg",
-                "path": "title"
-              }
-            ]
-          }
-        },
-        {
-          "name": "token_registry",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  116,
-                  114,
-                  101,
-                  97,
-                  115,
-                  117,
-                  114,
-                  121,
-                  95,
-                  114,
-                  101,
-                  103,
-                  105,
-                  115,
-                  116,
-                  114,
-                  121
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "organization"
-              }
-            ]
-          }
-        },
-        {
-          "name": "transfer_proposal",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  116,
-                  114,
-                  101,
-                  97,
-                  115,
-                  117,
-                  114,
-                  121,
-                  95,
-                  116,
-                  114,
-                  97,
-                  110,
-                  115,
-                  102,
-                  101,
-                  114
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "organization"
-              },
-              {
-                "kind": "arg",
-                "path": "token_mint"
-              },
-              {
-                "kind": "arg",
-                "path": "payment_amount"
-              },
-              {
-                "kind": "account",
-                "path": "creator"
-              },
-              {
-                "kind": "arg",
-                "path": "nonce"
-              }
-            ]
-          }
-        },
-        {
-          "name": "treasury_token_account",
-          "writable": true
-        },
-        {
-          "name": "treasury_authority",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  116,
-                  114,
-                  101,
-                  97,
-                  115,
-                  117,
-                  114,
-                  121,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "organization"
-              }
-            ]
-          }
-        },
-        {
-          "name": "destination_token_account"
-        },
-        {
-          "name": "creator_token_account"
-        },
-        {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
-        }
-      ],
-      "args": [
-        {
-          "name": "title",
-          "type": "string"
-        },
-        {
-          "name": "payment_amount",
-          "type": "u64"
-        },
-        {
-          "name": "assignee",
-          "type": "pubkey"
-        },
-        {
-          "name": "token_mint",
-          "type": "pubkey"
-        },
-        {
-          "name": "nonce",
-          "type": "u64"
-        }
-      ]
-    },
-    {
-      "name": "create_task_vault",
-      "discriminator": [
-        86,
-        48,
-        186,
-        125,
-        170,
-        136,
-        140,
-        140
-      ],
-      "accounts": [
-        {
-          "name": "creator",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "organization"
-        },
-        {
-          "name": "project"
-        },
-        {
-          "name": "task",
-          "writable": true
-        },
-        {
-          "name": "transfer_proposal"
-        },
-        {
-          "name": "task_vault",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  116,
-                  97,
-                  115,
-                  107,
-                  95,
-                  118,
-                  97,
-                  117,
-                  108,
-                  116
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "task"
-              }
-            ]
-          }
-        },
-        {
-          "name": "token_mint"
-        },
-        {
-          "name": "vault_token_account",
-          "writable": true,
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  118,
-                  97,
-                  117,
-                  108,
-                  116,
-                  95,
-                  116,
-                  111,
-                  107,
-                  101,
-                  110,
-                  95,
-                  97,
-                  99,
-                  99,
-                  111,
-                  117,
-                  110,
-                  116
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "task"
-              }
-            ]
-          }
-        },
-        {
-          "name": "vault_authority",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  118,
-                  97,
-                  117,
-                  108,
-                  116,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "task"
-              }
-            ]
-          }
-        },
-        {
-          "name": "treasury_token_account",
-          "writable": true
-        },
-        {
-          "name": "treasury_authority",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  116,
-                  114,
-                  101,
-                  97,
-                  115,
-                  117,
-                  114,
-                  121,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "organization"
-              }
-            ]
-          }
-        },
-        {
-          "name": "system_program",
-          "address": "11111111111111111111111111111111"
-        },
-        {
-          "name": "token_program",
-          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-        },
-        {
-          "name": "rent",
-          "address": "SysvarRent111111111111111111111111111111111"
-        }
-      ],
-      "args": []
-    },
-    {
       "name": "deposit_to_treasury",
       "discriminator": [
         10,
@@ -1348,6 +963,169 @@
       ]
     },
     {
+      "name": "propose_task",
+      "discriminator": [
+        245,
+        15,
+        241,
+        192,
+        72,
+        128,
+        60,
+        37
+      ],
+      "accounts": [
+        {
+          "name": "proposer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "organization"
+        },
+        {
+          "name": "project"
+        },
+        {
+          "name": "proposal",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  97,
+                  115,
+                  107,
+                  95,
+                  112,
+                  114,
+                  111,
+                  112,
+                  111,
+                  115,
+                  97,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "organization"
+              },
+              {
+                "kind": "account",
+                "path": "project"
+              },
+              {
+                "kind": "arg",
+                "path": "title"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_registry",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  114,
+                  101,
+                  97,
+                  115,
+                  117,
+                  114,
+                  121,
+                  95,
+                  114,
+                  101,
+                  103,
+                  105,
+                  115,
+                  116,
+                  114,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "organization"
+              }
+            ]
+          }
+        },
+        {
+          "name": "treasury_token_account",
+          "writable": true
+        },
+        {
+          "name": "treasury_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  114,
+                  101,
+                  97,
+                  115,
+                  117,
+                  114,
+                  121,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "organization"
+              }
+            ]
+          }
+        },
+        {
+          "name": "destination_token_account"
+        },
+        {
+          "name": "proposer_token_account"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "payment_amount",
+          "type": "u64"
+        },
+        {
+          "name": "assignee",
+          "type": "pubkey"
+        },
+        {
+          "name": "token_mint",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
       "name": "register_treasury_token",
       "discriminator": [
         95,
@@ -1905,16 +1683,16 @@
       ]
     },
     {
-      "name": "vote_on_task",
+      "name": "vote_on_task_proposal",
       "discriminator": [
-        57,
-        169,
-        87,
         164,
-        38,
-        53,
-        169,
-        33
+        149,
+        183,
+        34,
+        84,
+        171,
+        188,
+        228
       ],
       "accounts": [
         {
@@ -1929,11 +1707,7 @@
           "name": "project"
         },
         {
-          "name": "task",
-          "writable": true
-        },
-        {
-          "name": "transfer_proposal",
+          "name": "proposal",
           "writable": true
         },
         {
@@ -1979,13 +1753,11 @@
         },
         {
           "name": "destination_token_account",
-          "docs": [
-            "The destination token account for the task assignee"
-          ],
           "writable": true
         },
         {
-          "name": "token_mint"
+          "name": "task",
+          "writable": true
         },
         {
           "name": "task_vault",
@@ -2013,6 +1785,9 @@
               }
             ]
           }
+        },
+        {
+          "name": "token_mint"
         },
         {
           "name": "vault_token_account",
@@ -2256,6 +2031,19 @@
       ]
     },
     {
+      "name": "TaskProposal",
+      "discriminator": [
+        78,
+        34,
+        31,
+        107,
+        240,
+        206,
+        119,
+        26
+      ]
+    },
+    {
       "name": "TaskVault",
       "discriminator": [
         124,
@@ -2362,6 +2150,19 @@
       ]
     },
     {
+      "name": "TaskCreatedFromProposalEvent",
+      "discriminator": [
+        149,
+        1,
+        74,
+        195,
+        101,
+        102,
+        225,
+        25
+      ]
+    },
+    {
       "name": "TaskEvent",
       "discriminator": [
         30,
@@ -2385,6 +2186,32 @@
         103,
         96,
         165
+      ]
+    },
+    {
+      "name": "TaskProposalEvent",
+      "discriminator": [
+        38,
+        211,
+        82,
+        245,
+        116,
+        4,
+        251,
+        93
+      ]
+    },
+    {
+      "name": "TaskProposalVoteEvent",
+      "discriminator": [
+        227,
+        193,
+        82,
+        110,
+        232,
+        176,
+        197,
+        122
       ]
     },
     {
@@ -2537,7 +2364,7 @@
     {
       "code": 6003,
       "name": "InvalidContributor",
-      "msg": "Contributor is not valid or has expired"
+      "msg": "Only active contributors can perform this action"
     },
     {
       "code": 6004,
@@ -2718,6 +2545,26 @@
       "code": 6039,
       "name": "TaskNotCompleted",
       "msg": "Task must be completed before enabling withdrawal"
+    },
+    {
+      "code": 6040,
+      "name": "InvalidTaskAccount",
+      "msg": "The provided task account does not match the expected PDA"
+    },
+    {
+      "code": 6041,
+      "name": "TaskProposalNotFound",
+      "msg": "Task proposal not found"
+    },
+    {
+      "code": 6042,
+      "name": "TaskProposalNotActive",
+      "msg": "Task proposal must be in active status"
+    },
+    {
+      "code": 6043,
+      "name": "TaskProposalNotApproved",
+      "msg": "Task proposal must be approved to create a task"
     }
   ],
   "types": [
@@ -3208,6 +3055,46 @@
       }
     },
     {
+      "name": "TaskCreatedFromProposalEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "organization",
+            "type": "pubkey"
+          },
+          {
+            "name": "project",
+            "type": "pubkey"
+          },
+          {
+            "name": "proposal",
+            "type": "pubkey"
+          },
+          {
+            "name": "task",
+            "type": "pubkey"
+          },
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "assignee",
+            "type": "pubkey"
+          },
+          {
+            "name": "payment_amount",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
       "name": "TaskEvent",
       "type": {
         "kind": "struct",
@@ -3259,6 +3146,148 @@
           {
             "name": "token_mint",
             "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TaskProposal",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "project",
+            "type": "pubkey"
+          },
+          {
+            "name": "proposer",
+            "type": "pubkey"
+          },
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "payment_amount",
+            "type": "u64"
+          },
+          {
+            "name": "assignee",
+            "type": "pubkey"
+          },
+          {
+            "name": "token_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "destination",
+            "type": "pubkey"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "expires_at",
+            "type": "i64"
+          },
+          {
+            "name": "votes_for",
+            "type": "u32"
+          },
+          {
+            "name": "votes_against",
+            "type": "u32"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "ProposalStatus"
+              }
+            }
+          },
+          {
+            "name": "voters",
+            "type": {
+              "vec": "pubkey"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "TaskProposalEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "organization",
+            "type": "pubkey"
+          },
+          {
+            "name": "project",
+            "type": "pubkey"
+          },
+          {
+            "name": "proposal",
+            "type": "pubkey"
+          },
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "proposer",
+            "type": "pubkey"
+          },
+          {
+            "name": "assignee",
+            "type": "pubkey"
+          },
+          {
+            "name": "payment_amount",
+            "type": "u64"
+          },
+          {
+            "name": "token_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TaskProposalVoteEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "organization",
+            "type": "pubkey"
+          },
+          {
+            "name": "project",
+            "type": "pubkey"
+          },
+          {
+            "name": "proposal",
+            "type": "pubkey"
+          },
+          {
+            "name": "voter",
+            "type": "pubkey"
+          },
+          {
+            "name": "vote",
+            "type": "bool"
           },
           {
             "name": "timestamp",

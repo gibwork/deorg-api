@@ -31,6 +31,6 @@ export class ListOrganizationsUsecase {
       });
     }
 
-    return organizationsEnriched;
+    return organizationsEnriched.sort((a, b) => a.name.localeCompare(b.name));
   }
 }

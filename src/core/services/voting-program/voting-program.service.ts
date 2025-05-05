@@ -252,6 +252,8 @@ export class VotingProgramService {
       }
     ]);
 
+    const taskProposals = await program.account.taskProposal.all([]);
+
     const proposals = [
       ...contributorProposals.map((proposal) => ({
         type: ProposalType.CONTRIBUTOR,
@@ -280,6 +282,23 @@ export class VotingProgramService {
         votesAgainst: proposal.account.votesAgainst,
         status: Object.keys(proposal.account.status)[0],
         votesTotal: proposal.account.votesFor + proposal.account.votesAgainst
+      })),
+      ...taskProposals.map((proposal) => ({
+        type: ProposalType.TASK,
+        proposalAddress: proposal.publicKey.toBase58(),
+        organization: '',
+        candidate: proposal.account.assignee.toBase58(),
+        proposer: proposal.account.proposer.toBase58(),
+        proposedRate: proposal.account.paymentAmount.toNumber(),
+        createdAt: proposal.account.createdAt.toNumber(),
+        expiresAt: proposal.account.expiresAt.toNumber(),
+        votesFor: proposal.account.votesFor,
+        votesAgainst: proposal.account.votesAgainst,
+        status: Object.keys(proposal.account.status)[0],
+        votesTotal: proposal.account.votesFor + proposal.account.votesAgainst,
+        amount: proposal.account.paymentAmount.toNumber(),
+        project: proposal.account.project.toBase58(),
+        title: proposal.account.title
       }))
     ];
 
@@ -610,7 +629,6 @@ export class VotingProgramService {
     description: string; // New parameter for description
     organizationAddress: string; // Organization address
     userPrimaryWallet: string;
-    nonce?: number; // Optional nonce for unique PDA derivation
   }) {
     const connection: any = new Connection(this.heliusService.devnetRpcUrl);
     const program = new anchor.Program<GibworkVotingProgram>(
@@ -625,15 +643,6 @@ export class VotingProgramService {
       'Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'
     );
     const organization = new PublicKey(dto.organizationAddress);
-
-    const nonce = dto.nonce || Math.floor(Date.now() / 1000);
-
-    const [taskPDA] = await PublicKey.findProgramAddress(
-      [Buffer.from('task'), project.toBuffer(), Buffer.from(dto.title)],
-      this.PROGRAM_ID
-    );
-
-    console.log(`Task PDA: ${taskPDA.toString()}`);
 
     // Find treasury registry PDA
     const [tokenRegistryPDA] = await PublicKey.findProgramAddress(
@@ -735,38 +744,32 @@ export class VotingProgramService {
       `Treasury balance (UI): ${treasuryTokenAccountInfo.value.uiAmount}`
     );
 
-    const paymentAmountBN = new BN(paymentAmountTokenUnits);
-
-    const [transferProposalPDA] = await PublicKey.findProgramAddress(
+    // Calculate PDA for contributor proposal
+    const [proposalPDA] = await PublicKey.findProgramAddress(
       [
-        Buffer.from('treasury_transfer'),
-        organization.toBuffer(),
-        tokenMint.toBuffer(),
-        Buffer.from(paymentAmountBN.toArray('le', 8)),
-        new PublicKey(dto.userPrimaryWallet).toBuffer(),
-        Buffer.from(new BN(nonce).toArray('le', 8))
+        Buffer.from('task_proposal'),
+        project.toBuffer(),
+        Buffer.from(dto.title)
       ],
       this.PROGRAM_ID
     );
 
-    const instruction = program.instruction.createTask(
+    const instruction = program.instruction.proposeTask(
       dto.title,
       new BN(paymentAmountTokenUnits),
       assignee,
       tokenMint,
-      new BN(nonce),
       {
         accounts: {
-          creator: new PublicKey(dto.userPrimaryWallet),
+          proposer: new PublicKey(dto.userPrimaryWallet),
           organization,
           project,
-          task: taskPDA,
+          proposal: proposalPDA,
           tokenRegistry: tokenRegistryPDA,
-          transferProposal: transferProposalPDA,
           treasuryTokenAccount: treasuryTokenAccount,
           treasuryAuthority: treasuryAuthorityPDA,
           destinationTokenAccount: destinationTokenAccount,
-          creatorTokenAccount: creatorTokenAccount,
+          proposerTokenAccount: creatorTokenAccount,
           systemProgram: SystemProgram.programId
         }
       }
@@ -774,7 +777,7 @@ export class VotingProgramService {
 
     return {
       instruction,
-      taskPDA
+      proposalPDA
     };
   }
 

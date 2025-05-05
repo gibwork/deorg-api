@@ -38,7 +38,7 @@ export class CreateProposalTaskTransactionsUsecase {
       throw new BadRequestException('User is not a member of the project');
     }
 
-    const { instruction, taskPDA } =
+    const { instruction, proposalPDA } =
       await this.votingProgramService.createTaskProposal({
         assignee: dto.memberAccountAddress,
         description: dto.description,
@@ -59,7 +59,7 @@ export class CreateProposalTaskTransactionsUsecase {
         organizationId: project.organization.toBase58(),
         name: dto.title,
         members: [dto.memberAccountAddress],
-        taskPDA: taskPDA.toBase58()
+        proposalPDA: proposalPDA.toBase58()
       }
     });
 
