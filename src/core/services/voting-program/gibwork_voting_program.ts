@@ -257,357 +257,6 @@ export type GibworkVotingProgram = {
       ];
     },
     {
-      name: 'createTask';
-      discriminator: [194, 80, 6, 180, 232, 127, 48, 171];
-      accounts: [
-        {
-          name: 'creator';
-          writable: true;
-          signer: true;
-        },
-        {
-          name: 'organization';
-        },
-        {
-          name: 'project';
-        },
-        {
-          name: 'task';
-          writable: true;
-          pda: {
-            seeds: [
-              {
-                kind: 'const';
-                value: [116, 97, 115, 107];
-              },
-              {
-                kind: 'account';
-                path: 'project';
-              },
-              {
-                kind: 'arg';
-                path: 'title';
-              }
-            ];
-          };
-        },
-        {
-          name: 'tokenRegistry';
-          pda: {
-            seeds: [
-              {
-                kind: 'const';
-                value: [
-                  116,
-                  114,
-                  101,
-                  97,
-                  115,
-                  117,
-                  114,
-                  121,
-                  95,
-                  114,
-                  101,
-                  103,
-                  105,
-                  115,
-                  116,
-                  114,
-                  121
-                ];
-              },
-              {
-                kind: 'account';
-                path: 'organization';
-              }
-            ];
-          };
-        },
-        {
-          name: 'transferProposal';
-          writable: true;
-          pda: {
-            seeds: [
-              {
-                kind: 'const';
-                value: [
-                  116,
-                  114,
-                  101,
-                  97,
-                  115,
-                  117,
-                  114,
-                  121,
-                  95,
-                  116,
-                  114,
-                  97,
-                  110,
-                  115,
-                  102,
-                  101,
-                  114
-                ];
-              },
-              {
-                kind: 'account';
-                path: 'organization';
-              },
-              {
-                kind: 'arg';
-                path: 'tokenMint';
-              },
-              {
-                kind: 'arg';
-                path: 'paymentAmount';
-              },
-              {
-                kind: 'account';
-                path: 'creator';
-              },
-              {
-                kind: 'arg';
-                path: 'nonce';
-              }
-            ];
-          };
-        },
-        {
-          name: 'treasuryTokenAccount';
-          writable: true;
-        },
-        {
-          name: 'treasuryAuthority';
-          pda: {
-            seeds: [
-              {
-                kind: 'const';
-                value: [
-                  116,
-                  114,
-                  101,
-                  97,
-                  115,
-                  117,
-                  114,
-                  121,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121
-                ];
-              },
-              {
-                kind: 'account';
-                path: 'organization';
-              }
-            ];
-          };
-        },
-        {
-          name: 'destinationTokenAccount';
-        },
-        {
-          name: 'creatorTokenAccount';
-        },
-        {
-          name: 'systemProgram';
-          address: '11111111111111111111111111111111';
-        }
-      ];
-      args: [
-        {
-          name: 'title';
-          type: 'string';
-        },
-        {
-          name: 'paymentAmount';
-          type: 'u64';
-        },
-        {
-          name: 'assignee';
-          type: 'pubkey';
-        },
-        {
-          name: 'tokenMint';
-          type: 'pubkey';
-        },
-        {
-          name: 'nonce';
-          type: 'u64';
-        }
-      ];
-    },
-    {
-      name: 'createTaskVault';
-      discriminator: [86, 48, 186, 125, 170, 136, 140, 140];
-      accounts: [
-        {
-          name: 'creator';
-          writable: true;
-          signer: true;
-        },
-        {
-          name: 'organization';
-        },
-        {
-          name: 'project';
-        },
-        {
-          name: 'task';
-          writable: true;
-        },
-        {
-          name: 'transferProposal';
-        },
-        {
-          name: 'taskVault';
-          writable: true;
-          pda: {
-            seeds: [
-              {
-                kind: 'const';
-                value: [116, 97, 115, 107, 95, 118, 97, 117, 108, 116];
-              },
-              {
-                kind: 'account';
-                path: 'task';
-              }
-            ];
-          };
-        },
-        {
-          name: 'tokenMint';
-        },
-        {
-          name: 'vaultTokenAccount';
-          writable: true;
-          pda: {
-            seeds: [
-              {
-                kind: 'const';
-                value: [
-                  118,
-                  97,
-                  117,
-                  108,
-                  116,
-                  95,
-                  116,
-                  111,
-                  107,
-                  101,
-                  110,
-                  95,
-                  97,
-                  99,
-                  99,
-                  111,
-                  117,
-                  110,
-                  116
-                ];
-              },
-              {
-                kind: 'account';
-                path: 'task';
-              }
-            ];
-          };
-        },
-        {
-          name: 'vaultAuthority';
-          pda: {
-            seeds: [
-              {
-                kind: 'const';
-                value: [
-                  118,
-                  97,
-                  117,
-                  108,
-                  116,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121
-                ];
-              },
-              {
-                kind: 'account';
-                path: 'task';
-              }
-            ];
-          };
-        },
-        {
-          name: 'treasuryTokenAccount';
-          writable: true;
-        },
-        {
-          name: 'treasuryAuthority';
-          pda: {
-            seeds: [
-              {
-                kind: 'const';
-                value: [
-                  116,
-                  114,
-                  101,
-                  97,
-                  115,
-                  117,
-                  114,
-                  121,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121
-                ];
-              },
-              {
-                kind: 'account';
-                path: 'organization';
-              }
-            ];
-          };
-        },
-        {
-          name: 'systemProgram';
-          address: '11111111111111111111111111111111';
-        },
-        {
-          name: 'tokenProgram';
-          address: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA';
-        },
-        {
-          name: 'rent';
-          address: 'SysvarRent111111111111111111111111111111111';
-        }
-      ];
-      args: [];
-    },
-    {
       name: 'depositToTreasury';
       discriminator: [10, 195, 112, 242, 107, 206, 240, 198];
       accounts: [
@@ -1192,6 +841,156 @@ export type GibworkVotingProgram = {
       ];
     },
     {
+      name: 'proposeTask';
+      discriminator: [245, 15, 241, 192, 72, 128, 60, 37];
+      accounts: [
+        {
+          name: 'proposer';
+          writable: true;
+          signer: true;
+        },
+        {
+          name: 'organization';
+        },
+        {
+          name: 'project';
+        },
+        {
+          name: 'proposal';
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                value: [
+                  116,
+                  97,
+                  115,
+                  107,
+                  95,
+                  112,
+                  114,
+                  111,
+                  112,
+                  111,
+                  115,
+                  97,
+                  108
+                ];
+              },
+              {
+                kind: 'account';
+                path: 'project';
+              },
+              {
+                kind: 'arg';
+                path: 'title';
+              }
+            ];
+          };
+        },
+        {
+          name: 'tokenRegistry';
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                value: [
+                  116,
+                  114,
+                  101,
+                  97,
+                  115,
+                  117,
+                  114,
+                  121,
+                  95,
+                  114,
+                  101,
+                  103,
+                  105,
+                  115,
+                  116,
+                  114,
+                  121
+                ];
+              },
+              {
+                kind: 'account';
+                path: 'organization';
+              }
+            ];
+          };
+        },
+        {
+          name: 'treasuryTokenAccount';
+          writable: true;
+        },
+        {
+          name: 'treasuryAuthority';
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                value: [
+                  116,
+                  114,
+                  101,
+                  97,
+                  115,
+                  117,
+                  114,
+                  121,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ];
+              },
+              {
+                kind: 'account';
+                path: 'organization';
+              }
+            ];
+          };
+        },
+        {
+          name: 'destinationTokenAccount';
+        },
+        {
+          name: 'proposerTokenAccount';
+        },
+        {
+          name: 'systemProgram';
+          address: '11111111111111111111111111111111';
+        }
+      ];
+      args: [
+        {
+          name: 'title';
+          type: 'string';
+        },
+        {
+          name: 'paymentAmount';
+          type: 'u64';
+        },
+        {
+          name: 'assignee';
+          type: 'pubkey';
+        },
+        {
+          name: 'tokenMint';
+          type: 'pubkey';
+        }
+      ];
+    },
+    {
       name: 'registerTreasuryToken';
       discriminator: [95, 243, 188, 15, 218, 39, 171, 207];
       accounts: [
@@ -1660,8 +1459,8 @@ export type GibworkVotingProgram = {
       ];
     },
     {
-      name: 'voteOnTask';
-      discriminator: [57, 169, 87, 164, 38, 53, 169, 33];
+      name: 'voteOnTaskProposal';
+      discriminator: [164, 149, 183, 34, 84, 171, 188, 228];
       accounts: [
         {
           name: 'voter';
@@ -1675,11 +1474,7 @@ export type GibworkVotingProgram = {
           name: 'project';
         },
         {
-          name: 'task';
-          writable: true;
-        },
-        {
-          name: 'transferProposal';
+          name: 'proposal';
           writable: true;
         },
         {
@@ -1725,11 +1520,11 @@ export type GibworkVotingProgram = {
         },
         {
           name: 'destinationTokenAccount';
-          docs: ['The destination token account for the task assignee'];
           writable: true;
         },
         {
-          name: 'tokenMint';
+          name: 'task';
+          writable: true;
         },
         {
           name: 'taskVault';
@@ -1746,6 +1541,9 @@ export type GibworkVotingProgram = {
               }
             ];
           };
+        },
+        {
+          name: 'tokenMint';
         },
         {
           name: 'vaultTokenAccount';
@@ -1926,6 +1724,10 @@ export type GibworkVotingProgram = {
       discriminator: [79, 34, 229, 55, 88, 90, 55, 84];
     },
     {
+      name: 'taskProposal';
+      discriminator: [78, 34, 31, 107, 240, 206, 119, 26];
+    },
+    {
       name: 'taskVault';
       discriminator: [124, 9, 240, 12, 233, 41, 64, 133];
     },
@@ -1960,12 +1762,24 @@ export type GibworkVotingProgram = {
       discriminator: [8, 139, 204, 225, 74, 89, 212, 253];
     },
     {
+      name: 'taskCreatedFromProposalEvent';
+      discriminator: [149, 1, 74, 195, 101, 102, 225, 25];
+    },
+    {
       name: 'taskEvent';
       discriminator: [30, 194, 51, 221, 107, 122, 192, 141];
     },
     {
       name: 'taskPaymentEvent';
       discriminator: [114, 107, 151, 191, 73, 103, 96, 165];
+    },
+    {
+      name: 'taskProposalEvent';
+      discriminator: [38, 211, 82, 245, 116, 4, 251, 93];
+    },
+    {
+      name: 'taskProposalVoteEvent';
+      discriminator: [227, 193, 82, 110, 232, 176, 197, 122];
     },
     {
       name: 'taskStatusChangeEvent';
@@ -2208,6 +2022,26 @@ export type GibworkVotingProgram = {
       code: 6039;
       name: 'taskNotCompleted';
       msg: 'Task must be completed before enabling withdrawal';
+    },
+    {
+      code: 6040;
+      name: 'invalidTaskAccount';
+      msg: 'The provided task account does not match the expected PDA';
+    },
+    {
+      code: 6041;
+      name: 'taskProposalNotFound';
+      msg: 'Task proposal not found';
+    },
+    {
+      code: 6042;
+      name: 'taskProposalNotActive';
+      msg: 'Task proposal must be in active status';
+    },
+    {
+      code: 6043;
+      name: 'taskProposalNotApproved';
+      msg: 'Task proposal must be approved to create a task';
     }
   ];
   types: [
@@ -2692,6 +2526,42 @@ export type GibworkVotingProgram = {
       };
     },
     {
+      name: 'taskCreatedFromProposalEvent';
+      type: {
+        kind: 'struct';
+        fields: [
+          {
+            name: 'project';
+            type: 'pubkey';
+          },
+          {
+            name: 'proposal';
+            type: 'pubkey';
+          },
+          {
+            name: 'task';
+            type: 'pubkey';
+          },
+          {
+            name: 'title';
+            type: 'string';
+          },
+          {
+            name: 'assignee';
+            type: 'pubkey';
+          },
+          {
+            name: 'paymentAmount';
+            type: 'u64';
+          },
+          {
+            name: 'timestamp';
+            type: 'i64';
+          }
+        ];
+      };
+    },
+    {
       name: 'taskEvent';
       type: {
         kind: 'struct';
@@ -2743,6 +2613,140 @@ export type GibworkVotingProgram = {
           {
             name: 'tokenMint';
             type: 'pubkey';
+          },
+          {
+            name: 'timestamp';
+            type: 'i64';
+          }
+        ];
+      };
+    },
+    {
+      name: 'taskProposal';
+      type: {
+        kind: 'struct';
+        fields: [
+          {
+            name: 'project';
+            type: 'pubkey';
+          },
+          {
+            name: 'proposer';
+            type: 'pubkey';
+          },
+          {
+            name: 'title';
+            type: 'string';
+          },
+          {
+            name: 'paymentAmount';
+            type: 'u64';
+          },
+          {
+            name: 'assignee';
+            type: 'pubkey';
+          },
+          {
+            name: 'tokenMint';
+            type: 'pubkey';
+          },
+          {
+            name: 'destination';
+            type: 'pubkey';
+          },
+          {
+            name: 'createdAt';
+            type: 'i64';
+          },
+          {
+            name: 'expiresAt';
+            type: 'i64';
+          },
+          {
+            name: 'votesFor';
+            type: 'u32';
+          },
+          {
+            name: 'votesAgainst';
+            type: 'u32';
+          },
+          {
+            name: 'status';
+            type: {
+              defined: {
+                name: 'proposalStatus';
+              };
+            };
+          },
+          {
+            name: 'voters';
+            type: {
+              vec: 'pubkey';
+            };
+          }
+        ];
+      };
+    },
+    {
+      name: 'taskProposalEvent';
+      type: {
+        kind: 'struct';
+        fields: [
+          {
+            name: 'project';
+            type: 'pubkey';
+          },
+          {
+            name: 'proposal';
+            type: 'pubkey';
+          },
+          {
+            name: 'title';
+            type: 'string';
+          },
+          {
+            name: 'proposer';
+            type: 'pubkey';
+          },
+          {
+            name: 'assignee';
+            type: 'pubkey';
+          },
+          {
+            name: 'paymentAmount';
+            type: 'u64';
+          },
+          {
+            name: 'tokenMint';
+            type: 'pubkey';
+          },
+          {
+            name: 'timestamp';
+            type: 'i64';
+          }
+        ];
+      };
+    },
+    {
+      name: 'taskProposalVoteEvent';
+      type: {
+        kind: 'struct';
+        fields: [
+          {
+            name: 'project';
+            type: 'pubkey';
+          },
+          {
+            name: 'proposal';
+            type: 'pubkey';
+          },
+          {
+            name: 'voter';
+            type: 'pubkey';
+          },
+          {
+            name: 'vote';
+            type: 'bool';
           },
           {
             name: 'timestamp';
