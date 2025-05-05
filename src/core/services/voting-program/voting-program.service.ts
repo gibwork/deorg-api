@@ -252,14 +252,7 @@ export class VotingProgramService {
       }
     ]);
 
-    const taskProposals = await program.account.taskProposal.all([
-      {
-        memcmp: {
-          offset: 8,
-          bytes: organizationAccount
-        }
-      }
-    ]);
+    const taskProposals = await program.account.taskProposal.all([]);
 
     const proposals = [
       ...contributorProposals.map((proposal) => ({
@@ -651,13 +644,6 @@ export class VotingProgramService {
     );
     const organization = new PublicKey(dto.organizationAddress);
 
-    const [taskPDA] = await PublicKey.findProgramAddress(
-      [Buffer.from('task'), project.toBuffer(), Buffer.from(dto.title)],
-      this.PROGRAM_ID
-    );
-
-    console.log(`Task PDA: ${taskPDA.toString()}`);
-
     // Find treasury registry PDA
     const [tokenRegistryPDA] = await PublicKey.findProgramAddress(
       [Buffer.from('treasury_registry'), organization.toBuffer()],
@@ -762,7 +748,6 @@ export class VotingProgramService {
     const [proposalPDA] = await PublicKey.findProgramAddress(
       [
         Buffer.from('task_proposal'),
-        organization.toBuffer(),
         project.toBuffer(),
         Buffer.from(dto.title)
       ],
@@ -792,7 +777,7 @@ export class VotingProgramService {
 
     return {
       instruction,
-      taskPDA
+      proposalPDA
     };
   }
 

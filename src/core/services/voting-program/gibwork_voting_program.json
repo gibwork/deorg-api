@@ -1011,6 +1011,10 @@
               },
               {
                 "kind": "account",
+                "path": "organization"
+              },
+              {
+                "kind": "account",
                 "path": "project"
               },
               {
@@ -2360,7 +2364,7 @@
     {
       "code": 6003,
       "name": "InvalidContributor",
-      "msg": "Contributor is not valid or has expired"
+      "msg": "Only active contributors can perform this action"
     },
     {
       "code": 6004,
@@ -3056,6 +3060,10 @@
         "kind": "struct",
         "fields": [
           {
+            "name": "organization",
+            "type": "pubkey"
+          },
+          {
             "name": "project",
             "type": "pubkey"
           },
@@ -3218,6 +3226,10 @@
         "kind": "struct",
         "fields": [
           {
+            "name": "organization",
+            "type": "pubkey"
+          },
+          {
             "name": "project",
             "type": "pubkey"
           },
@@ -3257,6 +3269,10 @@
       "type": {
         "kind": "struct",
         "fields": [
+          {
+            "name": "organization",
+            "type": "pubkey"
+          },
           {
             "name": "project",
             "type": "pubkey"

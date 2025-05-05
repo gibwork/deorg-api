@@ -880,6 +880,10 @@ export type GibworkVotingProgram = {
               },
               {
                 kind: 'account';
+                path: 'organization';
+              },
+              {
+                kind: 'account';
                 path: 'project';
               },
               {
@@ -1841,7 +1845,7 @@ export type GibworkVotingProgram = {
     {
       code: 6003;
       name: 'invalidContributor';
-      msg: 'Contributor is not valid or has expired';
+      msg: 'Only active contributors can perform this action';
     },
     {
       code: 6004;
@@ -2531,6 +2535,10 @@ export type GibworkVotingProgram = {
         kind: 'struct';
         fields: [
           {
+            name: 'organization';
+            type: 'pubkey';
+          },
+          {
             name: 'project';
             type: 'pubkey';
           },
@@ -2693,6 +2701,10 @@ export type GibworkVotingProgram = {
         kind: 'struct';
         fields: [
           {
+            name: 'organization';
+            type: 'pubkey';
+          },
+          {
             name: 'project';
             type: 'pubkey';
           },
@@ -2732,6 +2744,10 @@ export type GibworkVotingProgram = {
       type: {
         kind: 'struct';
         fields: [
+          {
+            name: 'organization';
+            type: 'pubkey';
+          },
           {
             name: 'project';
             type: 'pubkey';
