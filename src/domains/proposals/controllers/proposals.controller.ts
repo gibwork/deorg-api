@@ -23,9 +23,14 @@ export class ProposalsController {
   @Post(':proposalAccountAddress/vote')
   async voteProposal(
     @Param('proposalAccountAddress') proposalAccountAddress: string,
+    @Param('orgAccountAddress') orgAccountAddress: string,
     @Body() body: VoteProposalDto
   ) {
-    return this.voteProposalUsecase.execute(proposalAccountAddress, body);
+    return this.voteProposalUsecase.execute(
+      proposalAccountAddress,
+      orgAccountAddress,
+      body
+    );
   }
 
   @Post('/contributor')

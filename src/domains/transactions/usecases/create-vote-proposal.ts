@@ -1,7 +1,8 @@
 import {
   Injectable,
   NotFoundException,
-  ForbiddenException
+  ForbiddenException,
+  BadRequestException
 } from '@nestjs/common';
 import { ProposalService } from '@domains/proposals/services/proposal.service';
 import { VotingProgramService } from '@core/services/voting-program/voting-program.service';
@@ -12,11 +13,7 @@ import { VoteProposalDto } from '../dto/vote-proposal.dto';
 import { HeliusService } from '@core/services/helius/helius.service';
 import { TransactionService } from '../services/transaction.service';
 import { TransactionType } from '../entities/transaction.entity';
-import {
-  ProposalEntity,
-  ProposalType
-} from '@domains/proposals/entities/proposal.entity';
-import { UserEntity } from '@domains/users/entities/user.entity';
+import { Proposal, ProposalType } from '@core/services/voting-program/types';
 @Injectable()
 export class CreateVoteProposalUseCase {
   constructor(
@@ -33,25 +30,8 @@ export class CreateVoteProposalUseCase {
     userId: string,
     organizationId: string
   ) {
-    const proposal = await this.proposalService.findOne({
-      where: {
-        accountAddress: proposalAccountAddress
-      },
-      relations: {
-        organization: {
-          members: { user: true }
-        }
-      }
-    });
-
-    if (!proposal) {
-      throw new NotFoundException('Proposal not found');
-    }
-
     const onChainOrganization =
-      await this.votingProgramService.getOrganizationDetails(
-        proposal.organization.accountAddress!
-      );
+      await this.votingProgramService.getOrganizationDetails(organizationId);
 
     const user = await this.userService.findOne({
       where: {
@@ -63,9 +43,20 @@ export class CreateVoteProposalUseCase {
       throw new NotFoundException('User not found');
     }
 
+    const proposals =
+      await this.votingProgramService.getOrganizationProposals(organizationId);
+
+    const proposal = proposals.find(
+      (proposal) => proposal.proposalAddress === proposalAccountAddress
+    );
+
+    if (!proposal) {
+      throw new NotFoundException('Proposal not found');
+    }
+
     const contributors =
       await this.votingProgramService.getOrganizationContributors(
-        proposal.organization.accountAddress!
+        organizationId
       );
 
     const contributor = contributors?.find(
@@ -78,11 +69,14 @@ export class CreateVoteProposalUseCase {
       );
     }
 
-    const { instruction } = await this.createTransaction(
-      proposal,
-      user,
-      dto.vote
-    );
+    const { instruction } = await this.createTransaction({
+      organizationAddress: organizationId,
+      proposalAddress: proposalAccountAddress,
+      proposerWallet: user.walletAddress,
+      vote: dto.vote,
+      type: proposal.type,
+      proposal
+    });
 
     const transaction = await this.transactionService.create({
       type:
@@ -113,30 +107,56 @@ export class CreateVoteProposalUseCase {
     };
   }
 
-  private async createTransaction(
-    proposal: ProposalEntity,
-    user: UserEntity,
-    vote: boolean
-  ) {
-    if (proposal.type === ProposalType.PROJECT) {
+  private async createTransaction(params: {
+    organizationAddress: string;
+    proposalAddress: string;
+    proposerWallet: string;
+    vote: boolean;
+    type: ProposalType;
+    proposal: Proposal;
+  }) {
+    const { organizationAddress, proposalAddress, proposerWallet, vote, type } =
+      params;
+
+    if (type === ProposalType.PROJECT) {
       const { instruction } =
         await this.votingProgramService.voteProjectProposal({
-          organizationAddress: proposal.organization.accountAddress!,
-          proposalAddress: proposal.accountAddress,
-          proposerWallet: user.walletAddress,
+          organizationAddress,
+          proposalAddress,
+          proposerWallet,
           vote
         });
 
       return {
         instruction
       };
-    } else {
-      const { instruction } = await this.votingProgramService.voteProposal({
-        organizationAddress: proposal.organization.accountAddress!,
-        proposalAddress: proposal.accountAddress,
-        proposerWallet: user.walletAddress,
+    } else if (type === ProposalType.TASK) {
+      if (!params.proposal.projectAddress || !params.proposal.assignee) {
+        throw new BadRequestException(
+          'Project address and assignee are required'
+        );
+      }
+
+      const { instruction } = await this.votingProgramService.voteTaskProposal({
+        projectAddress: params.proposal.projectAddress,
+        assignee: params.proposal.assignee,
+        organizationAddress,
+        proposalAddress,
+        proposerWallet,
         vote
       });
+
+      return {
+        instruction
+      };
+    } else {
+      const { instruction } =
+        await this.votingProgramService.voteContributorProposal({
+          organizationAddress,
+          proposalAddress,
+          proposerWallet,
+          vote
+        });
 
       return {
         instruction

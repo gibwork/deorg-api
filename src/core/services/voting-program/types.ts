@@ -19,6 +19,8 @@ export type Proposal = {
   votesAgainst: number;
   status: any;
   votesTotal: number;
+  projectAddress?: string;
+  assignee?: string;
 };
 
 export type CreateOrganizationDto = {

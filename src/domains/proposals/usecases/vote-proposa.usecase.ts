@@ -5,22 +5,36 @@ import { TransactionService } from '@domains/transactions/services/transaction.s
 import { Connection } from '@solana/web3.js';
 import { HeliusService } from '@core/services/helius/helius.service';
 import { sendTransaction } from '@utils/sendTransaction';
+import { VotingProgramService } from '@core/services/voting-program/voting-program.service';
+
 @Injectable()
 export class VoteProposalUsecase {
   constructor(
     private readonly proposalService: ProposalService,
     private readonly transactionService: TransactionService,
-    private readonly heliusService: HeliusService
+    private readonly heliusService: HeliusService,
+    private readonly votingProgramService: VotingProgramService
   ) {}
 
   private connection = new Connection(this.heliusService.devnetRpcUrl);
 
-  async execute(proposalAccountAddress: string, dto: VoteProposalDto) {
-    const proposal = await this.proposalService.findOne({
-      where: {
-        accountAddress: proposalAccountAddress
-      }
-    });
+  async execute(
+    proposalAccountAddress: string,
+    orgAccountAddress: string,
+    dto: VoteProposalDto
+  ) {
+    const onChainProposal =
+      await this.votingProgramService.getOrganizationProposals(
+        orgAccountAddress
+      );
+
+    if (!onChainProposal) {
+      throw new NotFoundException('Proposal not found');
+    }
+
+    const proposal = onChainProposal.find(
+      (proposal) => proposal.proposalAddress === proposalAccountAddress
+    );
 
     if (!proposal) {
       throw new NotFoundException('Proposal not found');
