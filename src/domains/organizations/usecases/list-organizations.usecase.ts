@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { OrganizationService } from '../services/organization.service';
 import { VotingProgramService } from '@core/services/voting-program/voting-program.service';
+import { In } from 'typeorm';
 
 @Injectable()
 export class ListOrganizationsUsecase {
@@ -11,25 +12,28 @@ export class ListOrganizationsUsecase {
 
   async execute() {
     const organizations = await this.votingProgramService.getOrganizations();
+    const accountAddresses = organizations.map((org) => org.accountAddress);
 
-    const organizationsEnriched: any[] = [];
-
-    for (const organization of organizations) {
-      const organizationEntity = await this.organizationService.findOne({
-        where: { accountAddress: organization.accountAddress },
-        relations: {
-          members: {
-            user: true
-          }
+    const organizationEntities = await this.organizationService.find({
+      where: { accountAddress: In(accountAddresses) } as any,
+      relations: {
+        members: {
+          user: true
         }
-      });
+      }
+    });
 
-      organizationsEnriched.push({
-        ...organization,
-        ...organizationEntity,
-        members: organizationEntity ? organizationEntity.members : []
-      });
-    }
+    const organizationsEnriched = organizations.map((org) => {
+      const entity = organizationEntities.find(
+        (e) => e.accountAddress === org.accountAddress
+      );
+
+      return {
+        ...org,
+        ...entity,
+        members: entity?.members || []
+      };
+    });
 
     return organizationsEnriched.sort((a, b) => a.name.localeCompare(b.name));
   }
