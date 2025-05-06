@@ -344,7 +344,7 @@ export class VotingProgramService {
         mint: tokenMint
       });
 
-    const treasuryTokenAccount = existingTokenAccounts.value[0].pubkey;
+    const treasuryTokenAccount = existingTokenAccounts?.value[0]?.pubkey;
     let treasuryBalance = {
       raw: 0,
       ui: 0,
