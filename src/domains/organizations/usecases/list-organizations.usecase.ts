@@ -28,10 +28,17 @@ export class ListOrganizationsUsecase {
         (e) => e.accountAddress === org.accountAddress
       );
 
+      const members = [
+        ...new Set([
+          ...(entity?.members.map((m) => m.user.walletAddress) || []),
+          ...(org.contributors || [])
+        ])
+      ];
+
       return {
         ...org,
         ...entity,
-        members: entity?.members || []
+        members
       };
     });
 
