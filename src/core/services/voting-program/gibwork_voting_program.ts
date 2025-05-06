@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/gibwork_voting_program.json`.
  */
 export type GibworkVotingProgram = {
-  address: 'o7S2AKHnDyx7nPqoTu4LRKFUf1xPWfrovTgEMqyLoFT';
+  address: '57j8AKVdg5uWhmy6PQzm25KQDJHJzXHv1L6JfXV1Zgvi';
   metadata: {
     name: 'gibworkVotingProgram';
     version: '0.1.0';
