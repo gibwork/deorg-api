@@ -4,7 +4,12 @@ import { VotingProgramService } from '@core/services/voting-program/voting-progr
 import { v4 as uuidv4 } from 'uuid';
 import { DepositOrganizationDto } from '../dto/create-organization-transaction.dto';
 import { UserEntity } from '@domains/users/entities/user.entity';
-import { Connection, Transaction } from '@solana/web3.js';
+import {
+  ComputeBudgetProgram,
+  Connection,
+  Keypair,
+  Transaction
+} from '@solana/web3.js';
 import { PublicKey } from '@solana/web3.js';
 import { HeliusService } from '@core/services/helius/helius.service';
 import { TransactionType } from '../entities/transaction.entity';
@@ -43,8 +48,44 @@ export class CreateOrganizationTransactionsUsecase {
         organizationId
       });
 
-    const tx = new Transaction().add(instruction);
+    const { instruction: initTreasuryTokenInstruction } =
+      await this.votingProgramService.initTreasuryRegistry(
+        organizationPDA.toBase58(),
+        user.walletAddress
+      );
+
+    const treasuryTokenKeypair = new Keypair();
+
+    const { instruction: registerTreasuryTokenInstruction } =
+      await this.votingProgramService.registerTreasuryToken(
+        organizationPDA.toBase58(),
+        user.walletAddress,
+        treasuryTokenKeypair
+      );
+
+    const tx = new Transaction();
+
+    // Add all instructions to the transaction
+    tx.add(instruction);
+    if (initTreasuryTokenInstruction) {
+      tx.add(initTreasuryTokenInstruction);
+    }
+    if (registerTreasuryTokenInstruction) {
+      tx.add(
+        ComputeBudgetProgram.setComputeUnitLimit({
+          units: 400000
+        })
+      );
+      tx.add(registerTreasuryTokenInstruction);
+    }
+
+    // Set the fee payer and recent blockhash
     tx.feePayer = new PublicKey(user.walletAddress);
+    tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+
+    if (registerTreasuryTokenInstruction) {
+      tx.sign(treasuryTokenKeypair);
+    }
 
     const transaction = await this.transactionService.create({
       type: TransactionType.CREATE_ORGANIZATION,
@@ -55,8 +96,6 @@ export class CreateOrganizationTransactionsUsecase {
         ...dto
       }
     });
-
-    tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
 
     return {
       serializedTransaction: tx
