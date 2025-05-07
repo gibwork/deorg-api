@@ -1,14 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateTaskDto } from '../dto/create-task.dto';
-import { Connection } from '@solana/web3.js';
 import { UserEntity } from '@domains/users/entities/user.entity';
-import { TransactionType } from '@domains/transactions/entities/transaction.entity';
 import { TransactionService } from '@domains/transactions/services/transaction.service';
 import { HeliusService } from '@core/services/helius/helius.service';
+import { TransactionType } from '@domains/transactions/entities/transaction.entity';
+import { NotFoundException, Injectable } from '@nestjs/common';
+import { EnableWithdrawDto } from '../dto/enalbe-withdraw.dto';
+import { Connection } from '@solana/web3.js';
 import { sendTransaction } from '@utils/sendTransaction';
 
 @Injectable()
-export class CreateTaskUsecase {
+export class EnableWithdrawUsecase {
   constructor(
     private readonly transactionService: TransactionService,
     private readonly heliusService: HeliusService
@@ -16,12 +16,12 @@ export class CreateTaskUsecase {
 
   private connection = new Connection(this.heliusService.devnetRpcUrl);
 
-  async execute(dto: CreateTaskDto, user: UserEntity) {
+  async execute(dto: EnableWithdrawDto, user: UserEntity) {
     const transaction = await this.transactionService.findOne({
       where: {
         id: dto.transactionId,
         createdBy: user.id,
-        type: TransactionType.CREATE_TASK
+        type: TransactionType.ENABLE_TASK_WITHDRAWAL
       }
     });
 

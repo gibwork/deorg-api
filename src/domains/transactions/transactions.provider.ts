@@ -8,6 +8,7 @@ import { CreateVoteProposalUseCase } from './usecases/create-vote-proposal';
 import { CreateProposalProjectTransactionUsecase } from './usecases/create-proposal-project-transaction.usecase';
 import { CreateProposalTaskTransactionsUsecase } from './usecases/create-proposal-task-transactions.usecase';
 import { CompleteTaskTransactionUsecase } from './usecases/complete-task-transaction.usecase';
+import { EnableTaskWithdrawTransactionUsecase } from './usecases/enable-task-withdraw-transaction.usecase';
 
 export const TransactionsProvider: ModuleMetadata = {
   controllers: [TransactionController],
@@ -19,6 +20,7 @@ export const TransactionsProvider: ModuleMetadata = {
     CreateVoteProposalUseCase,
     CreateProposalProjectTransactionUsecase,
     CreateProposalTaskTransactionsUsecase,
-    CompleteTaskTransactionUsecase
+    CompleteTaskTransactionUsecase,
+    EnableTaskWithdrawTransactionUsecase
   ]
 };

@@ -8,6 +8,8 @@ import { AuthGuard } from '@core/guards/auth.guard';
 import { ListTasksUsecase } from '../usecases/list-tasks.usecase';
 import { CompleteTaskDto } from '../dto/complete-task.dto';
 import { CompleteTaskUsecase } from '../usecases/complete-task.usecase';
+import { EnableWithdrawDto } from '../dto/enalbe-withdraw.dto';
+import { EnableWithdrawUsecase } from '../usecases/enable-withdraw.usecase';
 
 @Controller('tasks')
 @ApiTags('Tasks')
@@ -16,7 +18,8 @@ export class TasksController {
   constructor(
     private readonly createTaskUsecase: CreateTaskUsecase,
     private readonly listTasksUsecase: ListTasksUsecase,
-    private readonly completeTaskUsecase: CompleteTaskUsecase
+    private readonly completeTaskUsecase: CompleteTaskUsecase,
+    private readonly enableWithdrawUsecase: EnableWithdrawUsecase
   ) {}
 
   @Get('project/:projectAddress')
@@ -38,5 +41,13 @@ export class TasksController {
     @UserDecorator() user: UserEntity
   ) {
     return this.completeTaskUsecase.execute(dto, user);
+  }
+
+  @Post('enable-withdraw')
+  async enableWithdraw(
+    @Body() dto: EnableWithdrawDto,
+    @UserDecorator() user: UserEntity
+  ) {
+    return this.enableWithdrawUsecase.execute(dto, user);
   }
 }

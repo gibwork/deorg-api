@@ -14,6 +14,8 @@ import { CreateProposalProjectTransactionUsecase } from '../usecases/create-prop
 import { CreateProposalTaskTransactionDto } from '../dto/create-proposal-task-transaction.dto';
 import { CreateProposalTaskTransactionsUsecase } from '../usecases/create-proposal-task-transactions.usecase';
 import { CompleteTaskTransactionUsecase } from '../usecases/complete-task-transaction.usecase';
+import { EnableTaskWithdrawTransactionUsecase } from '../usecases/enable-task-withdraw-transaction.usecase';
+
 @Controller('transactions')
 @ApiTags('Transactions')
 @UseGuards(AuthGuard)
@@ -24,7 +26,8 @@ export class TransactionController {
     private readonly createVoteProposalUseCase: CreateVoteProposalUseCase,
     private readonly createProposalProjectTransactionUsecase: CreateProposalProjectTransactionUsecase,
     private readonly createProposalTaskTransactionsUsecase: CreateProposalTaskTransactionsUsecase,
-    private readonly completeTaskTransactionUsecase: CompleteTaskTransactionUsecase
+    private readonly completeTaskTransactionUsecase: CompleteTaskTransactionUsecase,
+    private readonly enableTaskWithdrawTransactionUsecase: EnableTaskWithdrawTransactionUsecase
   ) {}
 
   @Post('organization')
@@ -79,5 +82,13 @@ export class TransactionController {
     @UserDecorator() user: UserEntity
   ) {
     return this.completeTaskTransactionUsecase.execute(taskAddress, user);
+  }
+
+  @Post('tasks/:taskAddress/enable-withdrawal')
+  async enableTaskWithdrawal(
+    @Param('taskAddress') taskAddress: string,
+    @UserDecorator() user: UserEntity
+  ) {
+    return this.enableTaskWithdrawTransactionUsecase.execute(taskAddress, user);
   }
 }

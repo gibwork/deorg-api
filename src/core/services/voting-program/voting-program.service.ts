@@ -1206,6 +1206,10 @@ export class VotingProgramService {
 
     const task = await program.account.task.fetch(new PublicKey(taskAddress));
 
+    if (!task.vault) {
+      throw new Error('Task vault not found');
+    }
+
     // Find task vault PDA
     const [taskVaultPDA] = await PublicKey.findProgramAddress(
       [Buffer.from('task_vault'), new PublicKey(taskAddress).toBuffer()],
@@ -1255,6 +1259,52 @@ export class VotingProgramService {
     return {
       instruction,
       assigneeTokenAccount
+    };
+  }
+
+  async enableTaskVaultWithdrawal(taskAddress: string, reviewer: string) {
+    const connection: any = new Connection(this.heliusService.devnetRpcUrl);
+
+    // Create a dummy wallet provider for read-only operations
+    const dummyWallet = {
+      publicKey: PublicKey.default,
+      signTransaction: async (tx: any) => tx,
+      signAllTransactions: async (txs: any[]) => txs
+    } as anchor.Wallet;
+
+    const provider = new anchor.AnchorProvider(connection, dummyWallet, {
+      commitment: 'confirmed',
+      preflightCommitment: 'confirmed'
+    });
+
+    const program = new anchor.Program<GibworkVotingProgram>(
+      idl as GibworkVotingProgram,
+      provider
+    );
+
+    const task = await program.account.task.fetch(new PublicKey(taskAddress));
+
+    if (!task) {
+      throw new Error('Task not found');
+    }
+
+    if (!task.vault) {
+      throw new Error('Task vault not found');
+    }
+
+    const instruction = program.instruction.enableTaskVaultWithdrawal({
+      accounts: {
+        reviewer: new PublicKey(reviewer),
+        project: task.project,
+        task: new PublicKey(taskAddress),
+        taskVault: task.vault,
+        systemProgram: SystemProgram.programId,
+        rent: SYSVAR_RENT_PUBKEY.toString()
+      }
+    });
+
+    return {
+      instruction
     };
   }
 }
