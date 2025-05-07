@@ -10,6 +10,8 @@ import { CompleteTaskDto } from '../dto/complete-task.dto';
 import { CompleteTaskUsecase } from '../usecases/complete-task.usecase';
 import { EnableWithdrawDto } from '../dto/enalbe-withdraw.dto';
 import { EnableWithdrawUsecase } from '../usecases/enable-withdraw.usecase';
+import { WithdrawTaskDto } from '../dto/withdraw-task.dto';
+import { WithdrawTaskUsecase } from '../usecases/withdraw-task.usecase';
 
 @Controller('tasks')
 @ApiTags('Tasks')
@@ -19,7 +21,8 @@ export class TasksController {
     private readonly createTaskUsecase: CreateTaskUsecase,
     private readonly listTasksUsecase: ListTasksUsecase,
     private readonly completeTaskUsecase: CompleteTaskUsecase,
-    private readonly enableWithdrawUsecase: EnableWithdrawUsecase
+    private readonly enableWithdrawUsecase: EnableWithdrawUsecase,
+    private readonly withdrawTaskUsecase: WithdrawTaskUsecase
   ) {}
 
   @Get('project/:projectAddress')
@@ -49,5 +52,13 @@ export class TasksController {
     @UserDecorator() user: UserEntity
   ) {
     return this.enableWithdrawUsecase.execute(dto, user);
+  }
+
+  @Post('withdraw-funds')
+  async withdrawFunds(
+    @Body() dto: WithdrawTaskDto,
+    @UserDecorator() user: UserEntity
+  ) {
+    return this.withdrawTaskUsecase.execute(dto, user);
   }
 }
