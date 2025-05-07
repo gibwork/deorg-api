@@ -22,15 +22,15 @@ export class CreateProposalTaskTransactionsUsecase {
   async execute(dto: CreateProposalTaskTransactionDto, user: UserEntity) {
     const connection = new Connection(this.heliusService.devnetRpcUrl);
 
-    const project = await this.votingProgramService.getProjectDetails(
+    const onChainProject = await this.votingProgramService.getProjectDetails(
       dto.projectAccountAddress
     );
 
-    if (!project) {
+    if (!onChainProject) {
       throw new NotFoundException('Project not found');
     }
 
-    const isProjectMember = project.members.some(
+    const isProjectMember = onChainProject.members.some(
       (member) => member.toBase58() === user.walletAddress
     );
 
@@ -42,7 +42,7 @@ export class CreateProposalTaskTransactionsUsecase {
       await this.votingProgramService.createTaskProposal({
         assignee: dto.memberAccountAddress,
         description: dto.description,
-        organizationAddress: project.organization.toBase58(),
+        organizationAddress: onChainProject.organization.toBase58(),
         paymentAmount: dto.paymentAmount,
         projectAddress: dto.projectAccountAddress,
         title: dto.title,
@@ -56,7 +56,7 @@ export class CreateProposalTaskTransactionsUsecase {
       createdBy: user.id,
       type: TransactionType.CREATE_TASK,
       request: {
-        organizationId: project.organization.toBase58(),
+        organizationId: onChainProject.organization.toBase58(),
         name: dto.title,
         members: [dto.memberAccountAddress],
         proposalPDA: proposalPDA.toBase58()
