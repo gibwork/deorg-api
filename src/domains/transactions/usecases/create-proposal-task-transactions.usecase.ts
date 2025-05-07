@@ -1,9 +1,5 @@
 import { HeliusService } from '@core/services/helius/helius.service';
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { VotingProgramService } from '@core/services/voting-program/voting-program.service';
 import { CreateProposalTaskTransactionDto } from '../dto/create-proposal-task-transaction.dto';
 import { UserEntity } from '@domains/users/entities/user.entity';
@@ -28,14 +24,6 @@ export class CreateProposalTaskTransactionsUsecase {
 
     if (!onChainProject) {
       throw new NotFoundException('Project not found');
-    }
-
-    const isProjectMember = onChainProject.members.some(
-      (member) => member.toBase58() === user.walletAddress
-    );
-
-    if (!isProjectMember) {
-      throw new BadRequestException('User is not a member of the project');
     }
 
     const { instruction, proposalPDA } =
