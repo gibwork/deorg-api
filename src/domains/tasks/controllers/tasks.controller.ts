@@ -6,6 +6,8 @@ import { UserEntity } from '@domains/users/entities/user.entity';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@core/guards/auth.guard';
 import { ListTasksUsecase } from '../usecases/list-tasks.usecase';
+import { CompleteTaskDto } from '../dto/complete-task.dto';
+import { CompleteTaskUsecase } from '../usecases/complete-task.usecase';
 
 @Controller('tasks')
 @ApiTags('Tasks')
@@ -13,7 +15,8 @@ import { ListTasksUsecase } from '../usecases/list-tasks.usecase';
 export class TasksController {
   constructor(
     private readonly createTaskUsecase: CreateTaskUsecase,
-    private readonly listTasksUsecase: ListTasksUsecase
+    private readonly listTasksUsecase: ListTasksUsecase,
+    private readonly completeTaskUsecase: CompleteTaskUsecase
   ) {}
 
   @Get('project/:projectAddress')
@@ -27,5 +30,13 @@ export class TasksController {
     @UserDecorator() user: UserEntity
   ) {
     return this.createTaskUsecase.execute(dto, user);
+  }
+
+  @Post('complete')
+  async completeTask(
+    @Body() dto: CompleteTaskDto,
+    @UserDecorator() user: UserEntity
+  ) {
+    return this.completeTaskUsecase.execute(dto, user);
   }
 }

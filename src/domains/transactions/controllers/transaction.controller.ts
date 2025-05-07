@@ -13,7 +13,7 @@ import { CreateProposalProjectTransactionDto } from '../dto/create-proposal-proj
 import { CreateProposalProjectTransactionUsecase } from '../usecases/create-proposal-project-transaction.usecase';
 import { CreateProposalTaskTransactionDto } from '../dto/create-proposal-task-transaction.dto';
 import { CreateProposalTaskTransactionsUsecase } from '../usecases/create-proposal-task-transactions.usecase';
-
+import { CompleteTaskTransactionUsecase } from '../usecases/complete-task-transaction.usecase';
 @Controller('transactions')
 @ApiTags('Transactions')
 @UseGuards(AuthGuard)
@@ -23,7 +23,8 @@ export class TransactionController {
     private readonly createContributorProposalUsecase: CreateProposalContributorTransactionUsecase,
     private readonly createVoteProposalUseCase: CreateVoteProposalUseCase,
     private readonly createProposalProjectTransactionUsecase: CreateProposalProjectTransactionUsecase,
-    private readonly createProposalTaskTransactionsUsecase: CreateProposalTaskTransactionsUsecase
+    private readonly createProposalTaskTransactionsUsecase: CreateProposalTaskTransactionsUsecase,
+    private readonly completeTaskTransactionUsecase: CompleteTaskTransactionUsecase
   ) {}
 
   @Post('organization')
@@ -70,5 +71,13 @@ export class TransactionController {
     @UserDecorator() user: UserEntity
   ) {
     return this.createProposalTaskTransactionsUsecase.execute(body, user);
+  }
+
+  @Post('tasks/:taskAddress/complete')
+  async completeTask(
+    @Param('taskAddress') taskAddress: string,
+    @UserDecorator() user: UserEntity
+  ) {
+    return this.completeTaskTransactionUsecase.execute(taskAddress, user);
   }
 }
