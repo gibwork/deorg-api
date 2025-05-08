@@ -1,5 +1,5 @@
 {
-  "address": "57j8AKVdg5uWhmy6PQzm25KQDJHJzXHv1L6JfXV1Zgvi",
+  "address": "5CfRz4ECAKzByiCYVDyjiATGYyug4nfQ2w9GJZTtzYMq",
   "metadata": {
     "name": "gibwork_voting_program",
     "version": "0.1.0",
@@ -436,7 +436,8 @@
           "name": "project"
         },
         {
-          "name": "task"
+          "name": "task",
+          "writable": true
         },
         {
           "name": "task_vault",
@@ -1898,7 +1899,8 @@
           "name": "project"
         },
         {
-          "name": "task"
+          "name": "task",
+          "writable": true
         },
         {
           "name": "task_vault",
@@ -3018,6 +3020,12 @@
             "type": {
               "option": "pubkey"
             }
+          },
+          {
+            "name": "reviewer",
+            "type": {
+              "option": "pubkey"
+            }
           }
         ]
       }
@@ -3319,6 +3327,9 @@
           },
           {
             "name": "Rejected"
+          },
+          {
+            "name": "Paid"
           }
         ]
       }

@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/gibwork_voting_program.json`.
  */
 export type GibworkVotingProgram = {
-  address: '57j8AKVdg5uWhmy6PQzm25KQDJHJzXHv1L6JfXV1Zgvi';
+  address: '5CfRz4ECAKzByiCYVDyjiATGYyug4nfQ2w9GJZTtzYMq';
   metadata: {
     name: 'gibworkVotingProgram';
     version: '0.1.0';
@@ -372,6 +372,7 @@ export type GibworkVotingProgram = {
         },
         {
           name: 'task';
+          writable: true;
         },
         {
           name: 'taskVault';
@@ -1650,6 +1651,7 @@ export type GibworkVotingProgram = {
         },
         {
           name: 'task';
+          writable: true;
         },
         {
           name: 'taskVault';
@@ -2493,6 +2495,12 @@ export type GibworkVotingProgram = {
             type: {
               option: 'pubkey';
             };
+          },
+          {
+            name: 'reviewer';
+            type: {
+              option: 'pubkey';
+            };
           }
         ];
       };
@@ -2794,6 +2802,9 @@ export type GibworkVotingProgram = {
           },
           {
             name: 'rejected';
+          },
+          {
+            name: 'paid';
           }
         ];
       };

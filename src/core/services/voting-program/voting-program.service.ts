@@ -3,8 +3,7 @@ import {
   Keypair,
   PublicKey,
   SystemProgram,
-  SYSVAR_RENT_PUBKEY,
-  TransactionInstruction
+  SYSVAR_RENT_PUBKEY
 } from '@solana/web3.js';
 import { HeliusService } from '../helius/helius.service';
 import BN from 'bn.js';
@@ -1159,7 +1158,8 @@ export class VotingProgramService {
       status: Object.keys(task.account.status)[0],
       voters: task.account.voters.map((voter) => voter.toBase58()),
       transferProposal: task.account.transferProposal?.toBase58(),
-      vault: task.account.vault?.toBase58()
+      vault: task.account.vault?.toBase58(),
+      reviewer: task.account.reviewer?.toBase58()
     }));
   }
 
