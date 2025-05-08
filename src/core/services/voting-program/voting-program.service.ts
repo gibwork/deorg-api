@@ -70,6 +70,10 @@ export class VotingProgramService {
     treasuryTokenKeypair: Keypair
   ) {
     const connection: any = new Connection(this.heliusService.devnetRpcUrl);
+    const program = new anchor.Program<GibworkVotingProgram>(
+      idl as GibworkVotingProgram,
+      connection
+    );
 
     const organization = new PublicKey(organizationAddress);
     const tokenMint = new PublicKey(
@@ -111,39 +115,18 @@ export class VotingProgramService {
       this.PROGRAM_ID
     );
 
-    console.log({
-      authority: new PublicKey(authority).toString(),
-      organization: organization.toString(),
-      treasuryTokenAccount: treasuryTokenKeypair.publicKey.toString(),
-      tokenMint: tokenMint.toString(),
-      treasuryAuthority: _treasuryAuthorityPDA.toString(),
-      tokenRegistry: treasuryRegistryPDA.toString(),
-      systemProgram: SystemProgram.programId.toString(),
-      tokenProgram: TOKEN_PROGRAM_ID.toString(),
-      rent: SYSVAR_RENT_PUBKEY.toString()
-    });
-
-    // Create instruction data for register_treasury_token
-    const discriminator = Buffer.from([95, 243, 188, 15, 218, 39, 171, 207]);
-
-    const instruction = new TransactionInstruction({
-      keys: [
-        { pubkey: new PublicKey(authority), isSigner: true, isWritable: true }, // authority (payer)
-        { pubkey: organization, isSigner: false, isWritable: false }, // organization
-        {
-          pubkey: treasuryTokenKeypair.publicKey,
-          isSigner: true,
-          isWritable: true
-        }, // treasury_token_account (must be a signer since program creates it)
-        { pubkey: tokenMint, isSigner: false, isWritable: false }, // token_mint
-        { pubkey: _treasuryAuthorityPDA, isSigner: false, isWritable: false }, // treasury_authority
-        { pubkey: treasuryRegistryPDA, isSigner: false, isWritable: true }, // token_registry
-        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false }, // system_program
-        { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false }, // token_program
-        { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false } // rent
-      ],
-      programId: this.PROGRAM_ID,
-      data: discriminator
+    const instruction = program.instruction.registerTreasuryToken({
+      accounts: {
+        authority: new PublicKey(authority).toString(),
+        organization: organization.toString(),
+        treasuryTokenAccount: treasuryTokenKeypair.publicKey.toString(),
+        tokenMint: tokenMint.toString(),
+        treasuryAuthority: _treasuryAuthorityPDA.toString(),
+        tokenRegistry: treasuryRegistryPDA.toString(),
+        systemProgram: SystemProgram.programId.toString(),
+        tokenProgram: TOKEN_PROGRAM_ID.toString(),
+        rent: SYSVAR_RENT_PUBKEY.toString()
+      }
     });
 
     return {
