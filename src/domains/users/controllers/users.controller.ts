@@ -27,7 +27,7 @@ export class UsersController {
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard)
   async getUserOrganizations(@UserDecorator() user: UserEntity) {
-    return this.getUserOrganizationsUsecase.execute(user.id);
+    return this.getUserOrganizationsUsecase.execute(user);
   }
 
   @Get('/balance')
