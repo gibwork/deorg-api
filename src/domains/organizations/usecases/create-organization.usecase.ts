@@ -49,16 +49,20 @@ export class CreateOrganizationUsecase {
       response: { txHash: signature }
     });
 
-    const clerkOrganization = await this.clerkService.createOrganization(
-      dto.name,
-      user.externalId
-    );
+    // const clerkOrganization = await this.clerkService.createOrganization(
+    //   dto.name,
+    //   user.externalId
+    // );
 
     const organization = await this.organizationService.create({
       id: transaction.request['organizationId'],
-      externalId: clerkOrganization.id,
-      slug: clerkOrganization.slug || undefined,
-      logoUrl: clerkOrganization.imageUrl || undefined,
+      // externalId: clerkOrganization.id,
+      // slug: clerkOrganization.slug || undefined,
+      // logoUrl: clerkOrganization.imageUrl || undefined,
+      logoUrl:
+        'https://img.clerk.com/eyJ0eXBlIjoiZGVmYXVsdCIsImlpZCI6Imluc18yd1ZyYWdzb2JOSHJaRDJNMHlYUHpKbW5pWloiLCJyaWQiOiJvcmdfMndvelhpdjRPcmxSMUxNdjN3akw0ZUtSOVEwIiwiaW5pdGlhbHMiOiJZIn0',
+      externalId: transaction.request['organizationId'],
+      slug: dto.name,
       createdBy: userId,
       token: dto.token && {
         symbol: dto.token.symbol,

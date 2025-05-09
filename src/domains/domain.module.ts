@@ -10,6 +10,8 @@ import { ProposalsProvider } from './proposals/proposal.provider';
 import { TokensProvider } from './tokens/tokens.provider';
 import { ProjectsProvider } from './projects/projects.provider';
 import { TasksProvider } from './tasks/tasks.provider';
+import { WebhookModule } from './webhook/webhook.module';
+
 const serviceProvider = ServiceProvider.buildByProviders([
   UsersProvider,
   AuthProvider,
@@ -18,7 +20,8 @@ const serviceProvider = ServiceProvider.buildByProviders([
   ProposalsProvider,
   TokensProvider,
   ProjectsProvider,
-  TasksProvider
+  TasksProvider,
+  WebhookModule
 ]);
 serviceProvider.addImport(CoreModule);
 
