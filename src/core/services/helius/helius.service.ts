@@ -7,7 +7,8 @@ import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 @Injectable()
 export class HeliusService {
   rpcUrl = `https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`;
-  devnetRpcUrl = `https://devnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`;
+  // devnetRpcUrl = `https://devnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`;
+  devnetRpcUrl = `https://api.devnet.solana.com`;
 
   constructor() {
     axios.defaults.timeout = 10000;
