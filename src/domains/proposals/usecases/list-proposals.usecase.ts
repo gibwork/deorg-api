@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ProposalService } from '../services/proposal.service';
 import { OrganizationService } from '@domains/organizations/services/organization.service';
 import { VotingProgramService } from '@core/services/voting-program/voting-program.service';
@@ -12,17 +12,9 @@ export class ListProposalsUsecase {
   ) {}
 
   async execute(orgAccountAddress: string) {
-    const organization = await this.organizationService.findOne({
-      where: { accountAddress: orgAccountAddress }
-    });
-
-    if (!organization) {
-      throw new NotFoundException('Organization not found');
-    }
-
     const onChainProposals =
       await this.votingProgramService.getOrganizationProposals(
-        organization.accountAddress
+        orgAccountAddress
       );
 
     const proposals: any[] = [];
