@@ -1172,6 +1172,44 @@ export class VotingProgramService {
     }));
   }
 
+  async getTaskDetails(taskAddress: string) {
+    const connection: any = new Connection(this.heliusService.devnetRpcUrl);
+
+    // Create a dummy wallet provider for read-only operations
+    const dummyWallet = {
+      publicKey: PublicKey.default,
+      signTransaction: async (tx: any) => tx,
+      signAllTransactions: async (txs: any[]) => txs
+    } as anchor.Wallet;
+
+    const provider = new anchor.AnchorProvider(connection, dummyWallet, {
+      commitment: 'confirmed',
+      preflightCommitment: 'confirmed'
+    });
+
+    const program = new anchor.Program<GibworkVotingProgram>(
+      idl as GibworkVotingProgram,
+      provider
+    );
+
+    const task = await program.account.task.fetch(new PublicKey(taskAddress));
+
+    return {
+      accountAddress: taskAddress,
+      project: task.project.toBase58(),
+      title: task.title,
+      paymentAmount: task.paymentAmount.toNumber(),
+      assignee: task.assignee.toBase58(),
+      votesFor: task.votesFor,
+      votesAgainst: task.votesAgainst,
+      status: Object.keys(task.status)[0],
+      voters: task.voters.map((voter) => voter.toBase58()),
+      transferProposal: task.transferProposal?.toBase58(),
+      vault: task.vault?.toBase58(),
+      reviewer: task.reviewer?.toBase58()
+    };
+  }
+
   async completeTask(taskAddress: string) {
     const connection: any = new Connection(this.heliusService.devnetRpcUrl);
 

@@ -5,7 +5,7 @@ import { ListTasksUsecase } from './usecases/list-tasks.usecase';
 import { CompleteTaskUsecase } from './usecases/complete-task.usecase';
 import { EnableWithdrawUsecase } from './usecases/enable-withdraw.usecase';
 import { WithdrawTaskUsecase } from './usecases/withdraw-task.usecase';
-
+import { GetTaskDetailsUsecase } from './usecases/ge-task-details.usecase';
 export const TasksProvider: ModuleMetadata = {
   controllers: [TasksController],
   providers: [
@@ -13,6 +13,7 @@ export const TasksProvider: ModuleMetadata = {
     ListTasksUsecase,
     CompleteTaskUsecase,
     EnableWithdrawUsecase,
-    WithdrawTaskUsecase
+    WithdrawTaskUsecase,
+    GetTaskDetailsUsecase
   ]
 };
