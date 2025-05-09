@@ -6,6 +6,7 @@ import { CreateProjectUsecase } from '../usecases/create-project.usecase';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@core/guards/auth.guard';
 import { ListProjectsUsecase } from '../usecases/list-projects.usecase';
+import { GetProjectDetailsUsecase } from '../usecases/get-project-details.usecase';
 
 @Controller('projects')
 @ApiTags('Projects')
@@ -13,7 +14,8 @@ import { ListProjectsUsecase } from '../usecases/list-projects.usecase';
 export class ProjectsController {
   constructor(
     private readonly createProjectUsecase: CreateProjectUsecase,
-    private readonly listProjectsUsecase: ListProjectsUsecase
+    private readonly listProjectsUsecase: ListProjectsUsecase,
+    private readonly getProjectDetailsUsecase: GetProjectDetailsUsecase
   ) {}
 
   @Get('/organization/:orgAccountAddress')
@@ -27,5 +29,12 @@ export class ProjectsController {
     @UserDecorator() user: UserEntity
   ) {
     return this.createProjectUsecase.execute(body, user);
+  }
+
+  @Get('/:projectAccountAddress')
+  async getProject(
+    @Param('projectAccountAddress') projectAccountAddress: string
+  ) {
+    return this.getProjectDetailsUsecase.execute(projectAccountAddress);
   }
 }

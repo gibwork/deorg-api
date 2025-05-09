@@ -954,7 +954,16 @@ export class VotingProgramService {
       new PublicKey(projectAccountAddress)
     );
 
-    return project;
+    return {
+      accountAddress: projectAccountAddress,
+      organization: project.organization.toBase58(),
+      uuid: convertUuid(project.uuid),
+      title: project.title,
+      members: project.members.map((member) => member.toBase58()),
+      taskApprovalThreshold: project.taskApprovalThreshold,
+      validityEndTime: project.validityEndTime.toNumber(),
+      isActive: project.isActive
+    };
   }
 
   async createTaskProposal(dto: {
