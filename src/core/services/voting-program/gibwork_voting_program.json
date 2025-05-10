@@ -1,5 +1,5 @@
 {
-  "address": "5CfRz4ECAKzByiCYVDyjiATGYyug4nfQ2w9GJZTtzYMq",
+  "address": "57mLAqsWu4b3e9cdC2Xorm14yiX7pWthKmnpwVtvBgzL",
   "metadata": {
     "name": "gibwork_voting_program",
     "version": "0.1.0",
@@ -444,6 +444,49 @@
           "writable": true
         },
         {
+          "name": "assignee_token_account",
+          "writable": true
+        },
+        {
+          "name": "vault_token_account",
+          "writable": true
+        },
+        {
+          "name": "vault_authority",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "task"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
           "name": "system_program",
           "address": "11111111111111111111111111111111"
         },
@@ -527,6 +570,96 @@
         }
       ],
       "args": []
+    },
+    {
+      "name": "initialize_organization_metadata",
+      "discriminator": [
+        81,
+        190,
+        223,
+        147,
+        142,
+        1,
+        30,
+        77
+      ],
+      "accounts": [
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "organization"
+        },
+        {
+          "name": "metadata",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  101,
+                  116,
+                  97,
+                  100,
+                  97,
+                  116,
+                  97
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "organization"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "logo_url",
+          "type": {
+            "option": "string"
+          }
+        },
+        {
+          "name": "website_url",
+          "type": {
+            "option": "string"
+          }
+        },
+        {
+          "name": "twitter_url",
+          "type": {
+            "option": "string"
+          }
+        },
+        {
+          "name": "discord_url",
+          "type": {
+            "option": "string"
+          }
+        },
+        {
+          "name": "telegram_url",
+          "type": {
+            "option": "string"
+          }
+        },
+        {
+          "name": "description",
+          "type": {
+            "option": "string"
+          }
+        }
+      ]
     },
     {
       "name": "initialize_treasury_registry",
@@ -948,6 +1081,10 @@
           "type": "string"
         },
         {
+          "name": "description",
+          "type": "string"
+        },
+        {
           "name": "member_pubkeys",
           "type": {
             "vec": "pubkey"
@@ -1292,6 +1429,92 @@
         }
       ],
       "args": []
+    },
+    {
+      "name": "update_organization_metadata",
+      "discriminator": [
+        178,
+        199,
+        6,
+        33,
+        27,
+        199,
+        95,
+        69
+      ],
+      "accounts": [
+        {
+          "name": "creator",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "organization"
+        },
+        {
+          "name": "metadata",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  101,
+                  116,
+                  97,
+                  100,
+                  97,
+                  116,
+                  97
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "organization"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "logo_url",
+          "type": {
+            "option": "string"
+          }
+        },
+        {
+          "name": "website_url",
+          "type": {
+            "option": "string"
+          }
+        },
+        {
+          "name": "twitter_url",
+          "type": {
+            "option": "string"
+          }
+        },
+        {
+          "name": "discord_url",
+          "type": {
+            "option": "string"
+          }
+        },
+        {
+          "name": "telegram_url",
+          "type": {
+            "option": "string"
+          }
+        },
+        {
+          "name": "description",
+          "type": {
+            "option": "string"
+          }
+        }
+      ]
     },
     {
       "name": "update_organization_parameters",
@@ -1876,81 +2099,6 @@
           "type": "bool"
         }
       ]
-    },
-    {
-      "name": "withdraw_task_funds",
-      "discriminator": [
-        251,
-        24,
-        140,
-        184,
-        59,
-        197,
-        66,
-        166
-      ],
-      "accounts": [
-        {
-          "name": "assignee",
-          "writable": true,
-          "signer": true
-        },
-        {
-          "name": "project"
-        },
-        {
-          "name": "task",
-          "writable": true
-        },
-        {
-          "name": "task_vault",
-          "writable": true
-        },
-        {
-          "name": "assignee_token_account",
-          "writable": true
-        },
-        {
-          "name": "vault_token_account",
-          "writable": true
-        },
-        {
-          "name": "vault_authority",
-          "pda": {
-            "seeds": [
-              {
-                "kind": "const",
-                "value": [
-                  118,
-                  97,
-                  117,
-                  108,
-                  116,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121
-                ]
-              },
-              {
-                "kind": "account",
-                "path": "task"
-              }
-            ]
-          }
-        },
-        {
-          "name": "token_program",
-          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-        }
-      ],
-      "args": []
     }
   ],
   "accounts": [
@@ -1991,6 +2139,19 @@
         57,
         118,
         160
+      ]
+    },
+    {
+      "name": "OrganizationMetadata",
+      "discriminator": [
+        1,
+        31,
+        0,
+        180,
+        128,
+        204,
+        22,
+        7
       ]
     },
     {
@@ -2567,6 +2728,21 @@
       "code": 6043,
       "name": "TaskProposalNotApproved",
       "msg": "Task proposal must be approved to create a task"
+    },
+    {
+      "code": 6044,
+      "name": "InvalidMetadataUrl",
+      "msg": "Invalid metadata URL provided (too long)"
+    },
+    {
+      "code": 6045,
+      "name": "InvalidMetadataAccount",
+      "msg": "Invalid metadata account"
+    },
+    {
+      "code": 6046,
+      "name": "InvalidMetadataDescription",
+      "msg": "Invalid metadata description (too long)"
     }
   ],
   "types": [
@@ -2756,6 +2932,54 @@
       }
     },
     {
+      "name": "OrganizationMetadata",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "organization",
+            "type": "pubkey"
+          },
+          {
+            "name": "logo_url",
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "website_url",
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "twitter_url",
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "discord_url",
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "telegram_url",
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "description",
+            "type": {
+              "option": "string"
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "Project",
       "type": {
         "kind": "struct",
@@ -2775,6 +2999,10 @@
           },
           {
             "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "description",
             "type": "string"
           },
           {
@@ -2820,6 +3048,10 @@
             "type": "string"
           },
           {
+            "name": "description",
+            "type": "string"
+          },
+          {
             "name": "creator",
             "type": "pubkey"
           },
@@ -2845,6 +3077,10 @@
           },
           {
             "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "description",
             "type": "string"
           },
           {

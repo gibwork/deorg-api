@@ -19,6 +19,14 @@ export class CreateProposalProjectTransactionDto {
   name: string;
 
   @ApiProperty({
+    description: 'The description of the project',
+    example: 'Project description'
+  })
+  @IsNotEmpty()
+  @IsString()
+  description: string;
+
+  @ApiProperty({
     description: 'The members of the project',
     example: ['Member 1', 'Member 2']
   })

@@ -42,6 +42,7 @@ export type CreateOrganizationDto = {
 export type CreateProjectProposalDto = {
   id: string;
   name: string;
+  description: string;
   members: PublicKey[];
   organizationAddress: string;
   projectProposalThreshold: number;

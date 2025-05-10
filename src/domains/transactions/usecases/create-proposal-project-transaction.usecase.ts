@@ -29,8 +29,6 @@ export class CreateProposalProjectTransactionUsecase {
         onChainOrganization.accountAddress
       );
 
-    console.log(contributors);
-
     const publicUser = new PublicKey(user.walletAddress);
 
     if (
@@ -56,6 +54,7 @@ export class CreateProposalProjectTransactionUsecase {
       await this.votingProgramService.createProjectProposal({
         id: projectId,
         name: dto.name,
+        description: dto.description,
         members,
         organizationAddress: onChainOrganization.accountAddress,
         projectProposalThreshold: dto.projectProposalThreshold,

@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/gibwork_voting_program.json`.
  */
 export type GibworkVotingProgram = {
-  address: '5CfRz4ECAKzByiCYVDyjiATGYyug4nfQ2w9GJZTtzYMq';
+  address: '57mLAqsWu4b3e9cdC2Xorm14yiX7pWthKmnpwVtvBgzL';
   metadata: {
     name: 'gibworkVotingProgram';
     version: '0.1.0';
@@ -379,6 +379,49 @@ export type GibworkVotingProgram = {
           writable: true;
         },
         {
+          name: 'assigneeTokenAccount';
+          writable: true;
+        },
+        {
+          name: 'vaultTokenAccount';
+          writable: true;
+        },
+        {
+          name: 'vaultAuthority';
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                value: [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116,
+                  95,
+                  97,
+                  117,
+                  116,
+                  104,
+                  111,
+                  114,
+                  105,
+                  116,
+                  121
+                ];
+              },
+              {
+                kind: 'account';
+                path: 'task';
+              }
+            ];
+          };
+        },
+        {
+          name: 'tokenProgram';
+          address: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA';
+        },
+        {
           name: 'systemProgram';
           address: '11111111111111111111111111111111';
         },
@@ -453,6 +496,78 @@ export type GibworkVotingProgram = {
         }
       ];
       args: [];
+    },
+    {
+      name: 'initializeOrganizationMetadata';
+      discriminator: [81, 190, 223, 147, 142, 1, 30, 77];
+      accounts: [
+        {
+          name: 'creator';
+          writable: true;
+          signer: true;
+        },
+        {
+          name: 'organization';
+        },
+        {
+          name: 'metadata';
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                value: [109, 101, 116, 97, 100, 97, 116, 97];
+              },
+              {
+                kind: 'account';
+                path: 'organization';
+              }
+            ];
+          };
+        },
+        {
+          name: 'systemProgram';
+          address: '11111111111111111111111111111111';
+        }
+      ];
+      args: [
+        {
+          name: 'logoUrl';
+          type: {
+            option: 'string';
+          };
+        },
+        {
+          name: 'websiteUrl';
+          type: {
+            option: 'string';
+          };
+        },
+        {
+          name: 'twitterUrl';
+          type: {
+            option: 'string';
+          };
+        },
+        {
+          name: 'discordUrl';
+          type: {
+            option: 'string';
+          };
+        },
+        {
+          name: 'telegramUrl';
+          type: {
+            option: 'string';
+          };
+        },
+        {
+          name: 'description';
+          type: {
+            option: 'string';
+          };
+        }
+      ];
     },
     {
       name: 'initializeTreasuryRegistry';
@@ -826,6 +941,10 @@ export type GibworkVotingProgram = {
           type: 'string';
         },
         {
+          name: 'description';
+          type: 'string';
+        },
+        {
           name: 'memberPubkeys';
           type: {
             vec: 'pubkey';
@@ -1131,6 +1250,74 @@ export type GibworkVotingProgram = {
         }
       ];
       args: [];
+    },
+    {
+      name: 'updateOrganizationMetadata';
+      discriminator: [178, 199, 6, 33, 27, 199, 95, 69];
+      accounts: [
+        {
+          name: 'creator';
+          writable: true;
+          signer: true;
+        },
+        {
+          name: 'organization';
+        },
+        {
+          name: 'metadata';
+          writable: true;
+          pda: {
+            seeds: [
+              {
+                kind: 'const';
+                value: [109, 101, 116, 97, 100, 97, 116, 97];
+              },
+              {
+                kind: 'account';
+                path: 'organization';
+              }
+            ];
+          };
+        }
+      ];
+      args: [
+        {
+          name: 'logoUrl';
+          type: {
+            option: 'string';
+          };
+        },
+        {
+          name: 'websiteUrl';
+          type: {
+            option: 'string';
+          };
+        },
+        {
+          name: 'twitterUrl';
+          type: {
+            option: 'string';
+          };
+        },
+        {
+          name: 'discordUrl';
+          type: {
+            option: 'string';
+          };
+        },
+        {
+          name: 'telegramUrl';
+          type: {
+            option: 'string';
+          };
+        },
+        {
+          name: 'description';
+          type: {
+            option: 'string';
+          };
+        }
+      ];
     },
     {
       name: 'updateOrganizationParameters';
@@ -1636,72 +1823,6 @@ export type GibworkVotingProgram = {
           type: 'bool';
         }
       ];
-    },
-    {
-      name: 'withdrawTaskFunds';
-      discriminator: [251, 24, 140, 184, 59, 197, 66, 166];
-      accounts: [
-        {
-          name: 'assignee';
-          writable: true;
-          signer: true;
-        },
-        {
-          name: 'project';
-        },
-        {
-          name: 'task';
-          writable: true;
-        },
-        {
-          name: 'taskVault';
-          writable: true;
-        },
-        {
-          name: 'assigneeTokenAccount';
-          writable: true;
-        },
-        {
-          name: 'vaultTokenAccount';
-          writable: true;
-        },
-        {
-          name: 'vaultAuthority';
-          pda: {
-            seeds: [
-              {
-                kind: 'const';
-                value: [
-                  118,
-                  97,
-                  117,
-                  108,
-                  116,
-                  95,
-                  97,
-                  117,
-                  116,
-                  104,
-                  111,
-                  114,
-                  105,
-                  116,
-                  121
-                ];
-              },
-              {
-                kind: 'account';
-                path: 'task';
-              }
-            ];
-          };
-        },
-        {
-          name: 'tokenProgram';
-          address: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA';
-        }
-      ];
-      args: [];
     }
   ];
   accounts: [
@@ -1716,6 +1837,10 @@ export type GibworkVotingProgram = {
     {
       name: 'organization';
       discriminator: [145, 38, 152, 251, 91, 57, 118, 160];
+    },
+    {
+      name: 'organizationMetadata';
+      discriminator: [1, 31, 0, 180, 128, 204, 22, 7];
     },
     {
       name: 'project';
@@ -2048,6 +2173,21 @@ export type GibworkVotingProgram = {
       code: 6043;
       name: 'taskProposalNotApproved';
       msg: 'Task proposal must be approved to create a task';
+    },
+    {
+      code: 6044;
+      name: 'invalidMetadataUrl';
+      msg: 'Invalid metadata URL provided (too long)';
+    },
+    {
+      code: 6045;
+      name: 'invalidMetadataAccount';
+      msg: 'Invalid metadata account';
+    },
+    {
+      code: 6046;
+      name: 'invalidMetadataDescription';
+      msg: 'Invalid metadata description (too long)';
     }
   ];
   types: [
@@ -2234,6 +2374,54 @@ export type GibworkVotingProgram = {
       };
     },
     {
+      name: 'organizationMetadata';
+      type: {
+        kind: 'struct';
+        fields: [
+          {
+            name: 'organization';
+            type: 'pubkey';
+          },
+          {
+            name: 'logoUrl';
+            type: {
+              option: 'string';
+            };
+          },
+          {
+            name: 'websiteUrl';
+            type: {
+              option: 'string';
+            };
+          },
+          {
+            name: 'twitterUrl';
+            type: {
+              option: 'string';
+            };
+          },
+          {
+            name: 'discordUrl';
+            type: {
+              option: 'string';
+            };
+          },
+          {
+            name: 'telegramUrl';
+            type: {
+              option: 'string';
+            };
+          },
+          {
+            name: 'description';
+            type: {
+              option: 'string';
+            };
+          }
+        ];
+      };
+    },
+    {
       name: 'project';
       type: {
         kind: 'struct';
@@ -2250,6 +2438,10 @@ export type GibworkVotingProgram = {
           },
           {
             name: 'title';
+            type: 'string';
+          },
+          {
+            name: 'description';
             type: 'string';
           },
           {
@@ -2295,6 +2487,10 @@ export type GibworkVotingProgram = {
             type: 'string';
           },
           {
+            name: 'description';
+            type: 'string';
+          },
+          {
             name: 'creator';
             type: 'pubkey';
           },
@@ -2320,6 +2516,10 @@ export type GibworkVotingProgram = {
           },
           {
             name: 'title';
+            type: 'string';
+          },
+          {
+            name: 'description';
             type: 'string';
           },
           {

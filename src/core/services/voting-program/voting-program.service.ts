@@ -813,6 +813,7 @@ export class VotingProgramService {
 
     const instruction = program.instruction.proposeProject(
       dto.name,
+      dto.description,
       dto.members,
       dto.projectProposalThreshold,
       new BN(dto.projectProposalValidityPeriod * 24 * 60 * 60),
@@ -820,9 +821,9 @@ export class VotingProgramService {
         accounts: {
           organization,
           proposal: proposalPDA,
+          proposer: new PublicKey(dto.proposerWallet),
           proposerTokenAccount,
-          systemProgram: SystemProgram.programId,
-          proposer: new PublicKey(dto.proposerWallet)
+          systemProgram: SystemProgram.programId
         }
       }
     );
@@ -1325,52 +1326,6 @@ export class VotingProgramService {
       throw new Error('Task vault not found');
     }
 
-    const instruction = program.instruction.enableTaskVaultWithdrawal({
-      accounts: {
-        reviewer: new PublicKey(reviewer),
-        project: task.project,
-        task: new PublicKey(taskAddress),
-        taskVault: task.vault,
-        systemProgram: SystemProgram.programId,
-        rent: SYSVAR_RENT_PUBKEY.toString()
-      }
-    });
-
-    return {
-      instruction
-    };
-  }
-
-  async withdrawTaskFunds(taskAddress: string) {
-    const connection: any = new Connection(this.heliusService.devnetRpcUrl);
-
-    // Create a dummy wallet provider for read-only operations
-    const dummyWallet = {
-      publicKey: PublicKey.default,
-      signTransaction: async (tx: any) => tx,
-      signAllTransactions: async (txs: any[]) => txs
-    } as anchor.Wallet;
-
-    const provider = new anchor.AnchorProvider(connection, dummyWallet, {
-      commitment: 'confirmed',
-      preflightCommitment: 'confirmed'
-    });
-
-    const program = new anchor.Program<GibworkVotingProgram>(
-      idl as GibworkVotingProgram,
-      provider
-    );
-
-    const task = await program.account.task.fetch(new PublicKey(taskAddress));
-
-    if (!task) {
-      throw new Error('Task not found');
-    }
-
-    if (!task.vault) {
-      throw new Error('Task vault not found');
-    }
-
     // Find vault authority PDA
     const [vaultAuthorityPDA] = await PublicKey.findProgramAddress(
       [Buffer.from('vault_authority'), new PublicKey(taskAddress).toBuffer()],
@@ -1386,32 +1341,40 @@ export class VotingProgramService {
       this.PROGRAM_ID
     );
 
-    // Get assignee token account
+    const tokenMint = new PublicKey(
+      'Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'
+    );
+
+    // Get the assignee's token account
     const assigneeTokenAccounts =
       await connection.getParsedTokenAccountsByOwner(task.assignee, {
-        mint: new PublicKey('Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr')
+        mint: tokenMint
       });
 
     if (assigneeTokenAccounts.value.length === 0) {
-      throw new Error('No token account found for assignee');
+      throw new Error('No token account found for the assignee');
     }
 
     const assigneeTokenAccount = assigneeTokenAccounts.value[0].pubkey;
 
-    const instruction = program.instruction.withdrawTaskFunds({
+    const instruction = program.instruction.enableTaskVaultWithdrawal({
       accounts: {
-        assignee: task.assignee,
+        reviewer: new PublicKey(reviewer),
         project: task.project,
         task: new PublicKey(taskAddress),
         taskVault: task.vault,
         assigneeTokenAccount,
         vaultTokenAccount: vaultTokenAccountPDA,
         vaultAuthority: vaultAuthorityPDA,
-        tokenProgram: TOKEN_PROGRAM_ID
+        tokenProgram: TOKEN_PROGRAM_ID,
+        systemProgram: SystemProgram.programId,
+        rent: SYSVAR_RENT_PUBKEY.toString()
       }
     });
 
-    return { instruction };
+    return {
+      instruction
+    };
   }
 }
 

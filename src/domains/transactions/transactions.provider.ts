@@ -9,7 +9,7 @@ import { CreateProposalProjectTransactionUsecase } from './usecases/create-propo
 import { CreateProposalTaskTransactionsUsecase } from './usecases/create-proposal-task-transactions.usecase';
 import { CompleteTaskTransactionUsecase } from './usecases/complete-task-transaction.usecase';
 import { EnableTaskWithdrawTransactionUsecase } from './usecases/enable-task-withdraw-transaction.usecase';
-import { WithdrawTaskTransactionUsecase } from './usecases/withdraw-task-transaction.usecase';
+
 export const TransactionsProvider: ModuleMetadata = {
   controllers: [TransactionController],
   providers: [
@@ -21,7 +21,6 @@ export const TransactionsProvider: ModuleMetadata = {
     CreateProposalProjectTransactionUsecase,
     CreateProposalTaskTransactionsUsecase,
     CompleteTaskTransactionUsecase,
-    EnableTaskWithdrawTransactionUsecase,
-    WithdrawTaskTransactionUsecase
+    EnableTaskWithdrawTransactionUsecase
   ]
 };
