@@ -40,11 +40,12 @@ export class CreateProposalContributorTransactionUsecase {
     }
 
     const { instruction, proposalPDA } =
-      await this.votingProgramService.createContributorProposal(
-        onChainOrganization.accountAddress,
-        dto.candidateWallet,
-        user.walletAddress
-      );
+      await this.votingProgramService.createContributorProposal({
+        organizationAccount: onChainOrganization.accountAddress,
+        candidateWallet: dto.candidateWallet,
+        proposerWallet: user.walletAddress,
+        proposedRate: dto.proposedRate
+      });
 
     const tx = new Transaction().add(instruction);
     tx.feePayer = new PublicKey(user.walletAddress);

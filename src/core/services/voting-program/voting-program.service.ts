@@ -208,31 +208,14 @@ export class VotingProgramService {
       }
     );
 
-    console.log(
-      dto.logoUrl || null,
-      dto.websiteUrl || null,
-      dto.twitterUrl || null,
-      dto.discordUrl || null,
-      dto.telegramUrl || null,
-      dto.description || null,
-      {
-        accounts: {
-          creator: walletPublicKey,
-          organization: organizationPDA,
-          metadata: orgMetadataPDA,
-          systemProgram: SystemProgram.programId
-        }
-      }
-    );
-
     const metadataInstruction =
       program.instruction.initializeOrganizationMetadata(
-        dto.logoUrl,
-        dto.websiteUrl,
-        dto.twitterUrl,
-        dto.discordUrl,
-        dto.telegramUrl,
-        dto.description,
+        dto.logoUrl || null,
+        dto.websiteUrl || null,
+        dto.twitterUrl || null,
+        dto.discordUrl || null,
+        dto.telegramUrl || null,
+        dto.description || null,
         {
           accounts: {
             creator: walletPublicKey,
@@ -383,14 +366,28 @@ export class VotingProgramService {
       };
     }
 
-    const orgmetadata = await program.account.organizationMetadata.all([
-      {
-        memcmp: {
-          offset: 8,
-          bytes: organizationAccount
+    let orgmetadata: any = {};
+    try {
+      const result = await program.account.organizationMetadata.all([
+        {
+          memcmp: {
+            offset: 8,
+            bytes: organizationAccount
+          }
         }
-      }
-    ]);
+      ]);
+
+      orgmetadata = {
+        logoUrl: result[0].account.logoUrl,
+        websiteUrl: result[0].account.websiteUrl,
+        twitterUrl: result[0].account.twitterUrl,
+        discordUrl: result[0].account.discordUrl,
+        telegramUrl: result[0].account.telegramUrl,
+        description: result[0].account.description
+      };
+    } catch (error) {
+      console.error('Error fetching organization metadata', error);
+    }
 
     return {
       accountAddress: organizationAccount,
@@ -424,14 +421,7 @@ export class VotingProgramService {
       hasTreasuryRegistryAccount: treasuryRegistryAccount !== null,
       treasuryTokenAccount,
       treasuryBalance,
-      metadata: {
-        logoUrl: orgmetadata[0].account.logoUrl,
-        websiteUrl: orgmetadata[0].account.websiteUrl,
-        twitterUrl: orgmetadata[0].account.twitterUrl,
-        discordUrl: orgmetadata[0].account.discordUrl,
-        telegramUrl: orgmetadata[0].account.telegramUrl,
-        description: orgmetadata[0].account.description
-      }
+      metadata: orgmetadata
     };
   }
 
@@ -541,12 +531,12 @@ export class VotingProgramService {
     return proposals;
   }
 
-  async createContributorProposal(
-    organizationAccount: string,
-    candidateWallet: string,
-    proposerWallet: string
-  ) {
-    const propoerRate = 100;
+  async createContributorProposal(dto: {
+    organizationAccount: string;
+    candidateWallet: string;
+    proposerWallet: string;
+    proposedRate: number;
+  }) {
     const connection: any = new Connection(this.heliusService.devnetRpcUrl);
     const program = new anchor.Program<GibworkVotingProgram>(
       idl as GibworkVotingProgram,
@@ -554,15 +544,15 @@ export class VotingProgramService {
     );
 
     // Verify they're valid public keys
-    const organization = new PublicKey(organizationAccount);
-    const candidate = new PublicKey(candidateWallet);
+    const organization = new PublicKey(dto.organizationAccount);
+    const candidate = new PublicKey(dto.candidateWallet);
     const tokenMint = new PublicKey(
       'Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'
     );
 
     // Find proposer token account
     const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
-      new PublicKey(proposerWallet),
+      new PublicKey(dto.proposerWallet),
       { mint: tokenMint }
     );
 
@@ -593,7 +583,7 @@ export class VotingProgramService {
     );
 
     const instruction = program.instruction.proposeContributor(
-      new BN(propoerRate),
+      new BN(dto.proposedRate),
       {
         accounts: {
           organization,
@@ -602,7 +592,7 @@ export class VotingProgramService {
           contributor: contributorPDA,
           systemProgram: SystemProgram.programId,
           proposal: proposalPDA,
-          proposer: new PublicKey(proposerWallet)
+          proposer: new PublicKey(dto.proposerWallet)
         }
       }
     );

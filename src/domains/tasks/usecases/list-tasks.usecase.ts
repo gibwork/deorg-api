@@ -3,19 +3,25 @@ import { VotingProgramService } from '@core/services/voting-program/voting-progr
 import { UserService } from '@domains/users/services/user.service';
 import { UserEntity } from '@domains/users/entities/user.entity';
 import { ClerkService } from '@core/services/clerk/clerk.service';
+import { Connection, PublicKey } from '@solana/web3.js';
+import { HeliusService } from '@core/services/helius/helius.service';
 
 @Injectable()
 export class ListTasksUsecase {
   constructor(
     private readonly votingProgramService: VotingProgramService,
     private readonly userService: UserService,
-    private readonly clerkService: ClerkService
+    private readonly clerkService: ClerkService,
+    private readonly heliusService: HeliusService
   ) {}
+
+  private connection = new Connection(this.heliusService.devnetRpcUrl);
 
   async execute(projectAddress: string) {
     const tasks = await this.votingProgramService.getTasks(projectAddress);
 
     const tasksEnriched = await this.enrichTasks(tasks);
+
     return tasksEnriched;
   }
 
@@ -27,10 +33,36 @@ export class ListTasksUsecase {
       const [assignee] = await this.getMembers([task.assignee], cachedUsers);
       const voters = await this.getMembers(task.voters, cachedUsers);
 
+      const [vaultTokenAccountPDA] = await PublicKey.findProgramAddress(
+        [
+          Buffer.from('vault_token_account'),
+          new PublicKey(task.accountAddress).toBuffer()
+        ],
+        new PublicKey('57mLAqsWu4b3e9cdC2Xorm14yiX7pWthKmnpwVtvBgzL')
+      );
+
+      // get token info
+      const tokenAccountInfo =
+        await this.connection.getParsedAccountInfo(vaultTokenAccountPDA);
+      const tokenInfo =
+        await this.connection.getTokenAccountBalance(vaultTokenAccountPDA);
+
+      const tokenMint =
+        tokenAccountInfo.value?.data && 'parsed' in tokenAccountInfo.value.data
+          ? tokenAccountInfo.value.data.parsed?.info?.mint
+          : null;
+
       tasksEnriched.push({
         ...task,
         assignee,
-        voters
+        voters,
+        tokenInfo: {
+          mint: tokenMint,
+          symbol: 'USDC',
+          decimals: tokenInfo.value.decimals,
+          balance: tokenInfo.value.amount,
+          uiBalance: tokenInfo.value.uiAmount
+        }
       });
     }
 
