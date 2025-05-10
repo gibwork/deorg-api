@@ -177,6 +177,11 @@ export class VotingProgramService {
     );
     const creatorTokenAccount = tokenAccounts.value[0].pubkey;
 
+    const [orgMetadataPDA] = await PublicKey.findProgramAddress(
+      [Buffer.from('metadata'), organizationPDA.toBuffer()],
+      this.PROGRAM_ID
+    );
+
     const instruction = program.instruction.createOrganization(
       uuidBytes,
       dto.name,
@@ -203,7 +208,42 @@ export class VotingProgramService {
       }
     );
 
-    return { instruction, organizationPDA };
+    console.log(
+      dto.logoUrl || null,
+      dto.websiteUrl || null,
+      dto.twitterUrl || null,
+      dto.discordUrl || null,
+      dto.telegramUrl || null,
+      dto.description || null,
+      {
+        accounts: {
+          creator: walletPublicKey,
+          organization: organizationPDA,
+          metadata: orgMetadataPDA,
+          systemProgram: SystemProgram.programId
+        }
+      }
+    );
+
+    const metadataInstruction =
+      program.instruction.initializeOrganizationMetadata(
+        dto.logoUrl,
+        dto.websiteUrl,
+        dto.twitterUrl,
+        dto.discordUrl,
+        dto.telegramUrl,
+        dto.description,
+        {
+          accounts: {
+            creator: walletPublicKey,
+            organization: organizationPDA,
+            metadata: orgMetadataPDA,
+            systemProgram: SystemProgram.programId
+          }
+        }
+      );
+
+    return { instruction, metadataInstruction, organizationPDA };
   }
 
   async getOrganizationContributors(
@@ -343,6 +383,15 @@ export class VotingProgramService {
       };
     }
 
+    const orgmetadata = await program.account.organizationMetadata.all([
+      {
+        memcmp: {
+          offset: 8,
+          bytes: organizationAccount
+        }
+      }
+    ]);
+
     return {
       accountAddress: organizationAccount,
       creator: organization.creator.toBase58(),
@@ -374,7 +423,15 @@ export class VotingProgramService {
 
       hasTreasuryRegistryAccount: treasuryRegistryAccount !== null,
       treasuryTokenAccount,
-      treasuryBalance
+      treasuryBalance,
+      metadata: {
+        logoUrl: orgmetadata[0].account.logoUrl,
+        websiteUrl: orgmetadata[0].account.websiteUrl,
+        twitterUrl: orgmetadata[0].account.twitterUrl,
+        discordUrl: orgmetadata[0].account.discordUrl,
+        telegramUrl: orgmetadata[0].account.telegramUrl,
+        description: orgmetadata[0].account.description
+      }
     };
   }
 

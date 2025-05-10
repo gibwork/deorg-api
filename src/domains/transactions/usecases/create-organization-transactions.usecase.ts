@@ -27,7 +27,7 @@ export class CreateOrganizationTransactionsUsecase {
 
     const organizationId = uuidv4();
 
-    const { instruction, organizationPDA } =
+    const { instruction, metadataInstruction, organizationPDA } =
       await this.votingProgramService.createOrganization({
         name: dto.name,
         contributorProposalThreshold: dto.contributorProposalThreshold,
@@ -45,7 +45,13 @@ export class CreateOrganizationTransactionsUsecase {
           dto.treasuryTransferProposalValidityPeriod,
         treasuryTransferQuorumPercentage: dto.treasuryTransferQuorumPercentage,
         userPrimaryWallet: user.walletAddress,
-        organizationId
+        organizationId,
+        logoUrl: dto.logoUrl,
+        websiteUrl: dto.websiteUrl,
+        twitterUrl: dto.twitterUrl,
+        discordUrl: dto.discordUrl,
+        telegramUrl: dto.telegramUrl,
+        description: dto.description
       });
 
     const { instruction: initTreasuryTokenInstruction } =
@@ -67,6 +73,7 @@ export class CreateOrganizationTransactionsUsecase {
 
     // Add all instructions to the transaction
     tx.add(instruction);
+    tx.add(metadataInstruction);
     if (initTreasuryTokenInstruction) {
       tx.add(initTreasuryTokenInstruction);
     }
