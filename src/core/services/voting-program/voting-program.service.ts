@@ -927,6 +927,7 @@ export class VotingProgramService {
       organization: project.account.organization.toBase58(),
       uuid: project.account.uuid,
       title: project.account.title,
+      description: project.account.description,
       members: project.account.members.map((member) => member.toBase58()),
       taskApprovalThreshold: project.account.taskApprovalThreshold,
       validityEndTime: project.account.validityEndTime.toNumber(),
