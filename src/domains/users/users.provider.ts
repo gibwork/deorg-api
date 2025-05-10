@@ -5,6 +5,7 @@ import { GetUserBalanceUseCase } from './usecases/get-user-balance.usecase';
 import { GetUserInfoUsecase } from './usecases/get-user-info.usecase';
 import { UsersController } from './controllers/users.controller';
 import { GetUserOrganizationsUsecase } from './usecases/get-user-organizations.usecase';
+import { GetUserTasksUsecase } from './usecases/get-user-tasks.usecase';
 
 export const UsersProvider: ModuleMetadata = {
   controllers: [UsersController],
@@ -13,6 +14,7 @@ export const UsersProvider: ModuleMetadata = {
     UserRepository,
     GetUserBalanceUseCase,
     GetUserInfoUsecase,
-    GetUserOrganizationsUsecase
+    GetUserOrganizationsUsecase,
+    GetUserTasksUsecase
   ]
 };

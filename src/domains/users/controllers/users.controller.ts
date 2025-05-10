@@ -8,12 +8,15 @@ import { UserEntity } from '../entities/user.entity';
 import { GetUserBalanceUseCase } from '../usecases/get-user-balance.usecase';
 import { GetUserOrganizationsUsecase } from '../usecases/get-user-organizations.usecase';
 import { User } from '@core/decorators/types';
+import { GetUserTasksUsecase } from '../usecases/get-user-tasks.usecase';
+
 @Controller('users')
 export class UsersController {
   constructor(
     private readonly getUserInfoUsecase: GetUserInfoUsecase,
     private readonly getUserBalanceUseCase: GetUserBalanceUseCase,
-    private readonly getUserOrganizationsUsecase: GetUserOrganizationsUsecase
+    private readonly getUserOrganizationsUsecase: GetUserOrganizationsUsecase,
+    private readonly getUserTasksUsecase: GetUserTasksUsecase
   ) {}
 
   @Get('info')
@@ -41,5 +44,12 @@ export class UsersController {
       user.walletAddress,
       Network.get(network ?? 'mainnet')
     );
+  }
+
+  @Get('/tasks')
+  @ApiBearerAuth('access-token')
+  @UseGuards(AuthGuard)
+  async getUserTasks(@UserDecorator() user: UserEntity) {
+    return this.getUserTasksUsecase.execute(user);
   }
 }

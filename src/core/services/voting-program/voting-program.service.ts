@@ -1224,6 +1224,46 @@ export class VotingProgramService {
     }));
   }
 
+  async getUserTasks(userAddress: string) {
+    const connection: any = new Connection(this.heliusService.devnetRpcUrl);
+
+    // Create a dummy wallet provider for read-only operations
+    const dummyWallet = {
+      publicKey: PublicKey.default,
+      signTransaction: async (tx: any) => tx,
+      signAllTransactions: async (txs: any[]) => txs
+    } as anchor.Wallet;
+
+    const provider = new anchor.AnchorProvider(connection, dummyWallet, {
+      commitment: 'confirmed',
+      preflightCommitment: 'confirmed'
+    });
+
+    const program = new anchor.Program<GibworkVotingProgram>(
+      idl as GibworkVotingProgram,
+      provider
+    );
+
+    const tasks = await program.account.task.all([]);
+
+    return tasks
+      .filter((task) => task.account.assignee.toBase58() === userAddress)
+      .map((task) => ({
+        accountAddress: task.publicKey.toBase58(),
+        project: task.account.project.toBase58(),
+        title: task.account.title,
+        paymentAmount: task.account.paymentAmount.toNumber(),
+        assignee: task.account.assignee.toBase58(),
+        votesFor: task.account.votesFor,
+        votesAgainst: task.account.votesAgainst,
+        status: Object.keys(task.account.status)[0],
+        voters: task.account.voters.map((voter) => voter.toBase58()),
+        transferProposal: task.account.transferProposal?.toBase58(),
+        vault: task.account.vault?.toBase58(),
+        reviewer: task.account.reviewer?.toBase58()
+      }));
+  }
+
   async getTaskDetails(taskAddress: string) {
     const connection: any = new Connection(this.heliusService.devnetRpcUrl);
 
