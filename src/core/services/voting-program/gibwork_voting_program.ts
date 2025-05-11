@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/gibwork_voting_program.json`.
  */
 export type GibworkVotingProgram = {
-  address: '57mLAqsWu4b3e9cdC2Xorm14yiX7pWthKmnpwVtvBgzL';
+  address: 'CLzwfsfNSQM73U7J5zURwRycdsWhFhTGaUvPYQU1TYPK';
   metadata: {
     name: 'gibworkVotingProgram';
     version: '0.1.0';
@@ -1098,6 +1098,10 @@ export type GibworkVotingProgram = {
       args: [
         {
           name: 'title';
+          type: 'string';
+        },
+        {
+          name: 'description';
           type: 'string';
         },
         {
@@ -2651,24 +2655,8 @@ export type GibworkVotingProgram = {
             type: 'pubkey';
           },
           {
-            name: 'title';
-            type: 'string';
-          },
-          {
-            name: 'paymentAmount';
-            type: 'u64';
-          },
-          {
             name: 'assignee';
             type: 'pubkey';
-          },
-          {
-            name: 'votesFor';
-            type: 'u32';
-          },
-          {
-            name: 'votesAgainst';
-            type: 'u32';
           },
           {
             name: 'status';
@@ -2677,6 +2665,26 @@ export type GibworkVotingProgram = {
                 name: 'taskStatus';
               };
             };
+          },
+          {
+            name: 'title';
+            type: 'string';
+          },
+          {
+            name: 'description';
+            type: 'string';
+          },
+          {
+            name: 'paymentAmount';
+            type: 'u64';
+          },
+          {
+            name: 'votesFor';
+            type: 'u32';
+          },
+          {
+            name: 'votesAgainst';
+            type: 'u32';
           },
           {
             name: 'voters';
@@ -2856,6 +2864,10 @@ export type GibworkVotingProgram = {
           },
           {
             name: 'title';
+            type: 'string';
+          },
+          {
+            name: 'description';
             type: 'string';
           },
           {

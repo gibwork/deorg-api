@@ -1154,6 +1154,7 @@ export class VotingProgramService {
 
     const instruction = program.instruction.proposeTask(
       dto.title,
+      dto.description,
       new BN(paymentAmountTokenUnits),
       assignee,
       tokenMint,
@@ -1244,24 +1245,33 @@ export class VotingProgramService {
       provider
     );
 
-    const tasks = await program.account.task.all([]);
+    // Account discriminator (8) + project pubkey (32) = 40
+    const discriminatorOffset = 8;
+    const projectOffset = 32;
 
-    return tasks
-      .filter((task) => task.account.assignee.toBase58() === userAddress)
-      .map((task) => ({
-        accountAddress: task.publicKey.toBase58(),
-        project: task.account.project.toBase58(),
-        title: task.account.title,
-        paymentAmount: task.account.paymentAmount.toNumber(),
-        assignee: task.account.assignee.toBase58(),
-        votesFor: task.account.votesFor,
-        votesAgainst: task.account.votesAgainst,
-        status: Object.keys(task.account.status)[0],
-        voters: task.account.voters.map((voter) => voter.toBase58()),
-        transferProposal: task.account.transferProposal?.toBase58(),
-        vault: task.account.vault?.toBase58(),
-        reviewer: task.account.reviewer?.toBase58()
-      }));
+    const tasks = await program.account.task.all([
+      {
+        memcmp: {
+          offset: discriminatorOffset + projectOffset,
+          bytes: userAddress
+        }
+      }
+    ]);
+
+    return tasks.map((task) => ({
+      accountAddress: task.publicKey.toBase58(),
+      project: task.account.project.toBase58(),
+      title: task.account.title,
+      paymentAmount: task.account.paymentAmount.toNumber(),
+      assignee: task.account.assignee.toBase58(),
+      votesFor: task.account.votesFor,
+      votesAgainst: task.account.votesAgainst,
+      status: Object.keys(task.account.status)[0],
+      voters: task.account.voters.map((voter) => voter.toBase58()),
+      transferProposal: task.account.transferProposal?.toBase58(),
+      vault: task.account.vault?.toBase58(),
+      reviewer: task.account.reviewer?.toBase58()
+    }));
   }
 
   async getTaskDetails(taskAddress: string) {

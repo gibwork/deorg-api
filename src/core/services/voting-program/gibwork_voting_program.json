@@ -1,5 +1,5 @@
 {
-  "address": "57mLAqsWu4b3e9cdC2Xorm14yiX7pWthKmnpwVtvBgzL",
+  "address": "CLzwfsfNSQM73U7J5zURwRycdsWhFhTGaUvPYQU1TYPK",
   "metadata": {
     "name": "gibwork_voting_program",
     "version": "0.1.0",
@@ -1247,6 +1247,10 @@
       "args": [
         {
           "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "description",
           "type": "string"
         },
         {
@@ -3212,24 +3216,8 @@
             "type": "pubkey"
           },
           {
-            "name": "title",
-            "type": "string"
-          },
-          {
-            "name": "payment_amount",
-            "type": "u64"
-          },
-          {
             "name": "assignee",
             "type": "pubkey"
-          },
-          {
-            "name": "votes_for",
-            "type": "u32"
-          },
-          {
-            "name": "votes_against",
-            "type": "u32"
           },
           {
             "name": "status",
@@ -3238,6 +3226,26 @@
                 "name": "TaskStatus"
               }
             }
+          },
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "name": "payment_amount",
+            "type": "u64"
+          },
+          {
+            "name": "votes_for",
+            "type": "u32"
+          },
+          {
+            "name": "votes_against",
+            "type": "u32"
           },
           {
             "name": "voters",
@@ -3417,6 +3425,10 @@
           },
           {
             "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "description",
             "type": "string"
           },
           {
