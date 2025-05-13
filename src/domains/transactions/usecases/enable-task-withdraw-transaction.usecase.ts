@@ -17,10 +17,19 @@ export class EnableTaskWithdrawTransactionUsecase {
   async execute(taskAddress: string, user: UserEntity) {
     const connection = new Connection(this.heliusService.devnetRpcUrl);
 
+    const task = await this.votingProgramService.getTaskDetails(taskAddress);
+    const project = await this.votingProgramService.getProjectDetails(
+      task.project
+    );
+    const organization = await this.votingProgramService.getOrganizationDetails(
+      project.organization
+    );
+
     const { instruction } =
       await this.votingProgramService.enableTaskVaultWithdrawal(
         taskAddress,
-        user.walletAddress
+        user.walletAddress,
+        organization.tokenMint
       );
 
     const tx = new Transaction().add(instruction);

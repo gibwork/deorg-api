@@ -17,8 +17,20 @@ export class CompleteTaskTransactionUsecase {
   async execute(taskAddress: string, user: UserEntity) {
     const connection = new Connection(this.heliusService.devnetRpcUrl);
 
-    const { instruction } =
-      await this.votingProgramService.completeTask(taskAddress);
+    const task = await this.votingProgramService.getTaskDetails(taskAddress);
+
+    const project = await this.votingProgramService.getProjectDetails(
+      task.project
+    );
+
+    const organization = await this.votingProgramService.getOrganizationDetails(
+      project.organization
+    );
+
+    const { instruction } = await this.votingProgramService.completeTask(
+      taskAddress,
+      organization.tokenMint
+    );
 
     const tx = new Transaction().add(instruction);
 

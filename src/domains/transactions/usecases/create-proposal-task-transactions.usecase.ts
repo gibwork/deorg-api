@@ -26,6 +26,11 @@ export class CreateProposalTaskTransactionsUsecase {
       throw new NotFoundException('Project not found');
     }
 
+    const onChainOrganization =
+      await this.votingProgramService.getOrganizationDetails(
+        onChainProject.organization
+      );
+
     const { instruction, proposalPDA } =
       await this.votingProgramService.createTaskProposal({
         assignee: dto.memberAccountAddress,
@@ -34,7 +39,8 @@ export class CreateProposalTaskTransactionsUsecase {
         paymentAmount: dto.paymentAmount,
         projectAddress: dto.projectAccountAddress,
         title: dto.title,
-        userPrimaryWallet: user.walletAddress
+        userPrimaryWallet: user.walletAddress,
+        organizationTokenMint: onChainOrganization.tokenMint
       });
 
     const tx = new Transaction().add(instruction);

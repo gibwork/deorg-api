@@ -75,7 +75,8 @@ export class CreateVoteProposalUseCase {
       proposerWallet: user.walletAddress,
       vote: dto.vote,
       type: proposal.type,
-      proposal
+      proposal,
+      organizationTokenMint: onChainOrganization.tokenMint
     });
 
     const transaction = await this.transactionService.create({
@@ -111,12 +112,19 @@ export class CreateVoteProposalUseCase {
     organizationAddress: string;
     proposalAddress: string;
     proposerWallet: string;
+    organizationTokenMint: string;
     vote: boolean;
     type: ProposalType;
     proposal: Proposal;
   }) {
-    const { organizationAddress, proposalAddress, proposerWallet, vote, type } =
-      params;
+    const {
+      organizationAddress,
+      proposalAddress,
+      proposerWallet,
+      vote,
+      type,
+      organizationTokenMint
+    } = params;
 
     if (type === ProposalType.PROJECT) {
       const { instruction } =
@@ -124,7 +132,8 @@ export class CreateVoteProposalUseCase {
           organizationAddress,
           proposalAddress,
           proposerWallet,
-          vote
+          vote,
+          organizationTokenMint
         });
 
       return {
@@ -143,7 +152,8 @@ export class CreateVoteProposalUseCase {
         organizationAddress,
         proposalAddress,
         proposerWallet,
-        vote
+        vote,
+        organizationTokenMint
       });
 
       return {
@@ -155,7 +165,8 @@ export class CreateVoteProposalUseCase {
           organizationAddress,
           proposalAddress,
           proposerWallet,
-          vote
+          vote,
+          organizationTokenMint
         });
 
       return {

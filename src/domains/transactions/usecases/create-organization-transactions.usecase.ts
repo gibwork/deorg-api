@@ -51,7 +51,8 @@ export class CreateOrganizationTransactionsUsecase {
         twitterUrl: dto.twitterUrl,
         discordUrl: dto.discordUrl,
         telegramUrl: dto.telegramUrl,
-        description: dto.description
+        description: dto.description,
+        organizationTokenMint: dto.organizationTokenMint
       });
 
     const { instruction: initTreasuryTokenInstruction } =
@@ -66,7 +67,8 @@ export class CreateOrganizationTransactionsUsecase {
       await this.votingProgramService.registerTreasuryToken(
         organizationPDA.toBase58(),
         user.walletAddress,
-        treasuryTokenKeypair
+        treasuryTokenKeypair,
+        dto.organizationTokenMint
       );
 
     const tx = new Transaction();

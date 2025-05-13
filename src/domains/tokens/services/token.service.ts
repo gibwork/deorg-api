@@ -64,7 +64,7 @@ export class TokenService {
       return Number(price);
     } catch (error) {
       Logger.error(error.message, error.stack, 'PriceService.getPrice');
-      throw error;
+      return 0;
     }
   }
 

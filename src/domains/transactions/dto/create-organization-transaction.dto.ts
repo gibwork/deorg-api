@@ -130,4 +130,11 @@ export class DepositOrganizationDto {
   @IsString()
   @IsOptional()
   description: string;
+
+  @ApiProperty({
+    description: 'The organization token mint'
+  })
+  @IsString()
+  @IsOptional()
+  organizationTokenMint: string;
 }

@@ -15,6 +15,8 @@ import { CreateProposalTaskTransactionDto } from '../dto/create-proposal-task-tr
 import { CreateProposalTaskTransactionsUsecase } from '../usecases/create-proposal-task-transactions.usecase';
 import { CompleteTaskTransactionUsecase } from '../usecases/complete-task-transaction.usecase';
 import { EnableTaskWithdrawTransactionUsecase } from '../usecases/enable-task-withdraw-transaction.usecase';
+import { DepositOrganizationTransactionDto } from '../dto/deposit-organization-trasaction.dto';
+import { DepositOrganizationTransactionUsecase } from '../usecases/deposit-organization-transaction.usecase';
 
 @Controller('transactions')
 @ApiTags('Transactions')
@@ -27,7 +29,8 @@ export class TransactionController {
     private readonly createProposalProjectTransactionUsecase: CreateProposalProjectTransactionUsecase,
     private readonly createProposalTaskTransactionsUsecase: CreateProposalTaskTransactionsUsecase,
     private readonly completeTaskTransactionUsecase: CompleteTaskTransactionUsecase,
-    private readonly enableTaskWithdrawTransactionUsecase: EnableTaskWithdrawTransactionUsecase
+    private readonly enableTaskWithdrawTransactionUsecase: EnableTaskWithdrawTransactionUsecase,
+    private readonly depositOrganizationTransactionUsecase: DepositOrganizationTransactionUsecase
   ) {}
 
   @Post('organization')
@@ -90,5 +93,13 @@ export class TransactionController {
     @UserDecorator() user: UserEntity
   ) {
     return this.enableTaskWithdrawTransactionUsecase.execute(taskAddress, user);
+  }
+
+  @Post('organization/deposit')
+  async depositOrganization(
+    @Body() body: DepositOrganizationTransactionDto,
+    @UserDecorator() user: UserEntity
+  ) {
+    return this.depositOrganizationTransactionUsecase.execute(body, user);
   }
 }

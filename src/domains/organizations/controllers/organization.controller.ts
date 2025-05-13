@@ -10,7 +10,8 @@ import { JoinOrganizationUsecase } from '../usecases/join-organization.usecase';
 import { GetOrganizationDetailsUsecase } from '../usecases/get-organization-details.usecase';
 import { CheckOrganizationMembershipUsecase } from '../usecases/check-organization-membership.usecase';
 import { GetOrganizationMembersUseCase } from '../usecases/get-organization-members.use-case';
-
+import { DepositOrganizationUsecase } from '../usecases/deposit-organization.usecase';
+import { DepositOrganizationDto } from '../dto/deposit-organization.dto';
 @Controller('organizations')
 @ApiTags('Organizations')
 export class OrganizationController {
@@ -20,7 +21,8 @@ export class OrganizationController {
     private readonly joinOrganizationUsecase: JoinOrganizationUsecase,
     private readonly getOrganizationDetailsUsecase: GetOrganizationDetailsUsecase,
     private readonly checkMembershipUsecase: CheckOrganizationMembershipUsecase,
-    private readonly getOrganizationMembersUseCase: GetOrganizationMembersUseCase
+    private readonly getOrganizationMembersUseCase: GetOrganizationMembersUseCase,
+    private readonly depositOrganizationUsecase: DepositOrganizationUsecase
   ) {}
 
   @Get()
@@ -68,5 +70,10 @@ export class OrganizationController {
     @UserDecorator() user: UserEntity
   ) {
     return this.joinOrganizationUsecase.execute(accountAddress, user.id);
+  }
+
+  @Post('/deposit')
+  async depositOrganization(@Body() body: DepositOrganizationDto) {
+    return this.depositOrganizationUsecase.execute(body);
   }
 }

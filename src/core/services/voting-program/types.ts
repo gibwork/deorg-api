@@ -37,6 +37,7 @@ export type CreateOrganizationDto = {
   treasuryTransferQuorumPercentage?: number;
   userPrimaryWallet: string;
   organizationId: string;
+  organizationTokenMint: string;
   logoUrl?: string;
   websiteUrl?: string;
   twitterUrl?: string;
@@ -54,4 +55,5 @@ export type CreateProjectProposalDto = {
   projectProposalThreshold: number;
   projectProposalValidityPeriod: number;
   proposerWallet: string;
+  organizationTokenMint: string;
 };

@@ -59,7 +59,8 @@ export class CreateProposalProjectTransactionUsecase {
         organizationAddress: onChainOrganization.accountAddress,
         projectProposalThreshold: dto.projectProposalThreshold,
         projectProposalValidityPeriod: dto.projectProposalValidityPeriod,
-        proposerWallet: user.walletAddress
+        proposerWallet: user.walletAddress,
+        organizationTokenMint: onChainOrganization.tokenMint
       });
 
     const tx = new Transaction().add(instruction);
