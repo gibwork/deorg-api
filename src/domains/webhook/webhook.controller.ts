@@ -1,10 +1,13 @@
 import { HeliusService } from '@core/services/helius/helius.service';
 import { Controller, Post, Body } from '@nestjs/common';
 import { Connection } from '@solana/web3.js';
-
+import { SocketGateway } from '../gateway/socket.gateway';
 @Controller('webhook')
 export class WebhookController {
-  constructor(private readonly heliusService: HeliusService) {}
+  constructor(
+    private readonly heliusService: HeliusService,
+    private readonly socketGateway: SocketGateway
+  ) {}
 
   @Post('')
   async handle(@Body() body: any) {
@@ -19,8 +22,12 @@ export class WebhookController {
       if (!tx?.meta?.logMessages) continue;
 
       const instructions = extractInstructions(tx?.meta?.logMessages);
-
-      console.log(instructions);
+      if (instructions.length > 0) {
+        this.socketGateway.server.emit('transaction', {
+          signature,
+          instructions
+        });
+      }
     }
   }
 }
