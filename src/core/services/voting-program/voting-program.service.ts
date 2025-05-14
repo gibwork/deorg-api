@@ -791,31 +791,28 @@ export class VotingProgramService {
       this.PROGRAM_ID
     );
 
-    const instruction = program.instruction.voteOnTaskProposal(
-      new BN(params.vote ? 1 : 0),
-      {
-        accounts: {
-          voter: new PublicKey(params.proposerWallet),
-          organization,
-          proposal,
-          project,
-          voterTokenAccount,
-          treasuryTokenAccount,
-          treasuryAuthority: treasuryAuthorityPDA,
-          destinationTokenAccount,
-          task: taskPDA,
-          taskVault: taskVaultPDA,
-          tokenMint,
-          vaultTokenAccount: vaultTokenAccountPDA,
-          vaultAuthority: vaultAuthorityPDA,
-          systemProgram: SystemProgram.programId,
-          tokenProgram: new PublicKey(
-            'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
-          ),
-          rent: new PublicKey('SysvarRent111111111111111111111111111111111')
-        }
+    const instruction = program.instruction.voteOnTaskProposal(params.vote, {
+      accounts: {
+        voter: new PublicKey(params.proposerWallet),
+        organization,
+        proposal,
+        project,
+        voterTokenAccount,
+        treasuryTokenAccount,
+        treasuryAuthority: treasuryAuthorityPDA,
+        destinationTokenAccount,
+        task: taskPDA,
+        taskVault: taskVaultPDA,
+        tokenMint,
+        vaultTokenAccount: vaultTokenAccountPDA,
+        vaultAuthority: vaultAuthorityPDA,
+        systemProgram: SystemProgram.programId,
+        tokenProgram: new PublicKey(
+          'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+        ),
+        rent: new PublicKey('SysvarRent111111111111111111111111111111111')
       }
-    );
+    });
 
     return {
       instruction,
@@ -920,20 +917,17 @@ export class VotingProgramService {
       this.PROGRAM_ID
     );
 
-    const instruction = program.instruction.voteOnProjectProposal(
-      new BN(params.vote ? 1 : 0),
-      {
-        accounts: {
-          organization,
-          proposal,
-          voterTokenAccount,
-          systemProgram: SystemProgram.programId,
-          voter: new PublicKey(params.proposerWallet),
-          project: projectPDA,
-          rent: new PublicKey('SysvarRent111111111111111111111111111111111')
-        }
+    const instruction = program.instruction.voteOnProjectProposal(params.vote, {
+      accounts: {
+        organization,
+        proposal,
+        voterTokenAccount,
+        systemProgram: SystemProgram.programId,
+        voter: new PublicKey(params.proposerWallet),
+        project: projectPDA,
+        rent: new PublicKey('SysvarRent111111111111111111111111111111111')
       }
-    );
+    });
 
     return {
       instruction
