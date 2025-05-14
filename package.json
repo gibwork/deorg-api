@@ -82,7 +82,8 @@
     "typeorm-naming-strategies": "^4.1.0",
     "uuid": "^11.1.0",
     "winston": "^3.11.0",
-    "winston-transport": "^4.6.0"
+    "winston-transport": "^4.6.0",
+    "ws": "^8.18.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
