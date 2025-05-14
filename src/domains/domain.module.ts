@@ -19,6 +19,7 @@ import { TasksProvider } from './tasks/tasks.provider';
 import { socketProvider } from './gateway/socket.provider';
 import { ProgramProvider } from './program/program.provider';
 import { ProgramListener } from './program/program.listener';
+import WebSocket from 'ws';
 
 const serviceProvider = ServiceProvider.buildByProviders([
   UsersProvider,
