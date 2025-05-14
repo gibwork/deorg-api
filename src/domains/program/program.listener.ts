@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import Websocket from 'ws';
+import WebSocket from 'ws';
 import idl from '@core/services/voting-program/gibwork_voting_program.json';
 import { ProgramHandleEventsUsecase } from './program-handle-events.usecase';
 
 @Injectable()
 export class ProgramListener {
-  private ws: Websocket;
+  private ws: WebSocket;
 
   constructor(
     private readonly programHandleEventsUsecase: ProgramHandleEventsUsecase
   ) {
-    this.ws = new Websocket(
+    this.ws = new WebSocket(
       `wss://atlas-devnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`
     );
 
@@ -64,7 +64,7 @@ export class ProgramListener {
 
   startPing() {
     setInterval(() => {
-      if (this.ws.readyState === WebSocket.OPEN) {
+      if (this.ws.readyState === 1) {
         this.ws.ping();
         console.log('Ping sent');
       }
