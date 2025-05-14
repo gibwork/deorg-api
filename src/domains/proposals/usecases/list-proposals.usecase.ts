@@ -30,6 +30,9 @@ export class ListProposalsUsecase {
       });
     }
 
-    return proposals;
+    return proposals.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
   }
 }

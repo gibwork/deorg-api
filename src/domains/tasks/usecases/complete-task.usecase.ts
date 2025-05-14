@@ -29,7 +29,8 @@ export class CompleteTaskUsecase {
 
     const { signature } = await sendTransaction({
       serializedTransaction: dto.serializedTransaction,
-      connection: this.connection
+      connection: this.connection,
+      commitment: 'confirmed'
     });
 
     return {

@@ -1,9 +1,10 @@
 import { BadRequestException } from '@nestjs/common';
-import { Connection, Transaction } from '@solana/web3.js';
+import { Commitment, Connection, Transaction } from '@solana/web3.js';
 
 export async function sendTransaction(params: {
   serializedTransaction: string;
   connection: Connection;
+  commitment?: Commitment;
 }) {
   const signedTransaction = Transaction.from(
     Buffer.from(params.serializedTransaction, 'base64')
@@ -17,7 +18,7 @@ export async function sendTransaction(params: {
     // Wait for confirmation with more robust error handling
     const confirmation = await params.connection.confirmTransaction(
       signature,
-      'finalized'
+      params.commitment || 'finalized'
     );
 
     // Check if there were any errors during confirmation
