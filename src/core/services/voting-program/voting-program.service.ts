@@ -642,9 +642,9 @@ export class VotingProgramService {
       ],
       this.PROGRAM_ID
     );
-
+    
     const instruction = program.instruction.voteOnContributorProposal(
-      new BN(params.vote ? 1 : 0),
+      params.vote,
       {
         accounts: {
           organization,
