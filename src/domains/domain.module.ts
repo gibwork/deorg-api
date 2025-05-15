@@ -54,7 +54,7 @@ export class DomainModule implements OnApplicationBootstrap, NestModule {
       console.log(
         `WebSocket not ready. Retrying in ${RETRY_INTERVAL / 1000} seconds...`
       );
-      return;
+      await new Promise((resolve) => setTimeout(resolve, RETRY_INTERVAL));
     }
 
     console.log('WebSocket is ready.');
