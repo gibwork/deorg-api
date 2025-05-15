@@ -41,7 +41,11 @@ export class ClerkService {
 
       return response;
     } catch (error) {
-      Logger.error(error.message, error.stack, 'ClerkService.createUser');
+      Logger.error(
+        error.message,
+        error.stack,
+        'ClerkService.createSignInToken'
+      );
       throw error;
     }
   }
@@ -79,7 +83,7 @@ export class ClerkService {
 
       return response.data;
     } catch (error) {
-      Logger.error(error.message, error.stack, 'ClerkService.getUser');
+      Logger.error(error.message, error.stack, 'ClerkService.deleteExternalId');
       throw error;
     }
   }

@@ -263,7 +263,29 @@ export class VotingProgramService {
 
     const organizations = await program.account.organization.all([]);
 
-    return organizations.map((organization) => ({
+    const metadata = await program.account.organizationMetadata.all([]);
+
+    const organizationsData = organizations.map((organization) => {
+      const meta = metadata.find(
+        (m) =>
+          m.account.organization.toBase58() ===
+          organization.publicKey.toBase58()
+      );
+
+      return {
+        ...organization,
+        metadata: {
+          logoUrl: meta?.account.logoUrl,
+          websiteUrl: meta?.account.websiteUrl,
+          twitterUrl: meta?.account.twitterUrl,
+          discordUrl: meta?.account.discordUrl,
+          telegramUrl: meta?.account.telegramUrl,
+          description: meta?.account.description
+        }
+      };
+    });
+
+    return organizationsData.map((organization) => ({
       accountAddress: organization.publicKey.toBase58(),
       creator: organization.account.creator.toBase58(),
       uuid: convertUuid(organization.account.uuid),
@@ -291,7 +313,8 @@ export class VotingProgramService {
       contributorProposalQuorumPercentage:
         organization.account.contributorProposalQuorumPercentage,
       projectProposalThresholdPercentage:
-        organization.account.projectProposalThresholdPercentage
+        organization.account.projectProposalThresholdPercentage,
+      metadata: organization.metadata
     }));
   }
 
@@ -367,6 +390,7 @@ export class VotingProgramService {
     }
 
     let orgmetadata: any = {};
+
     try {
       const result = await program.account.organizationMetadata.all([
         {
@@ -428,7 +452,6 @@ export class VotingProgramService {
   async getOrganizationProposals(
     organizationAccount: string
   ): Promise<Proposal[]> {
-    console.log('organizationAccount', organizationAccount);
     const connection: any = new Connection(this.heliusService.devnetRpcUrl);
 
     // Create a dummy wallet provider for read-only operations
@@ -642,7 +665,7 @@ export class VotingProgramService {
       ],
       this.PROGRAM_ID
     );
-    
+
     const instruction = program.instruction.voteOnContributorProposal(
       params.vote,
       {
