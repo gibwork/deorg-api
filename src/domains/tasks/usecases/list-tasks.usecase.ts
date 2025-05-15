@@ -18,7 +18,8 @@ export class ListTasksUsecase {
   private connection = new Connection(this.heliusService.devnetRpcUrl);
 
   async execute(projectAddress: string) {
-    const tasks = await this.votingProgramService.getTasks(projectAddress);
+    let tasks = await this.votingProgramService.getTasks(projectAddress);
+    tasks = [tasks[0]];
 
     const tasksEnriched = await this.enrichTasks(tasks);
 
@@ -77,6 +78,7 @@ export class ListTasksUsecase {
 
     for (const address of memberAddresses) {
       const member = await this.getOrCreateUser(address, cachedUsers);
+
       if (member) {
         members.push(member);
       }
@@ -120,6 +122,19 @@ export class ListTasksUsecase {
 
       cachedUsers.set(walletAddress, newUser);
       return newUser;
+    } else {
+      const clerkUserCreated = await this.clerkService.createUser(
+        walletAddress.toLowerCase()
+      );
+
+      const newUser = await this.userService.create({
+        externalId: clerkUserCreated.id,
+        walletAddress,
+        username: clerkUserCreated.username!,
+        profilePicture: clerkUserCreated.imageUrl
+      });
+
+      cachedUsers.set(walletAddress, newUser);
     }
 
     return null;
