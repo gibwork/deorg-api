@@ -42,24 +42,28 @@ export class ProgramListener {
   }
 
   public async startMonitoring() {
-    const request = {
-      jsonrpc: '2.0',
-      id: 420,
-      method: 'transactionSubscribe',
-      params: [
-        {
-          accountInclude: [idl.address]
-        },
-        {
-          commitment: 'confirmed',
-          encoding: 'jsonParsed',
-          transactionDetails: 'full',
-          showRewards: true,
-          maxSupportedTransactionVersion: 0
-        }
-      ]
-    };
-    this.ws.send(JSON.stringify(request));
+    try {
+      const request = {
+        jsonrpc: '2.0',
+        id: 420,
+        method: 'transactionSubscribe',
+        params: [
+          {
+            accountInclude: [idl.address]
+          },
+          {
+            commitment: 'confirmed',
+            encoding: 'jsonParsed',
+            transactionDetails: 'full',
+            showRewards: true,
+            maxSupportedTransactionVersion: 0
+          }
+        ]
+      };
+      this.ws.send(JSON.stringify(request));
+    } catch (error) {
+      console.error('WebSocket error:', error);
+    }
   }
 
   startPing() {
