@@ -1,8 +1,8 @@
 import { OrganizationService } from '@domains/organizations/services/organization.service';
 import { UserEntity } from '@domains/users/entities/user.entity';
 import { Injectable } from '@nestjs/common';
-import { In } from 'typeorm';
 import { VotingProgramService } from '@core/services/voting-program/voting-program.service';
+
 @Injectable()
 export class GetUserOrganizationsUsecase {
   constructor(
@@ -11,39 +11,42 @@ export class GetUserOrganizationsUsecase {
   ) {}
 
   async execute(user: UserEntity) {
-    const organizations = await this.votingProgramService.getOrganizations();
-    const accountAddresses = organizations
-      .filter((org) => org.contributors.includes(user.walletAddress))
-      .map((org) => org.accountAddress);
+    // Get all organizations from voting program
+    const organizationsOnProgram =
+      await this.votingProgramService.getOrganizations();
 
-    const organizationEntities = await this.organizationService.find({
-      where: { accountAddress: In(accountAddresses) } as any,
-      relations: {
-        members: {
-          user: true
-        }
-      }
+    // Get all organizations from DB
+    const dbOrgs = await this.organizationService.find({
+      relations: ['members', 'members.user']
     });
 
-    const organizationsEnriched = organizations.map((org) => {
-      const entity = organizationEntities.find(
-        (e) => e.accountAddress === org.accountAddress
+    // Filter organizations where user is either a contributor or member
+    const userOrgs = organizationsOnProgram.filter((org) => {
+      const isContributor = org.contributors.includes(user.walletAddress);
+      const dbOrg = dbOrgs.find((e) => e.accountAddress === org.accountAddress);
+      const isMember = dbOrg?.members.some(
+        (m) => m.user.walletAddress === user.walletAddress
       );
+
+      return isContributor || isMember;
+    });
+
+    // Enrich the organizations with DB data
+    return userOrgs.map((org) => {
+      const dbOrg = dbOrgs.find((e) => e.accountAddress === org.accountAddress);
 
       const members = [
         ...new Set([
-          ...(entity?.members.map((m) => m.user.walletAddress) || []),
+          ...(dbOrg?.members.map((m) => m.user.walletAddress) || []),
           ...(org.contributors || [])
         ])
       ];
 
       return {
         ...org,
-        ...entity,
+        ...dbOrg,
         members
       };
     });
-
-    return organizationsEnriched;
   }
 }
