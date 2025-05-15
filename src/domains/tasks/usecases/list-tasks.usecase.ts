@@ -18,8 +18,7 @@ export class ListTasksUsecase {
   private connection = new Connection(this.heliusService.devnetRpcUrl);
 
   async execute(projectAddress: string) {
-    let tasks = await this.votingProgramService.getTasks(projectAddress);
-    tasks = [tasks[0]];
+    const tasks = await this.votingProgramService.getTasks(projectAddress);
 
     const tasksEnriched = await this.enrichTasks(tasks);
 
