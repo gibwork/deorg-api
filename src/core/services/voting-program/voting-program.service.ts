@@ -253,46 +253,115 @@ export class VotingProgramService {
   }
 
   async getOrganizations() {
-    const connection: any = new Connection(this.heliusService.devnetRpcUrl);
-    const program = new anchor.Program<GibworkVotingProgram>(
-      idl as GibworkVotingProgram,
-      {
-        connection
+    try {
+      const connection: any = new Connection(this.heliusService.devnetRpcUrl);
+      const program = new anchor.Program<GibworkVotingProgram>(
+        idl as GibworkVotingProgram,
+        {
+          connection
+        }
+      );
+
+      const organizations = await program.account.organization.all([]);
+
+      if (!organizations || organizations.length === 0) {
+        console.log('No organizations found');
+        return [];
       }
-    );
 
-    const organizations = await program.account.organization.all([]);
+      // Fetch metadata for all organizations
+      const organizationsWithMetadata = await Promise.all(
+        organizations.map(async (organization) => {
+          let orgmetadata: any = {};
+          try {
+            if (!organization.publicKey) {
+              console.error('Organization missing public key');
+              return null;
+            }
 
-    return organizations.map((organization) => ({
-      accountAddress: organization.publicKey.toBase58(),
-      creator: organization.account.creator.toBase58(),
-      uuid: convertUuid(organization.account.uuid),
-      name: organization.account.name,
-      contributors: organization.account.contributors.map((contributor) =>
-        contributor.toBase58()
-      ),
-      contributorProposalThresholdPercentage:
-        organization.account.contributorProposalThresholdPercentage,
-      contributorProposalValidityPeriod:
-        organization.account.contributorProposalValidityPeriod.toNumber(),
-      treasuryTransferQuorumPercentage:
-        organization.account.treasuryTransferQuorumPercentage,
-      tokenMint: organization.account.tokenMint.toBase58(),
-      treasuryTransferThresholdPercentage:
-        organization.account.treasuryTransferThresholdPercentage,
-      treasuryTransferProposalValidityPeriod:
-        organization.account.treasuryTransferProposalValidityPeriod.toNumber(),
-      minimumTokenRequirement:
-        organization.account.minimumTokenRequirement.toNumber(),
-      contributorValidityPeriod:
-        organization.account.contributorValidityPeriod.toNumber(),
-      projectProposalValidityPeriod:
-        organization.account.projectProposalValidityPeriod.toNumber(),
-      contributorProposalQuorumPercentage:
-        organization.account.contributorProposalQuorumPercentage,
-      projectProposalThresholdPercentage:
-        organization.account.projectProposalThresholdPercentage
-    }));
+            const result = await program.account.organizationMetadata.all([
+              {
+                memcmp: {
+                  offset: 8,
+                  bytes: organization.publicKey.toBase58()
+                }
+              }
+            ]);
+
+            if (result && result.length > 0 && result[0].account) {
+              orgmetadata = {
+                logoUrl: result[0].account.logoUrl || null,
+                websiteUrl: result[0].account.websiteUrl || null,
+                twitterUrl: result[0].account.twitterUrl || null,
+                discordUrl: result[0].account.discordUrl || null,
+                telegramUrl: result[0].account.telegramUrl || null,
+                description: result[0].account.description || null
+              };
+            } else {
+              console.log(
+                `No metadata found for organization ${organization.publicKey.toBase58()}`
+              );
+            }
+          } catch (error) {
+            console.error(
+              `Error fetching metadata for organization ${organization.publicKey.toBase58()}:`,
+              error instanceof Error ? error.message : 'Unknown error'
+            );
+          }
+
+          try {
+            return {
+              accountAddress: organization.publicKey.toBase58(),
+              creator: organization.account.creator.toBase58(),
+              uuid: convertUuid(organization.account.uuid),
+              name: organization.account.name,
+              contributors: organization.account.contributors.map(
+                (contributor) => contributor.toBase58()
+              ),
+              contributorProposalThresholdPercentage:
+                organization.account.contributorProposalThresholdPercentage,
+              contributorProposalValidityPeriod:
+                organization.account.contributorProposalValidityPeriod.toNumber(),
+              treasuryTransferQuorumPercentage:
+                organization.account.treasuryTransferQuorumPercentage,
+              tokenMint: organization.account.tokenMint.toBase58(),
+              treasuryTransferThresholdPercentage:
+                organization.account.treasuryTransferThresholdPercentage,
+              treasuryTransferProposalValidityPeriod:
+                organization.account.treasuryTransferProposalValidityPeriod.toNumber(),
+              minimumTokenRequirement:
+                organization.account.minimumTokenRequirement.toNumber(),
+              contributorValidityPeriod:
+                organization.account.contributorValidityPeriod.toNumber(),
+              projectProposalValidityPeriod:
+                organization.account.projectProposalValidityPeriod.toNumber(),
+              contributorProposalQuorumPercentage:
+                organization.account.contributorProposalQuorumPercentage,
+              projectProposalThresholdPercentage:
+                organization.account.projectProposalThresholdPercentage,
+              metadata: orgmetadata
+            };
+          } catch (error) {
+            console.error(
+              `Error processing organization data for ${organization.publicKey.toBase58()}:`,
+              error instanceof Error ? error.message : 'Unknown error'
+            );
+            return null;
+          }
+        })
+      );
+
+      // Filter out any null results from failed processing
+      return organizationsWithMetadata.filter((org) => org !== null);
+    } catch (error) {
+      console.error(
+        'Error in getOrganizations:',
+        error instanceof Error ? error.message : 'Unknown error'
+      );
+      throw new Error(
+        `Failed to fetch organizations: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
   }
 
   async getOrganizationDetails(organizationAccount: string) {
@@ -642,7 +711,7 @@ export class VotingProgramService {
       ],
       this.PROGRAM_ID
     );
-    
+
     const instruction = program.instruction.voteOnContributorProposal(
       params.vote,
       {
