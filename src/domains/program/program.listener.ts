@@ -20,8 +20,8 @@ export class ProgramListener {
     });
 
     this.ws.on('message', async (message) => {
-      console.log('message', message);
       const data = JSON.parse(message.toString());
+      console.log('message', data);
       if (data.params?.result?.transaction?.meta?.logMessages) {
         await this.programHandleEventsUsecase.execute({
           logMessages: data.params.result.transaction.meta.logMessages
