@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import WebSocket from 'ws';
 import idl from '@core/services/voting-program/gibwork_voting_program.json';
 import { ProgramHandleEventsUsecase } from './program-handle-events.usecase';
@@ -21,7 +21,7 @@ export class ProgramListener {
 
     this.ws.on('message', async (message) => {
       const data = JSON.parse(message.toString());
-      console.log('message', data);
+      Logger.log('message', message.toString(), 'ProgramListener');
       if (data.params?.result?.transaction?.meta?.logMessages) {
         await this.programHandleEventsUsecase.execute({
           logMessages: data.params.result.transaction.meta.logMessages
