@@ -21,7 +21,7 @@ export class ProgramListener {
 
     this.ws.on('message', async (message) => {
       const data = JSON.parse(message.toString());
-      Logger.log('message', message.toString(), 'ProgramListener');
+      Logger.log(`message: ${message.toString()}`, 'ProgramListener');
       if (data.params?.result?.transaction?.meta?.logMessages) {
         await this.programHandleEventsUsecase.execute({
           logMessages: data.params.result.transaction.meta.logMessages
