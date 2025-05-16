@@ -1229,6 +1229,7 @@ export class VotingProgramService {
     return tasks.map((task) => ({
       accountAddress: task.publicKey.toBase58(),
       project: task.account.project.toBase58(),
+      description: task.account.description,
       title: task.account.title,
       paymentAmount: task.account.paymentAmount.toNumber(),
       assignee: task.account.assignee.toBase58(),
