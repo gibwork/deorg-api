@@ -36,7 +36,9 @@ export async function sendTransaction(params: {
       });
 
       if (!txDetails) {
-        throw new BadRequestException('Failed to fetch transaction details');
+        return {
+          signature
+        };
       }
 
       if (txDetails.meta?.err) {
