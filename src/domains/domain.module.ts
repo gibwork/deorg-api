@@ -20,6 +20,7 @@ import { socketProvider } from './gateway/socket.provider';
 import { ProgramProvider } from './program/program.provider';
 import { ProgramListener } from './program/program.listener';
 import WebSocket from 'ws';
+import { WebhookProvider } from './webhook/webhook.provider';
 
 const serviceProvider = ServiceProvider.buildByProviders([
   UsersProvider,
@@ -31,7 +32,8 @@ const serviceProvider = ServiceProvider.buildByProviders([
   ProjectsProvider,
   TasksProvider,
   socketProvider,
-  ProgramProvider
+  ProgramProvider,
+  WebhookProvider
 ]);
 serviceProvider.addImport(CoreModule);
 
