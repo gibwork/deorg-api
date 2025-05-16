@@ -28,26 +28,28 @@ export async function sendTransaction(params: {
       );
     }
 
-    // Get the transaction details to verify success
-    const txDetails = await params.connection.getTransaction(signature, {
-      commitment: 'confirmed',
-      maxSupportedTransactionVersion: 1
-    });
+    if (params.commitment === 'finalized') {
+      // Get the transaction details to verify success
+      const txDetails = await params.connection.getTransaction(signature, {
+        commitment: 'confirmed',
+        maxSupportedTransactionVersion: 1
+      });
 
-    if (!txDetails) {
-      throw new BadRequestException('Failed to fetch transaction details');
-    }
+      if (!txDetails) {
+        throw new BadRequestException('Failed to fetch transaction details');
+      }
 
-    if (txDetails.meta?.err) {
-      throw new BadRequestException(
-        `Transaction failed with error: ${JSON.stringify(txDetails.meta.err)}`
-      );
-    }
+      if (txDetails.meta?.err) {
+        throw new BadRequestException(
+          `Transaction failed with error: ${JSON.stringify(txDetails.meta.err)}`
+        );
+      }
 
-    if (txDetails.meta?.err) {
-      throw new BadRequestException(
-        `Transaction failed with error: ${JSON.stringify(txDetails.meta.err)}`
-      );
+      if (txDetails.meta?.err) {
+        throw new BadRequestException(
+          `Transaction failed with error: ${JSON.stringify(txDetails.meta.err)}`
+        );
+      }
     }
 
     return {
