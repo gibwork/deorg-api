@@ -1,7 +1,7 @@
 {
   "address": "CLzwfsfNSQM73U7J5zURwRycdsWhFhTGaUvPYQU1TYPK",
   "metadata": {
-    "name": "gibwork_voting_program",
+    "name": "deorg_voting_program",
     "version": "0.1.0",
     "spec": "0.1.0",
     "description": "Created with Anchor"

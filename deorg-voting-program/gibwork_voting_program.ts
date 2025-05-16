@@ -2,12 +2,12 @@
  * Program IDL in camelCase format in order to be used in JS/TS.
  *
  * Note that this is only a type helper and is not the actual IDL. The original
- * IDL can be found at `target/idl/gibwork_voting_program.json`.
+ * IDL can be found at `target/idl/deorg_voting_program.json`.
  */
-export type GibworkVotingProgram = {
-  address: 'CLzwfsfNSQM73U7J5zURwRycdsWhFhTGaUvPYQU1TYPK';
+export type DeorgVotingProgram = {
+  address: '57mLAqsWu4b3e9cdC2Xorm14yiX7pWthKmnpwVtvBgzL';
   metadata: {
-    name: 'gibworkVotingProgram';
+    name: 'deorgVotingProgram';
     version: '0.1.0';
     spec: '0.1.0';
     description: 'Created with Anchor';

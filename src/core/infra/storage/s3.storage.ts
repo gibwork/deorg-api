@@ -103,7 +103,7 @@ export class S3Storage implements IStorageService {
 
   private replaceCdnUrl(url: string): string {
     return url.replace(
-      /https:\/\/gibwork-(dev|prod)\.s3\.amazonaws\.com/,
+      /https:\/\/deorg-(dev|prod)\.s3\.amazonaws\.com/,
       process.env.CDN_IMAGES!
     );
   }

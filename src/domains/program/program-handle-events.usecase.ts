@@ -1,9 +1,9 @@
 import { BN, EventParser } from '@coral-xyz/anchor';
-import { GibworkVotingProgram } from '@core/services/voting-program/gibwork_voting_program';
+import { DeorgVotingProgram } from '@core/services/voting-program/deorg_voting_program';
 import { SocketGateway } from '@domains/gateway/socket.gateway';
 import { Injectable } from '@nestjs/common';
 import { Connection, PublicKey } from '@solana/web3.js';
-import idl from '@core/services/voting-program/gibwork_voting_program.json';
+import idl from '@core/services/voting-program/deorg_voting_program.json';
 import * as anchor from '@coral-xyz/anchor';
 import { HeliusService } from '@core/services/helius/helius.service';
 
@@ -136,8 +136,8 @@ export class ProgramHandleEventsUsecase {
 
   async parseEvents(logMessages: string[]): Promise<Events[]> {
     const connection: any = new Connection(this.heliusService.devnetRpcUrl);
-    const program = new anchor.Program<GibworkVotingProgram>(
-      idl as GibworkVotingProgram,
+    const program = new anchor.Program<DeorgVotingProgram>(
+      idl as DeorgVotingProgram,
       connection
     );
 

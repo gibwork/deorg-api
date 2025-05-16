@@ -12,7 +12,7 @@ export class DiscordService {
 
   async sendMessage(message: string): Promise<void> {
     await this.api.post('', {
-      content: `Gibwork (${process.env.NODE_ENV}): ${message}`
+      content: `Deorg (${process.env.NODE_ENV}): ${message}`
     });
   }
 

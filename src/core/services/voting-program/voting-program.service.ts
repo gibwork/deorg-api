@@ -8,8 +8,8 @@ import {
 import { HeliusService } from '../helius/helius.service';
 import BN from 'bn.js';
 import { Injectable } from '@nestjs/common';
-import idl from './gibwork_voting_program.json';
-import { GibworkVotingProgram } from './gibwork_voting_program';
+import idl from './deorg_voting_program.json';
+import { DeorgVotingProgram } from './deorg_voting_program';
 import * as anchor from '@coral-xyz/anchor';
 import {
   CreateOrganizationDto,
@@ -28,8 +28,8 @@ export class VotingProgramService {
 
   async initTreasuryRegistry(organizationAddress: string, authority: string) {
     const connection: any = new Connection(this.heliusService.devnetRpcUrl);
-    const program = new anchor.Program<GibworkVotingProgram>(
-      idl as GibworkVotingProgram,
+    const program = new anchor.Program<DeorgVotingProgram>(
+      idl as DeorgVotingProgram,
       connection
     );
 
@@ -69,8 +69,8 @@ export class VotingProgramService {
     treasuryTokenKeypair: Keypair
   ) {
     const connection: any = new Connection(this.heliusService.devnetRpcUrl);
-    const program = new anchor.Program<GibworkVotingProgram>(
-      idl as GibworkVotingProgram,
+    const program = new anchor.Program<DeorgVotingProgram>(
+      idl as DeorgVotingProgram,
       connection
     );
 
@@ -137,8 +137,8 @@ export class VotingProgramService {
 
   async createOrganization(dto: CreateOrganizationDto) {
     const connection: any = new Connection(this.heliusService.devnetRpcUrl);
-    const program = new anchor.Program<GibworkVotingProgram>(
-      idl as GibworkVotingProgram,
+    const program = new anchor.Program<DeorgVotingProgram>(
+      idl as DeorgVotingProgram,
       connection
     );
 
@@ -233,8 +233,8 @@ export class VotingProgramService {
     organizationAccount: string
   ): Promise<PublicKey[]> {
     const connection: any = new Connection(this.heliusService.devnetRpcUrl);
-    const program = new anchor.Program<GibworkVotingProgram>(
-      idl as GibworkVotingProgram,
+    const program = new anchor.Program<DeorgVotingProgram>(
+      idl as DeorgVotingProgram,
       {
         connection
       }
@@ -254,8 +254,8 @@ export class VotingProgramService {
 
   async getOrganizations() {
     const connection: any = new Connection(this.heliusService.devnetRpcUrl);
-    const program = new anchor.Program<GibworkVotingProgram>(
-      idl as GibworkVotingProgram,
+    const program = new anchor.Program<DeorgVotingProgram>(
+      idl as DeorgVotingProgram,
       {
         connection
       }
@@ -333,8 +333,8 @@ export class VotingProgramService {
       preflightCommitment: 'confirmed'
     });
 
-    const program = new anchor.Program<GibworkVotingProgram>(
-      idl as GibworkVotingProgram,
+    const program = new anchor.Program<DeorgVotingProgram>(
+      idl as DeorgVotingProgram,
       provider
     );
 
@@ -466,8 +466,8 @@ export class VotingProgramService {
       preflightCommitment: 'confirmed'
     });
 
-    const program = new anchor.Program<GibworkVotingProgram>(
-      idl as GibworkVotingProgram,
+    const program = new anchor.Program<DeorgVotingProgram>(
+      idl as DeorgVotingProgram,
       provider
     );
 
@@ -561,8 +561,8 @@ export class VotingProgramService {
     proposedRate: number;
   }) {
     const connection: any = new Connection(this.heliusService.devnetRpcUrl);
-    const program = new anchor.Program<GibworkVotingProgram>(
-      idl as GibworkVotingProgram,
+    const program = new anchor.Program<DeorgVotingProgram>(
+      idl as DeorgVotingProgram,
       connection
     );
 
@@ -633,8 +633,8 @@ export class VotingProgramService {
     proposerWallet: string;
   }) {
     const connection: any = new Connection(this.heliusService.devnetRpcUrl);
-    const program = new anchor.Program<GibworkVotingProgram>(
-      idl as GibworkVotingProgram,
+    const program = new anchor.Program<DeorgVotingProgram>(
+      idl as DeorgVotingProgram,
       connection
     );
 
@@ -695,8 +695,8 @@ export class VotingProgramService {
     assignee: string;
   }) {
     const connection: any = new Connection(this.heliusService.devnetRpcUrl);
-    const program = new anchor.Program<GibworkVotingProgram>(
-      idl as GibworkVotingProgram,
+    const program = new anchor.Program<DeorgVotingProgram>(
+      idl as DeorgVotingProgram,
       connection
     );
 
@@ -730,8 +730,8 @@ export class VotingProgramService {
     });
 
     // Create a new program instance for fetching
-    const fetchProgram = new anchor.Program<GibworkVotingProgram>(
-      idl as GibworkVotingProgram,
+    const fetchProgram = new anchor.Program<DeorgVotingProgram>(
+      idl as DeorgVotingProgram,
       provider
     );
 
@@ -845,8 +845,8 @@ export class VotingProgramService {
 
   async createProjectProposal(dto: CreateProjectProposalDto) {
     const connection: any = new Connection(this.heliusService.devnetRpcUrl);
-    const program = new anchor.Program<GibworkVotingProgram>(
-      idl as GibworkVotingProgram,
+    const program = new anchor.Program<DeorgVotingProgram>(
+      idl as DeorgVotingProgram,
       connection
     );
 
@@ -908,8 +908,8 @@ export class VotingProgramService {
     proposerWallet: string;
   }) {
     const connection: any = new Connection(this.heliusService.devnetRpcUrl);
-    const program = new anchor.Program<GibworkVotingProgram>(
-      idl as GibworkVotingProgram,
+    const program = new anchor.Program<DeorgVotingProgram>(
+      idl as DeorgVotingProgram,
       connection
     );
 
@@ -972,8 +972,8 @@ export class VotingProgramService {
       preflightCommitment: 'confirmed'
     });
 
-    const program = new anchor.Program<GibworkVotingProgram>(
-      idl as GibworkVotingProgram,
+    const program = new anchor.Program<DeorgVotingProgram>(
+      idl as DeorgVotingProgram,
       provider
     );
 
@@ -1014,8 +1014,8 @@ export class VotingProgramService {
       preflightCommitment: 'confirmed'
     });
 
-    const program = new anchor.Program<GibworkVotingProgram>(
-      idl as GibworkVotingProgram,
+    const program = new anchor.Program<DeorgVotingProgram>(
+      idl as DeorgVotingProgram,
       provider
     );
 
@@ -1045,8 +1045,8 @@ export class VotingProgramService {
     userPrimaryWallet: string;
   }) {
     const connection: any = new Connection(this.heliusService.devnetRpcUrl);
-    const program = new anchor.Program<GibworkVotingProgram>(
-      idl as GibworkVotingProgram,
+    const program = new anchor.Program<DeorgVotingProgram>(
+      idl as DeorgVotingProgram,
       connection
     );
 
@@ -1212,8 +1212,8 @@ export class VotingProgramService {
       preflightCommitment: 'confirmed'
     });
 
-    const program = new anchor.Program<GibworkVotingProgram>(
-      idl as GibworkVotingProgram,
+    const program = new anchor.Program<DeorgVotingProgram>(
+      idl as DeorgVotingProgram,
       provider
     );
 
@@ -1258,8 +1258,8 @@ export class VotingProgramService {
       preflightCommitment: 'confirmed'
     });
 
-    const program = new anchor.Program<GibworkVotingProgram>(
-      idl as GibworkVotingProgram,
+    const program = new anchor.Program<DeorgVotingProgram>(
+      idl as DeorgVotingProgram,
       provider
     );
 
@@ -1307,8 +1307,8 @@ export class VotingProgramService {
       preflightCommitment: 'confirmed'
     });
 
-    const program = new anchor.Program<GibworkVotingProgram>(
-      idl as GibworkVotingProgram,
+    const program = new anchor.Program<DeorgVotingProgram>(
+      idl as DeorgVotingProgram,
       provider
     );
 
@@ -1345,8 +1345,8 @@ export class VotingProgramService {
       preflightCommitment: 'confirmed'
     });
 
-    const program = new anchor.Program<GibworkVotingProgram>(
-      idl as GibworkVotingProgram,
+    const program = new anchor.Program<DeorgVotingProgram>(
+      idl as DeorgVotingProgram,
       provider
     );
 
@@ -1427,8 +1427,8 @@ export class VotingProgramService {
       preflightCommitment: 'confirmed'
     });
 
-    const program = new anchor.Program<GibworkVotingProgram>(
-      idl as GibworkVotingProgram,
+    const program = new anchor.Program<DeorgVotingProgram>(
+      idl as DeorgVotingProgram,
       provider
     );
 
