@@ -30,7 +30,7 @@ export class EnableWithdrawUsecase {
     const { signature } = await sendTransaction({
       serializedTransaction: dto.serializedTransaction,
       connection: this.connection,
-      commitment: 'confirmed'
+      commitment: 'finalized'
     });
 
     await this.transactionService.update(transaction.id, {
