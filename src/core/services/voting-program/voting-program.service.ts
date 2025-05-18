@@ -66,7 +66,8 @@ export class VotingProgramService {
   async registerTreasuryToken(
     organizationAddress: string,
     authority: string,
-    treasuryTokenKeypair: Keypair
+    treasuryTokenKeypair: Keypair,
+    token: string
   ) {
     const connection: any = new Connection(this.heliusService.devnetRpcUrl);
     const program = new anchor.Program<DeorgVotingProgram>(
@@ -75,9 +76,7 @@ export class VotingProgramService {
     );
 
     const organization = new PublicKey(organizationAddress);
-    const tokenMint = new PublicKey(
-      'Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'
-    );
+    const tokenMint = new PublicKey(token);
 
     // Calculate PDA for the treasury registry
     const [treasuryRegistryPDA] = await PublicKey.findProgramAddress(
@@ -156,7 +155,6 @@ export class VotingProgramService {
       [Buffer.from('organization'), walletPublicKey.toBuffer(), uuidBuffer],
       this.PROGRAM_ID
     );
-    console.log('organizationPDA', organizationPDA.toString());
 
     const [creatorContributorPDA] = await PublicKey.findProgramAddress(
       [
@@ -167,9 +165,7 @@ export class VotingProgramService {
       this.PROGRAM_ID
     );
 
-    const tokenMint = new PublicKey(
-      'Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'
-    );
+    const tokenMint = new PublicKey(dto.tokenMint);
 
     const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
       walletPublicKey,
@@ -342,55 +338,39 @@ export class VotingProgramService {
       new PublicKey(organizationAccount)
     );
 
-    const [treasuryRegistryPDA] = await PublicKey.findProgramAddress(
-      [
-        Buffer.from('treasury_registry'),
-        new PublicKey(organizationAccount).toBuffer()
-      ],
-      this.PROGRAM_ID
-    );
+    const treasuryTokenRegistry =
+      await program.account.treasuryTokenRegistry.all([
+        {
+          memcmp: {
+            offset: 8,
+            bytes: organizationAccount
+          }
+        }
+      ]);
 
-    const treasuryRegistryAccount =
-      await connection.getAccountInfo(treasuryRegistryPDA);
+    const treasuryBalances: {
+      tokenAccount: string;
+      mint: string;
+      raw: number;
+      ui: number;
+      decimals: number;
+    }[] = [];
+    for (const tokenAccount of treasuryTokenRegistry[0].account.tokenAccounts) {
+      if (tokenAccount.tokenAccount) {
+        const treasuryTokenAccountAmount =
+          await connection.getTokenAccountBalance(tokenAccount.tokenAccount);
 
-    const treasuryAuthoritySeed = await PublicKey.findProgramAddress(
-      [
-        Buffer.from('treasury_authority'),
-        new PublicKey(organizationAccount).toBuffer()
-      ],
-      this.PROGRAM_ID
-    );
-
-    const _treasuryAuthorityPDA = treasuryAuthoritySeed[0];
-
-    const tokenMint = new PublicKey(
-      'Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'
-    );
-
-    const existingTokenAccounts =
-      await connection.getParsedTokenAccountsByOwner(_treasuryAuthorityPDA, {
-        mint: tokenMint
-      });
-
-    const treasuryTokenAccount = existingTokenAccounts.value[0].pubkey;
-    let treasuryBalance = {
-      raw: 0,
-      ui: 0,
-      decimals: 0
-    };
-    if (treasuryTokenAccount) {
-      const treasuryTokenAccountAmount =
-        await connection.getTokenAccountBalance(treasuryTokenAccount);
-
-      treasuryBalance = {
-        raw: treasuryTokenAccountAmount.value.amount,
-        ui: treasuryTokenAccountAmount.value.uiAmount,
-        decimals: treasuryTokenAccountAmount.value.decimals
-      };
+        treasuryBalances.push({
+          tokenAccount: tokenAccount.tokenAccount.toBase58(),
+          mint: tokenAccount.mint.toBase58(),
+          raw: treasuryTokenAccountAmount.value.amount,
+          ui: treasuryTokenAccountAmount.value.uiAmount,
+          decimals: treasuryTokenAccountAmount.value.decimals
+        });
+      }
     }
 
     let orgmetadata: any = {};
-
     try {
       const result = await program.account.organizationMetadata.all([
         {
@@ -441,10 +421,7 @@ export class VotingProgramService {
         organization.contributorProposalQuorumPercentage,
       projectProposalThresholdPercentage:
         organization.projectProposalThresholdPercentage,
-
-      hasTreasuryRegistryAccount: treasuryRegistryAccount !== null,
-      treasuryTokenAccount,
-      treasuryBalance,
+      treasuryBalances,
       metadata: orgmetadata
     };
   }
@@ -559,6 +536,7 @@ export class VotingProgramService {
     candidateWallet: string;
     proposerWallet: string;
     proposedRate: number;
+    token: string;
   }) {
     const connection: any = new Connection(this.heliusService.devnetRpcUrl);
     const program = new anchor.Program<DeorgVotingProgram>(
@@ -569,9 +547,7 @@ export class VotingProgramService {
     // Verify they're valid public keys
     const organization = new PublicKey(dto.organizationAccount);
     const candidate = new PublicKey(dto.candidateWallet);
-    const tokenMint = new PublicKey(
-      'Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'
-    );
+    const tokenMint = new PublicKey(dto.token);
 
     // Find proposer token account
     const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
@@ -638,10 +614,14 @@ export class VotingProgramService {
       connection
     );
 
+    const onChainOrganization = await this.getOrganizationDetails(
+      params.organizationAddress
+    );
+
     const organization = new PublicKey(params.organizationAddress);
     const proposal = new PublicKey(params.proposalAddress);
     const tokenMint = new PublicKey(
-      'Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'
+      onChainOrganization.treasuryBalances[0].mint
     );
 
     const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
@@ -700,12 +680,16 @@ export class VotingProgramService {
       connection
     );
 
+    const onChainOrganization = await this.getOrganizationDetails(
+      params.organizationAddress
+    );
+
     const organization = new PublicKey(params.organizationAddress);
     const proposal = new PublicKey(params.proposalAddress);
     const project = new PublicKey(params.projectAddress);
     const assignee = new PublicKey(params.assignee);
     const tokenMint = new PublicKey(
-      'Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'
+      onChainOrganization.treasuryBalances[0].mint
     );
 
     const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
@@ -852,6 +836,10 @@ export class VotingProgramService {
 
     const organization = new PublicKey(dto.organizationAddress);
 
+    const onChainOrganization = await this.getOrganizationDetails(
+      dto.organizationAddress
+    );
+
     // Calculate PDA for contributor proposal
     const [proposalPDA] = await PublicKey.findProgramAddress(
       [
@@ -863,7 +851,7 @@ export class VotingProgramService {
     );
 
     const tokenMint = new PublicKey(
-      'Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'
+      onChainOrganization.treasuryBalances[0].mint
     );
 
     // Find proposer token account
@@ -916,8 +904,12 @@ export class VotingProgramService {
     const organization = new PublicKey(params.organizationAddress);
     const proposal = new PublicKey(params.proposalAddress);
 
+    const onChainOrganization = await this.getOrganizationDetails(
+      params.organizationAddress
+    );
+
     const tokenMint = new PublicKey(
-      'Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'
+      onChainOrganization.treasuryBalances[0].mint
     );
 
     const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
@@ -1050,11 +1042,15 @@ export class VotingProgramService {
       connection
     );
 
+    const onChainOrganization = await this.getOrganizationDetails(
+      dto.organizationAddress
+    );
+
     // Verify they're valid public keys
     const project = new PublicKey(dto.projectAddress);
     const assignee = new PublicKey(dto.assignee);
     const tokenMint = new PublicKey(
-      'Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'
+      onChainOrganization.treasuryBalances[0].mint
     );
     const organization = new PublicKey(dto.organizationAddress);
 
@@ -1350,11 +1346,16 @@ export class VotingProgramService {
       provider
     );
 
-    const tokenMint = new PublicKey(
-      'Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'
+    const task = await program.account.task.fetch(new PublicKey(taskAddress));
+    const project = await program.account.project.fetch(task.project);
+
+    const onChainOrganization = await this.getOrganizationDetails(
+      project.organization.toBase58()
     );
 
-    const task = await program.account.task.fetch(new PublicKey(taskAddress));
+    const tokenMint = new PublicKey(
+      onChainOrganization.treasuryBalances[0].mint
+    );
 
     if (!task.vault) {
       throw new Error('Task vault not found');
@@ -1457,8 +1458,14 @@ export class VotingProgramService {
       this.PROGRAM_ID
     );
 
+    const project = await program.account.project.fetch(task.project);
+
+    const onChainOrganization = await this.getOrganizationDetails(
+      project.organization.toBase58()
+    );
+
     const tokenMint = new PublicKey(
-      'Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr'
+      onChainOrganization.treasuryBalances[0].mint
     );
 
     // Get the assignee's token account

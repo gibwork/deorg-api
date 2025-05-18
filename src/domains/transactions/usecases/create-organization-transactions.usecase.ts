@@ -29,6 +29,7 @@ export class CreateOrganizationTransactionsUsecase {
 
     const { instruction, metadataInstruction, organizationPDA } =
       await this.votingProgramService.createOrganization({
+        tokenMint: dto.token.mintAddress,
         name: dto.name,
         contributorProposalThreshold: dto.contributorProposalThreshold,
         contributorProposalValidityPeriod:
@@ -66,7 +67,8 @@ export class CreateOrganizationTransactionsUsecase {
       await this.votingProgramService.registerTreasuryToken(
         organizationPDA.toBase58(),
         user.walletAddress,
-        treasuryTokenKeypair
+        treasuryTokenKeypair,
+        dto.token.mintAddress
       );
 
     const tx = new Transaction();

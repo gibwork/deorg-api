@@ -42,7 +42,7 @@ export class UsersController {
   ) {
     return this.getUserBalanceUseCase.execute(
       user.walletAddress,
-      Network.get(network ?? 'mainnet')
+      'devnet' // Network.get(network ?? 'mainnet')
     );
   }
 

@@ -44,7 +44,8 @@ export class CreateProposalContributorTransactionUsecase {
         organizationAccount: onChainOrganization.accountAddress,
         candidateWallet: dto.candidateWallet,
         proposerWallet: user.walletAddress,
-        proposedRate: dto.proposedRate
+        proposedRate: dto.proposedRate,
+        token: onChainOrganization.treasuryBalances[0].mint
       });
 
     const tx = new Transaction().add(instruction);

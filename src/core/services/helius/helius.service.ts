@@ -72,7 +72,10 @@ export class HeliusService {
         splTokenBalances.map(async (element) => {
           const { token_info: tokenInfo } = element || {};
           const tokenMintAddress = element?.id || null;
-          if (tokenInfo.decimals === 0 || !element?.content?.metadata?.name) {
+          if (
+            tokenInfo.decimals === 0 ||
+            (!element?.content?.metadata?.name && input.network !== 'devnet')
+          ) {
             return null;
           }
 
@@ -92,11 +95,28 @@ export class HeliusService {
             tokenInfo.price_info.price_per_token = 1;
           }
 
+          let name = element?.content?.metadata?.name || '';
+          let logoURI = element?.content?.links?.image || '';
+
+          if (input.network === 'devnet' && tokenMintAddress) {
+            try {
+              const devnetTokenInfo =
+                await this.getDevnetTokenInfo(tokenMintAddress);
+              name = devnetTokenInfo.name;
+              logoURI = devnetTokenInfo.logoURI;
+            } catch (error) {
+              Logger.warn(
+                `Failed to fetch devnet token info for ${tokenMintAddress}`,
+                'HeliusService'
+              );
+            }
+          }
+
           return {
             address: tokenMintAddress,
             symbol: element?.content?.metadata?.symbol || '',
-            name: element?.content?.metadata?.name || '',
-            logoURI: element?.content?.links?.image || '',
+            name,
+            logoURI,
             tokenInfo
           };
         })
@@ -237,6 +257,46 @@ export class HeliusService {
       throw error;
     }
   }
+
+  async getDevnetTokenInfo(mintAddress: string): Promise<DevnetTokenInfo> {
+    try {
+      if (StableCoin.checkDevnet(mintAddress)) {
+        return StableCoin.getDevnetTokenInfo(mintAddress)!;
+      }
+
+      const { data } = await axios.post(this.devnetRpcUrl, {
+        jsonrpc: '2.0',
+        id: 'get-token',
+        method: 'getAsset',
+        params: {
+          id: mintAddress
+        }
+      });
+
+      return {
+        address: mintAddress,
+        symbol: data.result.content.metadata.symbol,
+        name: data.result.content.metadata.name,
+        logoURI: data.result.content.files[0].uri,
+        decimals: data.result.token_info.decimals
+      };
+    } catch (error) {
+      Logger.error(
+        error.message,
+        error.stack,
+        'PriceService.getDevnetTokenInfo'
+      );
+      throw error;
+    }
+  }
+}
+
+export interface DevnetTokenInfo {
+  address: string;
+  symbol: string;
+  name: string;
+  logoURI: string;
+  decimals: number;
 }
 
 interface Transaction {

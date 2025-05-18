@@ -3,18 +3,18 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common';
-import { TokenService } from '@domains/tokens/services/token.service';
 import { isValidSolanaAddress } from '@utils/is-valid-solana-address';
+import { HeliusService } from '@core/services/helius/helius.service';
 
 @Injectable()
 export class GetTokenInfoUseCase {
-  constructor(private readonly tokenService: TokenService) {}
+  constructor(private readonly heliusService: HeliusService) {}
 
   async execute(mintAddress: string) {
     const isValidToken = isValidSolanaAddress(mintAddress);
     if (!isValidToken) throw new BadRequestException('Invalid token address');
 
-    const token = await this.tokenService.getInfo(mintAddress);
+    const token = await this.heliusService.getDevnetTokenInfo(mintAddress);
 
     if (!token) throw new NotFoundException('Token not found');
 

@@ -24,6 +24,7 @@ export type Proposal = {
 };
 
 export type CreateOrganizationDto = {
+  tokenMint: string;
   name: string;
   contributorProposalThreshold: number;
   contributorProposalValidityPeriod: number;
