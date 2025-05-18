@@ -54,7 +54,7 @@ export class JoinOrganizationUsecase {
 
     const userBalance = await this.getUserBalanceUseCase.execute(
       user.walletAddress,
-      'devenet',
+      'devnet',
       true
     );
 

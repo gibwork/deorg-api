@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { OrganizationService } from '../services/organization.service';
 import { UserEntity } from '@domains/users/entities/user.entity';
-import { Network } from '@utils/network';
 import { GetUserBalanceUseCase } from '@domains/users/usecases/get-user-balance.usecase';
 import { OrganizationMemberService } from '../services/organization-member.service';
 @Injectable()
@@ -27,7 +26,7 @@ export class CheckOrganizationMembershipUsecase {
 
     const userBalance = await this.getUserBalanceUseCase.execute(
       user.walletAddress,
-      Network.get('mainnet')
+      'devnet'
     );
 
     const token = userBalance.find(

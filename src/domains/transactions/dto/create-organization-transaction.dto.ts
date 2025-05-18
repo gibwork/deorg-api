@@ -1,5 +1,35 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  IsString,
+  ValidateNested
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+
+export class TokenDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  mintAddress: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  symbol: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  imageUrl: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  amount: number;
+}
 
 export class DepositOrganizationDto {
   @ApiProperty({
@@ -130,4 +160,10 @@ export class DepositOrganizationDto {
   @IsString()
   @IsOptional()
   description: string;
+
+  @ApiProperty()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => TokenDto)
+  token: TokenDto;
 }
