@@ -17,11 +17,8 @@ export class DiscordService {
   }
 
   async sendAlertMessage(message: string): Promise<void> {
-    await axios.post(
-      'https://discord.com/api/webhooks/1304232156763263096/sZ5fH-b3sG_ybABUBXlb1WFKIDeFH3M_YsNFxWDOf_hlIkX5cIA6l24dl6ppxFJRsvsg',
-      {
-        content: `(${process.env.NODE_ENV}): ${message}`
-      }
-    );
+    await axios.post(process.env.DISCORD_ALERT_WEBHOOK_URL!, {
+      content: `(${process.env.NODE_ENV}): ${message}`
+    });
   }
 }
