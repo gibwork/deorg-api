@@ -24,25 +24,25 @@ export class CheckOrganizationMembershipUsecase {
       where: { organizationId: organization.id, userId: user.id }
     });
 
-    const userBalance = await this.getUserBalanceUseCase.execute(
-      user.walletAddress,
-      'devnet'
-    );
+    // const userBalance = await this.getUserBalanceUseCase.execute(
+    //   user.walletAddress,
+    //   'devnet'
+    // );
 
-    const token = userBalance.find(
-      (balance) => organization.token?.mintAddress === balance.address
-    );
+    // const token = userBalance.find(
+    //   (balance) => organization.token?.mintAddress === balance.address
+    // );
 
-    if (
-      !token ||
-      token.tokenInfo.balance / Math.pow(10, token.tokenInfo.decimals) <
-        organization.token.amount
-    ) {
-      return {
-        allowed: false,
-        message: 'User does not have the required token amount'
-      };
-    }
+    // if (
+    //   !token ||
+    //   token.tokenInfo.balance / Math.pow(10, token.tokenInfo.decimals) <
+    //     organization.token.amount
+    // ) {
+    //   return {
+    //     allowed: false,
+    //     message: 'User does not have the required token amount'
+    //   };
+    // }
 
     return {
       allowed: true,
