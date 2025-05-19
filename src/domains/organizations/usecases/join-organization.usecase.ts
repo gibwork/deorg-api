@@ -52,25 +52,25 @@ export class JoinOrganizationUsecase {
       throw new NotFoundException('User not found');
     }
 
-    const userBalance = await this.getUserBalanceUseCase.execute(
-      user.walletAddress,
-      'devnet',
-      true
-    );
+    // const userBalance = await this.getUserBalanceUseCase.execute(
+    //   user.walletAddress,
+    //   'devnet',
+    //   true
+    // );
 
-    const token = userBalance.find(
-      (balance) => organization.token?.mintAddress === balance.address
-    );
+    // const token = userBalance.find(
+    //   (balance) => organization.token?.mintAddress === balance.address
+    // );
 
-    if (
-      !token ||
-      token.tokenInfo.balance / Math.pow(10, token.tokenInfo.decimals) <
-        organization.token.amount
-    ) {
-      throw new BadRequestException(
-        'User does not have the required token amount'
-      );
-    }
+    // if (
+    //   !token ||
+    //   token.tokenInfo.balance / Math.pow(10, token.tokenInfo.decimals) <
+    //     organization.token.amount
+    // ) {
+    //   throw new BadRequestException(
+    //     'User does not have the required token amount'
+    //   );
+    // }
 
     const member = await this.organizationMemberService.create({
       organizationId: organization.id,
@@ -78,14 +78,14 @@ export class JoinOrganizationUsecase {
       role: OrganizationRole.MEMBER
     });
 
-    const clerkRole = this.organizationService.getClerkRole(
-      OrganizationRole.MEMBER
-    );
-    await this.clerkService.addMemberToOrganization(
-      organization.externalId,
-      user.externalId,
-      clerkRole
-    );
+    // const clerkRole = this.organizationService.getClerkRole(
+    //   OrganizationRole.MEMBER
+    // );
+    // await this.clerkService.addMemberToOrganization(
+    //   organization.externalId,
+    //   user.externalId,
+    //   clerkRole
+    // );
 
     return member;
   }
