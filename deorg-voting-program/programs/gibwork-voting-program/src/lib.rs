@@ -16,7 +16,7 @@ use project::*;
 use task::*;
 use treasury::*;
 
-declare_id!("CLzwfsfNSQM73U7J5zURwRycdsWhFhTGaUvPYQU1TYPK");
+declare_id!("EGnx6SNyQkF2rxXc2uGwVVkZUMoFVfGQWNe18jzapx2h");
 
 #[program]
 pub mod deorg_voting_program {

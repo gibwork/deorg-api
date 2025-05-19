@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/deorg_voting_program.json`.
  */
 export type DeorgVotingProgram = {
-  address: 'CLzwfsfNSQM73U7J5zURwRycdsWhFhTGaUvPYQU1TYPK';
+  address: 'EGnx6SNyQkF2rxXc2uGwVVkZUMoFVfGQWNe18jzapx2h';
   metadata: {
     name: 'deorgVotingProgram';
     version: '0.1.0';

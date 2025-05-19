@@ -6,7 +6,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-deorg_voting_program = "CLzwfsfNSQM73U7J5zURwRycdsWhFhTGaUvPYQU1TYPK"
+deorg_voting_program = "EGnx6SNyQkF2rxXc2uGwVVkZUMoFVfGQWNe18jzapx2h"
 
 [registry]
 url = "https://api.apr.dev"

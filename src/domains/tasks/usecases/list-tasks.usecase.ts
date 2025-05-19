@@ -38,7 +38,7 @@ export class ListTasksUsecase {
           Buffer.from('vault_token_account'),
           new PublicKey(task.accountAddress).toBuffer()
         ],
-        new PublicKey('CLzwfsfNSQM73U7J5zURwRycdsWhFhTGaUvPYQU1TYPK')
+        new PublicKey('EGnx6SNyQkF2rxXc2uGwVVkZUMoFVfGQWNe18jzapx2h')
       );
 
       // get token info
