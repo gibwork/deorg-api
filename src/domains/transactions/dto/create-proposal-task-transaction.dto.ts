@@ -1,10 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, MaxLength } from 'class-validator';
 
 export class CreateProposalTaskTransactionDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
+  @MaxLength(110)
   title: string;
 
   @ApiProperty()

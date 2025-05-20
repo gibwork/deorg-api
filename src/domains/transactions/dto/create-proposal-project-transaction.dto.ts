@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  MaxLength
+} from 'class-validator';
 
 export class CreateProposalProjectTransactionDto {
   @ApiProperty({
@@ -16,6 +22,7 @@ export class CreateProposalProjectTransactionDto {
   })
   @IsNotEmpty()
   @IsString()
+  @MaxLength(110)
   name: string;
 
   @ApiProperty({

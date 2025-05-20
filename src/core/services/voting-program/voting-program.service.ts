@@ -772,7 +772,6 @@ export class VotingProgramService {
 
     const treasuryTokenAccount = treasuryTokenAccounts.value[0].pubkey;
 
-    console.log({ assignee });
     // Find destination token account for the assignee
     const destinationTokenAccounts =
       await connection.getParsedTokenAccountsByOwner(assignee, {
