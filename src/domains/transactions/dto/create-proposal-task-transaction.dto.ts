@@ -5,7 +5,7 @@ export class CreateProposalTaskTransactionDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  @MaxLength(110)
+  @MaxLength(32)
   title: string;
 
   @ApiProperty()

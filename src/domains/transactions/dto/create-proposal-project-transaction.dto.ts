@@ -22,7 +22,7 @@ export class CreateProposalProjectTransactionDto {
   })
   @IsNotEmpty()
   @IsString()
-  @MaxLength(110)
+  @MaxLength(32)
   name: string;
 
   @ApiProperty({
