@@ -25,7 +25,7 @@ export class CreateProposalContributorTransactionUsecase {
       dto.organizationId
     );
 
-    if (onChainOrganization.contributors.includes(user.walletAddress)) {
+    if (onChainOrganization.contributors.includes(dto.candidateWallet)) {
       throw new BadRequestException('Candidate is already a contributor');
     }
 
