@@ -6,9 +6,9 @@ import {
 import { OrganizationService } from '../services/organization.service';
 import { OrganizationMemberService } from '../services/organization-member.service';
 import { UserService } from '@domains/users/services/user.service';
-import { GetUserBalanceUseCase } from '@domains/users/usecases/get-user-balance.usecase';
 import { OrganizationRole } from '../entities/organization-member.entity';
-import { ClerkService } from '@core/services/clerk/clerk.service';
+import { Deorg } from '@deorg/node';
+import { HeliusService } from '@core/services/helius/helius.service';
 
 @Injectable()
 export class JoinOrganizationUsecase {
@@ -16,77 +16,79 @@ export class JoinOrganizationUsecase {
     private readonly organizationService: OrganizationService,
     private readonly organizationMemberService: OrganizationMemberService,
     private readonly userService: UserService,
-    private readonly getUserBalanceUseCase: GetUserBalanceUseCase,
-    private readonly clerkService: ClerkService
+    private readonly heliusService: HeliusService
   ) {}
 
   async execute(accountAddress: string, userId: string) {
-    const organization = await this.organizationService.findOne({
-      where: {
-        accountAddress
+    try {
+      const deorg = new Deorg({
+        rpcUrl: this.heliusService.devnetRpcUrl
+      });
+
+      const onChainOrganization =
+        await deorg.getOrganizationDetails(accountAddress);
+
+      let organization = await this.organizationService.findOne({
+        where: {
+          accountAddress
+        }
+      });
+
+      if (!organization) {
+        const token = await this.heliusService.getDevnetTokenInfo(
+          onChainOrganization.treasuryBalances[0].mint
+        );
+
+        organization = await this.organizationService.create({
+          id: onChainOrganization.uuid,
+          logoUrl:
+            onChainOrganization.metadata.logoUrl ??
+            'https://img.clerk.com/eyJ0eXBlIjoiZGVmYXVsdCIsImlpZCI6Imluc18yd1ZyYWdzb2JOSHJaRDJNMHlYUHpKbW5pWloiLCJyaWQiOiJvcmdfMndvelhpdjRPcmxSMUxNdjN3akw0ZUtSOVEwIiwiaW5pdGlhbHMiOiJZIn0',
+          externalId: onChainOrganization.uuid,
+          slug: onChainOrganization.name.toLowerCase().replace(/ /g, '-'),
+          createdBy: userId,
+          token: {
+            symbol: token.symbol,
+            mintAddress: token.address,
+            amount: 0,
+            imageUrl: token.logoURI
+          },
+          accountAddress,
+          members: []
+        });
       }
-    });
 
-    if (!organization) {
-      throw new NotFoundException('Organization not found');
-    }
+      const organizationMember = await this.organizationMemberService.findOne({
+        where: {
+          organizationId: organization.id,
+          userId
+        }
+      });
 
-    const organizationMember = await this.organizationMemberService.findOne({
-      where: {
+      if (organizationMember) {
+        throw new BadRequestException('User already joined organization');
+      }
+
+      const user = await this.userService.findOne({
+        where: {
+          id: userId
+        }
+      });
+
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      const member = await this.organizationMemberService.create({
         organizationId: organization.id,
-        userId
-      }
-    });
+        userId,
+        role: OrganizationRole.MEMBER
+      });
 
-    if (organizationMember) {
-      throw new BadRequestException('User already joined organization');
+      return member;
+    } catch (e) {
+      console.log(e.message);
+      throw new Error(e);
     }
-
-    const user = await this.userService.findOne({
-      where: {
-        id: userId
-      }
-    });
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    // const userBalance = await this.getUserBalanceUseCase.execute(
-    //   user.walletAddress,
-    //   'devnet',
-    //   true
-    // );
-
-    // const token = userBalance.find(
-    //   (balance) => organization.token?.mintAddress === balance.address
-    // );
-
-    // if (
-    //   !token ||
-    //   token.tokenInfo.balance / Math.pow(10, token.tokenInfo.decimals) <
-    //     organization.token.amount
-    // ) {
-    //   throw new BadRequestException(
-    //     'User does not have the required token amount'
-    //   );
-    // }
-
-    const member = await this.organizationMemberService.create({
-      organizationId: organization.id,
-      userId,
-      role: OrganizationRole.MEMBER
-    });
-
-    // const clerkRole = this.organizationService.getClerkRole(
-    //   OrganizationRole.MEMBER
-    // );
-    // await this.clerkService.addMemberToOrganization(
-    //   organization.externalId,
-    //   user.externalId,
-    //   clerkRole
-    // );
-
-    return member;
   }
 }
