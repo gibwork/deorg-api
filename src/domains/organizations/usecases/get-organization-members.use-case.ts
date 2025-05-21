@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { OrganizationService } from '@domains/organizations/services/organization.service';
 import {
   OrganizationMemberEntity,
@@ -7,6 +7,7 @@ import {
 import { VotingProgramService } from '@core/services/voting-program/voting-program.service';
 import { UserService } from '@domains/users/services/user.service';
 import { OrganizationMemberService } from '@domains/organizations/services/organization-member.service';
+import { OrganizationEntity } from '@domains/organizations/entities/organization.entity';
 @Injectable()
 export class GetOrganizationMembersUseCase {
   constructor(
@@ -26,12 +27,41 @@ export class GetOrganizationMembersUseCase {
       }
     });
 
-    if (!organization) throw new NotFoundException('Organization not found');
-
     const contributors =
       await this.votingProgramService.getOrganizationContributors(
-        organization.accountAddress
+        accountAddress
       );
+
+    if (!organization) {
+      const members: OrganizationMemberEntity[] = [];
+
+      for (const contributor of contributors) {
+        const user = await this.userService.findOne({
+          where: { walletAddress: contributor.toBase58() }
+        });
+
+        if (user) {
+          const tempOrg = new OrganizationEntity({
+            id: '0',
+            accountAddress: accountAddress
+          });
+
+          const member = new OrganizationMemberEntity({
+            id: '0',
+            organizationId: '0',
+            userId: user.id,
+            role: OrganizationRole.CONTRIBUTOR,
+            user,
+            organization: tempOrg,
+            createdAt: new Date()
+          });
+
+          members.push(member);
+        }
+      }
+
+      return members;
+    }
 
     // First update existing members' roles
     organization.members = organization.members.map((member) => {
