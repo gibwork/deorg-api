@@ -4,7 +4,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { CreateContributorProposalDto } from '../dto/create-contributor-proposal.dto';
 import { CreateContributorProposalUsecase } from '../usecases/create-contributor-proposal.usecase';
 import { VoteProposalDto } from '../dto/vote-proposal.dto';
-import { VoteProposalUsecase } from '../usecases/vote-proposa.usecase';
+import { VoteProposalUsecase } from '../usecases/vote-proposal.usecase';
 
 @Controller('/organizations/:orgAccountAddress/proposals')
 @ApiTags('Proposals')

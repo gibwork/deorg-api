@@ -4,7 +4,7 @@ import { ProposalService } from './services/proposal.service';
 import { ProposalsController } from './controllers/proposals.controller';
 import { ListProposalsUsecase } from './usecases/list-proposals.usecase';
 import { CreateContributorProposalUsecase } from './usecases/create-contributor-proposal.usecase';
-import { VoteProposalUsecase } from './usecases/vote-proposa.usecase';
+import { VoteProposalUsecase } from './usecases/vote-proposal.usecase';
 
 export const ProposalsProvider: ModuleMetadata = {
   controllers: [ProposalsController],

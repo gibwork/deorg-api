@@ -69,6 +69,7 @@ export class CreateVoteProposalUseCase {
       proposerWallet: user.walletAddress,
       vote: dto.vote,
       type: proposal.type,
+      tokenMint: onChainOrganization.treasuryBalances[0].mint,
       proposal,
       deorg
     });
@@ -105,6 +106,7 @@ export class CreateVoteProposalUseCase {
     type: ProposalType;
     proposal: any;
     deorg: Deorg;
+    tokenMint: string;
   }) {
     const { organizationAddress, proposalAddress, proposerWallet, vote, type } =
       params;
@@ -148,7 +150,7 @@ export class CreateVoteProposalUseCase {
           proposalAddress,
           proposerWallet,
           vote,
-          tokenMint: params.proposal.tokenMint
+          tokenMint: params.tokenMint
         });
 
       return {
