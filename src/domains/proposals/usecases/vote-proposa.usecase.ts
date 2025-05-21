@@ -1,19 +1,16 @@
 import { VoteProposalDto } from '../dto/vote-proposal.dto';
-import { ProposalService } from '../services/proposal.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { TransactionService } from '@domains/transactions/services/transaction.service';
 import { Connection } from '@solana/web3.js';
 import { HeliusService } from '@core/services/helius/helius.service';
 import { sendTransaction } from '@utils/sendTransaction';
-import { VotingProgramService } from '@core/services/voting-program/voting-program.service';
+import { Deorg } from '@deorg/node';
 
 @Injectable()
 export class VoteProposalUsecase {
   constructor(
-    private readonly proposalService: ProposalService,
     private readonly transactionService: TransactionService,
-    private readonly heliusService: HeliusService,
-    private readonly votingProgramService: VotingProgramService
+    private readonly heliusService: HeliusService
   ) {}
 
   private connection = new Connection(this.heliusService.devnetRpcUrl);
@@ -23,10 +20,12 @@ export class VoteProposalUsecase {
     orgAccountAddress: string,
     dto: VoteProposalDto
   ) {
+    const deorg = new Deorg({
+      rpcUrl: this.heliusService.devnetRpcUrl
+    });
+
     const onChainProposal =
-      await this.votingProgramService.getOrganizationProposals(
-        orgAccountAddress
-      );
+      await deorg.getOrganizationProposals(orgAccountAddress);
 
     if (!onChainProposal) {
       throw new NotFoundException('Proposal not found');

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import WebSocket from 'ws';
-import idl from '@core/services/voting-program/deorg_voting_program.json';
 import { ProgramHandleEventsUsecase } from './program-handle-events.usecase';
+import { idl } from '@deorg/node';
 
 @Injectable()
 export class ProgramListener {

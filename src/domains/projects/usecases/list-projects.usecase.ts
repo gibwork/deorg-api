@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { VotingProgramService } from '@core/services/voting-program/voting-program.service';
 import { UserEntity } from '@domains/users/entities/user.entity';
 import { UserService } from '@domains/users/services/user.service';
 import { ClerkService } from '@core/services/clerk/clerk.service';
 import { convertUuid } from '@utils/convertUuid';
+import { Deorg } from '@deorg/node';
+import { HeliusService } from '@core/services/helius/helius.service';
 
 export interface ProjectWithMembers {
   uuid: string;
@@ -14,18 +15,17 @@ export interface ProjectWithMembers {
 @Injectable()
 export class ListProjectsUsecase {
   constructor(
-    private readonly votingProgramService: VotingProgramService,
     private readonly userService: UserService,
-    private readonly clerkService: ClerkService
+    private readonly clerkService: ClerkService,
+    private readonly heliusService: HeliusService
   ) {}
 
   async execute(orgAccountAddress: string): Promise<ProjectWithMembers[]> {
-    await this.votingProgramService.getOrganizationDetails(orgAccountAddress);
+    const deorg = new Deorg({
+      rpcUrl: this.heliusService.devnetRpcUrl
+    });
 
-    const projects =
-      await this.votingProgramService.getOrganizationProjects(
-        orgAccountAddress
-      );
+    const projects = await deorg.getOrganizationProjects(orgAccountAddress);
 
     const projectsWithMembers = await this.enrichProjectsWithMembers(projects);
     return projectsWithMembers;

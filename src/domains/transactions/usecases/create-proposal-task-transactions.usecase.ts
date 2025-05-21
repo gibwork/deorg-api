@@ -1,24 +1,24 @@
 import { HeliusService } from '@core/services/helius/helius.service';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { VotingProgramService } from '@core/services/voting-program/voting-program.service';
 import { CreateProposalTaskTransactionDto } from '../dto/create-proposal-task-transaction.dto';
 import { UserEntity } from '@domains/users/entities/user.entity';
-import { Connection, PublicKey, Transaction } from '@solana/web3.js';
 import { TransactionService } from '../services/transaction.service';
 import { TransactionType } from '../entities/transaction.entity';
+import { Deorg } from '@deorg/node';
 
 @Injectable()
 export class CreateProposalTaskTransactionsUsecase {
   constructor(
-    private readonly votingProgramService: VotingProgramService,
     private readonly heliusService: HeliusService,
     private readonly transactionService: TransactionService
   ) {}
 
   async execute(dto: CreateProposalTaskTransactionDto, user: UserEntity) {
-    const connection = new Connection(this.heliusService.devnetRpcUrl);
+    const deorg = new Deorg({
+      rpcUrl: this.heliusService.devnetRpcUrl
+    });
 
-    const onChainProject = await this.votingProgramService.getProjectDetails(
+    const onChainProject = await deorg.getProjectDetails(
       dto.projectAccountAddress
     );
 
@@ -26,19 +26,16 @@ export class CreateProposalTaskTransactionsUsecase {
       throw new NotFoundException('Project not found');
     }
 
-    const { instruction, proposalPDA } =
-      await this.votingProgramService.createTaskProposal({
+    const { transaction: tx, proposalPDA } =
+      await deorg.createTaskProposalTransaction({
         assignee: dto.memberAccountAddress,
         description: dto.description,
         organizationAddress: onChainProject.organization,
         paymentAmount: dto.paymentAmount,
         projectAddress: dto.projectAccountAddress,
         title: dto.title,
-        userPrimaryWallet: user.walletAddress
+        proposerWallet: user.walletAddress
       });
-
-    const tx = new Transaction().add(instruction);
-    tx.feePayer = new PublicKey(user.walletAddress);
 
     const transaction = await this.transactionService.create({
       createdBy: user.id,
@@ -50,8 +47,6 @@ export class CreateProposalTaskTransactionsUsecase {
         proposalPDA: proposalPDA.toBase58()
       }
     });
-
-    tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
 
     return {
       serializedTransaction: tx

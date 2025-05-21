@@ -1,17 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { OrganizationService } from '../services/organization.service';
-import { VotingProgramService } from '@core/services/voting-program/voting-program.service';
 import { In } from 'typeorm';
+import { Deorg } from '@deorg/node';
+import { HeliusService } from '@core/services/helius/helius.service';
 
 @Injectable()
 export class ListOrganizationsUsecase {
   constructor(
     private readonly organizationService: OrganizationService,
-    private readonly votingProgramService: VotingProgramService
+    private readonly heliusService: HeliusService
   ) {}
 
   async execute() {
-    const organizations = await this.votingProgramService.getOrganizations();
+    const deorg = new Deorg({
+      rpcUrl: this.heliusService.devnetRpcUrl
+    });
+
+    const organizations = await deorg.getOrganizations();
     const accountAddresses = organizations.map((org) => org.accountAddress);
 
     const organizationEntities = await this.organizationService.find({

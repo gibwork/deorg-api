@@ -1,21 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { ProposalService } from '../services/proposal.service';
-import { OrganizationService } from '@domains/organizations/services/organization.service';
-import { VotingProgramService } from '@core/services/voting-program/voting-program.service';
-
+import { Deorg } from '@deorg/node';
+import { HeliusService } from '@core/services/helius/helius.service';
 @Injectable()
 export class ListProposalsUsecase {
   constructor(
     private readonly proposalService: ProposalService,
-    private readonly organizationService: OrganizationService,
-    private readonly votingProgramService: VotingProgramService
+    private readonly heliusService: HeliusService
   ) {}
 
   async execute(orgAccountAddress: string) {
+    const dorg = new Deorg({
+      rpcUrl: this.heliusService.devnetRpcUrl
+    });
+
     const onChainProposals =
-      await this.votingProgramService.getOrganizationProposals(
-        orgAccountAddress
-      );
+      await dorg.getOrganizationProposals(orgAccountAddress);
 
     const proposals: any[] = [];
 

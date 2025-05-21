@@ -10,8 +10,9 @@ import { ClerkService } from '@core/services/clerk/clerk.service';
 import { OrganizationRole } from '@domains/organizations/entities/organization-member.entity';
 import { OrganizationMemberService } from '@domains/organizations/services/organization-member.service';
 import { ProposalType } from '@domains/proposals/entities/proposal.entity';
-import { VotingProgramService } from '@core/services/voting-program/voting-program.service';
 import { sendTransaction } from '@utils/sendTransaction';
+import { Deorg } from '@deorg/node';
+
 @Injectable()
 export class CreateContributorProposalUsecase {
   constructor(
@@ -21,8 +22,7 @@ export class CreateContributorProposalUsecase {
     private readonly heliusService: HeliusService,
     private readonly userService: UserService,
     private readonly clerkService: ClerkService,
-    private readonly organizationMemberService: OrganizationMemberService,
-    private readonly votingProgramService: VotingProgramService
+    private readonly organizationMemberService: OrganizationMemberService
   ) {}
 
   private connection = new Connection(this.heliusService.devnetRpcUrl);
@@ -38,10 +38,13 @@ export class CreateContributorProposalUsecase {
       throw new NotFoundException('Organization not found');
     }
 
-    const onChainOrganization =
-      await this.votingProgramService.getOrganizationDetails(
-        organization.accountAddress
-      );
+    const deorg = new Deorg({
+      rpcUrl: this.heliusService.devnetRpcUrl
+    });
+
+    const onChainOrganization = await deorg.getOrganizationDetails(
+      organization.accountAddress
+    );
 
     const transaction = await this.transactionService.findOne({
       where: {

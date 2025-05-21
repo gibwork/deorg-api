@@ -1,34 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { TransactionService } from '../services/transaction.service';
-import { VotingProgramService } from '@core/services/voting-program/voting-program.service';
 import { v4 as uuidv4 } from 'uuid';
 import { DepositOrganizationDto } from '../dto/create-organization-transaction.dto';
 import { UserEntity } from '@domains/users/entities/user.entity';
-import {
-  ComputeBudgetProgram,
-  Connection,
-  Keypair,
-  Transaction
-} from '@solana/web3.js';
-import { PublicKey } from '@solana/web3.js';
 import { HeliusService } from '@core/services/helius/helius.service';
 import { TransactionType } from '../entities/transaction.entity';
+import { Deorg } from '@deorg/node';
 
 @Injectable()
 export class CreateOrganizationTransactionsUsecase {
   constructor(
     private readonly transactionService: TransactionService,
-    private readonly votingProgramService: VotingProgramService,
     private readonly heliusService: HeliusService
   ) {}
 
   async execute(dto: DepositOrganizationDto, user: UserEntity) {
-    const connection = new Connection(this.heliusService.devnetRpcUrl);
+    const deorg = new Deorg({
+      rpcUrl: this.heliusService.devnetRpcUrl
+    });
 
     const organizationId = uuidv4();
 
-    const { instruction, metadataInstruction, organizationPDA } =
-      await this.votingProgramService.createOrganization({
+    const { transaction: tx, organizationPDA } =
+      await deorg.createOrganizationTransaction({
         tokenMint: dto.token.mintAddress,
         name: dto.name,
         contributorProposalThreshold: dto.contributorProposalThreshold,
@@ -45,56 +39,15 @@ export class CreateOrganizationTransactionsUsecase {
         treasuryTransferProposalValidityPeriod:
           dto.treasuryTransferProposalValidityPeriod,
         treasuryTransferQuorumPercentage: dto.treasuryTransferQuorumPercentage,
-        userPrimaryWallet: user.walletAddress,
-        organizationId,
+        creatorWallet: user.walletAddress,
         logoUrl: dto.logoUrl,
         websiteUrl: dto.websiteUrl,
         twitterUrl: dto.twitterUrl,
         discordUrl: dto.discordUrl,
         telegramUrl: dto.telegramUrl,
-        description: dto.description
+        description: dto.description,
+        organizationId
       });
-
-    const { instruction: initTreasuryTokenInstruction } =
-      await this.votingProgramService.initTreasuryRegistry(
-        organizationPDA.toBase58(),
-        user.walletAddress
-      );
-
-    const treasuryTokenKeypair = new Keypair();
-
-    const { instruction: registerTreasuryTokenInstruction } =
-      await this.votingProgramService.registerTreasuryToken(
-        organizationPDA.toBase58(),
-        user.walletAddress,
-        treasuryTokenKeypair,
-        dto.token.mintAddress
-      );
-
-    const tx = new Transaction();
-
-    // Add all instructions to the transaction
-    tx.add(instruction);
-    tx.add(metadataInstruction);
-    if (initTreasuryTokenInstruction) {
-      tx.add(initTreasuryTokenInstruction);
-    }
-    if (registerTreasuryTokenInstruction) {
-      tx.add(
-        ComputeBudgetProgram.setComputeUnitLimit({
-          units: 400000
-        })
-      );
-      tx.add(registerTreasuryTokenInstruction);
-    }
-
-    // Set the fee payer and recent blockhash
-    tx.feePayer = new PublicKey(user.walletAddress);
-    tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
-
-    if (registerTreasuryTokenInstruction) {
-      tx.sign(treasuryTokenKeypair);
-    }
 
     const transaction = await this.transactionService.create({
       type: TransactionType.CREATE_ORGANIZATION,

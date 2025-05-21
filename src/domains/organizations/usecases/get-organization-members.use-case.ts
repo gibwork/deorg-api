@@ -4,15 +4,16 @@ import {
   OrganizationMemberEntity,
   OrganizationRole
 } from '@domains/organizations/entities/organization-member.entity';
-import { VotingProgramService } from '@core/services/voting-program/voting-program.service';
 import { UserService } from '@domains/users/services/user.service';
 import { OrganizationMemberService } from '@domains/organizations/services/organization-member.service';
 import { OrganizationEntity } from '@domains/organizations/entities/organization.entity';
+import { Deorg } from '@deorg/node';
+import { HeliusService } from '@core/services/helius/helius.service';
 @Injectable()
 export class GetOrganizationMembersUseCase {
   constructor(
     private readonly organizationService: OrganizationService,
-    private readonly votingProgramService: VotingProgramService,
+    private readonly heliusService: HeliusService,
     private readonly userService: UserService,
     private readonly organizationMemberService: OrganizationMemberService
   ) {}
@@ -27,17 +28,19 @@ export class GetOrganizationMembersUseCase {
       }
     });
 
-    const contributors =
-      await this.votingProgramService.getOrganizationContributors(
-        accountAddress
-      );
+    const deorg = new Deorg({
+      rpcUrl: this.heliusService.devnetRpcUrl
+    });
+
+    const onChainOrganization =
+      await deorg.getOrganizationDetails(accountAddress);
 
     if (!organization) {
       const members: OrganizationMemberEntity[] = [];
 
-      for (const contributor of contributors) {
+      for (const contributor of onChainOrganization.contributors) {
         const user = await this.userService.findOne({
-          where: { walletAddress: contributor.toBase58() }
+          where: { walletAddress: contributor }
         });
 
         if (user) {
@@ -65,8 +68,8 @@ export class GetOrganizationMembersUseCase {
 
     // First update existing members' roles
     organization.members = organization.members.map((member) => {
-      member.role = contributors.find(
-        (contributor) => contributor.toBase58() === member.user.walletAddress
+      member.role = onChainOrganization.contributors.find(
+        (contributor) => contributor === member.user.walletAddress
       )
         ? OrganizationRole.CONTRIBUTOR
         : OrganizationRole.MEMBER;
@@ -78,14 +81,14 @@ export class GetOrganizationMembersUseCase {
       (member) => member.user.walletAddress
     );
 
-    const newContributors = contributors.filter(
-      (contributor) => !existingWallets.includes(contributor.toBase58())
+    const newContributors = onChainOrganization.contributors.filter(
+      (contributor) => !existingWallets.includes(contributor)
     );
 
     // Add new contributors as members
     for (const contributor of newContributors) {
       const user = await this.userService.findOne({
-        where: { walletAddress: contributor.toBase58() }
+        where: { walletAddress: contributor }
       });
 
       if (user) {

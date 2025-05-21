@@ -1,15 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { VotingProgramService } from '@core/services/voting-program/voting-program.service';
 import { UserService } from '@domains/users/services/user.service';
 import { UserEntity } from '@domains/users/entities/user.entity';
 import { ClerkService } from '@core/services/clerk/clerk.service';
 import { Connection, PublicKey } from '@solana/web3.js';
 import { HeliusService } from '@core/services/helius/helius.service';
-
+import { Deorg } from '@deorg/node';
 @Injectable()
 export class ListTasksUsecase {
   constructor(
-    private readonly votingProgramService: VotingProgramService,
     private readonly userService: UserService,
     private readonly clerkService: ClerkService,
     private readonly heliusService: HeliusService
@@ -18,7 +16,11 @@ export class ListTasksUsecase {
   private connection = new Connection(this.heliusService.devnetRpcUrl);
 
   async execute(projectAddress: string) {
-    const tasks = await this.votingProgramService.getTasks(projectAddress);
+    const deorg = new Deorg({
+      rpcUrl: this.heliusService.devnetRpcUrl
+    });
+
+    const tasks = await deorg.getTasks(projectAddress);
 
     const tasksEnriched = await this.enrichTasks(tasks);
 

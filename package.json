@@ -32,6 +32,7 @@
     "@clerk/backend": "^1.13.8",
     "@clerk/express": "^1.3.32",
     "@coral-xyz/anchor": "^0.31.1",
+    "@deorg/node": "^1.3.2",
     "@metaplex-foundation/js": "^0.20.1",
     "@nestjs/cache-manager": "^2.2.0",
     "@nestjs/common": "^10.0.0",

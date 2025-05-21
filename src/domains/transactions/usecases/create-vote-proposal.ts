@@ -4,21 +4,17 @@ import {
   ForbiddenException,
   BadRequestException
 } from '@nestjs/common';
-import { ProposalService } from '@domains/proposals/services/proposal.service';
-import { VotingProgramService } from '@core/services/voting-program/voting-program.service';
 import { UserService } from '@domains/users/services/user.service';
-import { Transaction } from '@solana/web3.js';
-import { PublicKey, Connection } from '@solana/web3.js';
 import { VoteProposalDto } from '../dto/vote-proposal.dto';
 import { HeliusService } from '@core/services/helius/helius.service';
 import { TransactionService } from '../services/transaction.service';
 import { TransactionType } from '../entities/transaction.entity';
-import { Proposal, ProposalType } from '@core/services/voting-program/types';
+import { Deorg } from '@deorg/node';
+import { ProposalType } from '@deorg/node/dist/types';
+
 @Injectable()
 export class CreateVoteProposalUseCase {
   constructor(
-    private readonly proposalService: ProposalService,
-    private readonly votingProgramService: VotingProgramService,
     private readonly userService: UserService,
     private readonly heliusService: HeliusService,
     private readonly transactionService: TransactionService
@@ -30,8 +26,12 @@ export class CreateVoteProposalUseCase {
     userId: string,
     organizationId: string
   ) {
+    const deorg = new Deorg({
+      rpcUrl: this.heliusService.devnetRpcUrl
+    });
+
     const onChainOrganization =
-      await this.votingProgramService.getOrganizationDetails(organizationId);
+      await deorg.getOrganizationDetails(organizationId);
 
     const user = await this.userService.findOne({
       where: {
@@ -43,8 +43,7 @@ export class CreateVoteProposalUseCase {
       throw new NotFoundException('User not found');
     }
 
-    const proposals =
-      await this.votingProgramService.getOrganizationProposals(organizationId);
+    const proposals = await deorg.getOrganizationProposals(organizationId);
 
     const proposal = proposals.find(
       (proposal) => proposal.proposalAddress === proposalAccountAddress
@@ -54,13 +53,8 @@ export class CreateVoteProposalUseCase {
       throw new NotFoundException('Proposal not found');
     }
 
-    const contributors =
-      await this.votingProgramService.getOrganizationContributors(
-        organizationId
-      );
-
-    const contributor = contributors?.find(
-      (contributor) => contributor.toBase58() === user.walletAddress
+    const contributor = onChainOrganization.contributors.find(
+      (contributor) => contributor === user.walletAddress
     );
 
     if (!contributor) {
@@ -69,13 +63,14 @@ export class CreateVoteProposalUseCase {
       );
     }
 
-    const { instruction } = await this.createTransaction({
+    const { transaction: tx } = await this.createTransaction({
       organizationAddress: organizationId,
       proposalAddress: proposalAccountAddress,
       proposerWallet: user.walletAddress,
       vote: dto.vote,
       type: proposal.type,
-      proposal
+      proposal,
+      deorg
     });
 
     const transaction = await this.transactionService.create({
@@ -94,11 +89,6 @@ export class CreateVoteProposalUseCase {
       }
     });
 
-    const tx = new Transaction().add(instruction);
-    tx.feePayer = new PublicKey(user.walletAddress);
-    const connection = new Connection(this.heliusService.devnetRpcUrl);
-    tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
-
     return {
       serializedTransaction: tx
         .serialize({ requireAllSignatures: false })
@@ -113,22 +103,24 @@ export class CreateVoteProposalUseCase {
     proposerWallet: string;
     vote: boolean;
     type: ProposalType;
-    proposal: Proposal;
+    proposal: any;
+    deorg: Deorg;
   }) {
     const { organizationAddress, proposalAddress, proposerWallet, vote, type } =
       params;
 
     if (type === ProposalType.PROJECT) {
-      const { instruction } =
-        await this.votingProgramService.voteProjectProposal({
+      const { transaction } = await params.deorg.voteProjectProposalTransaction(
+        {
           organizationAddress,
           proposalAddress,
           proposerWallet,
           vote
-        });
+        }
+      );
 
       return {
-        instruction
+        transaction
       };
     } else if (type === ProposalType.TASK) {
       if (!params.proposal.projectAddress || !params.proposal.assignee) {
@@ -137,7 +129,7 @@ export class CreateVoteProposalUseCase {
         );
       }
 
-      const { instruction } = await this.votingProgramService.voteTaskProposal({
+      const { transaction } = await params.deorg.voteTaskProposalTransaction({
         projectAddress: params.proposal.projectAddress,
         assignee: params.proposal.assignee,
         organizationAddress,
@@ -147,19 +139,20 @@ export class CreateVoteProposalUseCase {
       });
 
       return {
-        instruction
+        transaction
       };
     } else {
-      const { instruction } =
-        await this.votingProgramService.voteContributorProposal({
+      const { transaction } =
+        await params.deorg.voteContributorProposalTransaction({
           organizationAddress,
           proposalAddress,
           proposerWallet,
-          vote
+          vote,
+          tokenMint: params.proposal.tokenMint
         });
 
       return {
-        instruction
+        transaction
       };
     }
   }

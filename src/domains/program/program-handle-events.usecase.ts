@@ -1,9 +1,8 @@
 import { BN, EventParser } from '@coral-xyz/anchor';
-import { DeorgVotingProgram } from '@core/services/voting-program/deorg_voting_program';
+import { DeorgVotingProgram, idl } from '@deorg/node';
 import { SocketGateway } from '@domains/gateway/socket.gateway';
 import { Injectable } from '@nestjs/common';
 import { Connection, PublicKey } from '@solana/web3.js';
-import idl from '@core/services/voting-program/deorg_voting_program.json';
 import * as anchor from '@coral-xyz/anchor';
 import { HeliusService } from '@core/services/helius/helius.service';
 

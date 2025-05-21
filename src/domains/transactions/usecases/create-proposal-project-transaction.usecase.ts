@@ -1,39 +1,29 @@
-import { VotingProgramService } from '@core/services/voting-program/voting-program.service';
 import { CreateProposalProjectTransactionDto } from '../dto/create-proposal-project-transaction.dto';
-import { Connection, PublicKey, Transaction } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import { UserEntity } from '@domains/users/entities/user.entity';
 import { HeliusService } from '@core/services/helius/helius.service';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { TransactionType } from '../entities/transaction.entity';
 import { TransactionService } from '../services/transaction.service';
 import { v4 as uuidv4 } from 'uuid';
-
+import { Deorg } from '@deorg/node';
 @Injectable()
 export class CreateProposalProjectTransactionUsecase {
   constructor(
-    private readonly votingProgramService: VotingProgramService,
     private readonly heliusService: HeliusService,
     private readonly transactionService: TransactionService
   ) {}
 
   async execute(dto: CreateProposalProjectTransactionDto, user: UserEntity) {
-    const connection = new Connection(this.heliusService.devnetRpcUrl);
+    const deorg = new Deorg({
+      rpcUrl: this.heliusService.devnetRpcUrl
+    });
 
-    const onChainOrganization =
-      await this.votingProgramService.getOrganizationDetails(
-        dto.organizationId
-      );
+    const onChainOrganization = await deorg.getOrganizationDetails(
+      dto.organizationId
+    );
 
-    const contributors =
-      await this.votingProgramService.getOrganizationContributors(
-        onChainOrganization.accountAddress
-      );
-
-    const publicUser = new PublicKey(user.walletAddress);
-
-    if (
-      !contributors.map((c) => c.toBase58()).includes(publicUser.toBase58())
-    ) {
+    if (!onChainOrganization.contributors.includes(user.walletAddress)) {
       throw new BadRequestException('User is not a contributor');
     }
 
@@ -41,7 +31,7 @@ export class CreateProposalProjectTransactionUsecase {
 
     // validate if all members are contributors
     const allMembersAreContributors = dto.members.every((member) =>
-      contributors.map((c) => c.toBase58()).includes(member)
+      onChainOrganization.contributors.includes(member)
     );
 
     if (!allMembersAreContributors) {
@@ -50,8 +40,8 @@ export class CreateProposalProjectTransactionUsecase {
 
     const projectId = uuidv4();
 
-    const { instruction, proposalPDA } =
-      await this.votingProgramService.createProjectProposal({
+    const { transaction: tx, proposalPDA } =
+      await deorg.createProjectProposalTransaction({
         id: projectId,
         name: dto.name,
         description: dto.description,
@@ -61,9 +51,6 @@ export class CreateProposalProjectTransactionUsecase {
         projectProposalValidityPeriod: dto.projectProposalValidityPeriod,
         proposerWallet: user.walletAddress
       });
-
-    const tx = new Transaction().add(instruction);
-    tx.feePayer = new PublicKey(user.walletAddress);
 
     const transaction = await this.transactionService.create({
       createdBy: user.id,
@@ -76,8 +63,6 @@ export class CreateProposalProjectTransactionUsecase {
         proposalPDA: proposalPDA.toBase58()
       }
     });
-
-    tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
 
     return {
       serializedTransaction: tx
