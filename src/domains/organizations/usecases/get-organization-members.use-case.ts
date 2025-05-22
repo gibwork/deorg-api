@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { OrganizationService } from '@domains/organizations/services/organization.service';
 import {
   OrganizationMemberEntity,
@@ -9,16 +9,27 @@ import { OrganizationMemberService } from '@domains/organizations/services/organ
 import { OrganizationEntity } from '@domains/organizations/entities/organization.entity';
 import { Deorg } from '@deorg/node';
 import { HeliusService } from '@core/services/helius/helius.service';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+
 @Injectable()
 export class GetOrganizationMembersUseCase {
   constructor(
     private readonly organizationService: OrganizationService,
     private readonly heliusService: HeliusService,
     private readonly userService: UserService,
-    private readonly organizationMemberService: OrganizationMemberService
+    private readonly organizationMemberService: OrganizationMemberService,
+    @Inject(CACHE_MANAGER)
+    private cacheManager: Cache
   ) {}
 
   async execute(accountAddress: string): Promise<OrganizationMemberEntity[]> {
+    const cachedMembers = await this.cacheManager.get(
+      `organization-members-${accountAddress}`
+    );
+    if (cachedMembers) {
+      return cachedMembers as OrganizationMemberEntity[];
+    }
+
     const organization = await this.organizationService.findOne({
       where: { accountAddress },
       relations: {
@@ -114,6 +125,13 @@ export class GetOrganizationMembersUseCase {
       }
     }
 
-    return organization.members;
+    const members = organization.members;
+
+    await this.cacheManager.set(
+      `organization-members-${accountAddress}`,
+      members
+    );
+
+    return members;
   }
 }

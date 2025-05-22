@@ -1,16 +1,26 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { OrganizationService } from '../services/organization.service';
 import { HeliusService } from '@core/services/helius/helius.service';
 import { Deorg } from '@deorg/node';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class GetOrganizationDetailsUsecase {
   constructor(
     private readonly organizationService: OrganizationService,
-    private readonly heliusService: HeliusService
+    private readonly heliusService: HeliusService,
+    @Inject(CACHE_MANAGER)
+    private cacheManager: Cache
   ) {}
 
   async execute(accountAddress: string) {
+    const cachedOrganization = await this.cacheManager.get(
+      `organization-${accountAddress}`
+    );
+    if (cachedOrganization) {
+      return cachedOrganization;
+    }
+
     const deorg = new Deorg({
       rpcUrl: this.heliusService.devnetRpcUrl
     });
@@ -42,6 +52,13 @@ export class GetOrganizationDetailsUsecase {
 
     onChainOrganization.treasuryBalances = treasuryBalances;
 
-    return { ...onChainOrganization, ...organization };
+    const organizationDetails = { ...onChainOrganization, ...organization };
+
+    await this.cacheManager.set(
+      `organization-${accountAddress}`,
+      organizationDetails
+    );
+
+    return organizationDetails;
   }
 }

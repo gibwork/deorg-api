@@ -1,13 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { OrganizationService } from '../services/organization.service';
 import { UserEntity } from '@domains/users/entities/user.entity';
-import { GetUserBalanceUseCase } from '@domains/users/usecases/get-user-balance.usecase';
 import { OrganizationMemberService } from '../services/organization-member.service';
+
 @Injectable()
 export class CheckOrganizationMembershipUsecase {
   constructor(
     private readonly organizationService: OrganizationService,
-    private readonly getUserBalanceUseCase: GetUserBalanceUseCase,
     private readonly organizationMemberService: OrganizationMemberService
   ) {}
 

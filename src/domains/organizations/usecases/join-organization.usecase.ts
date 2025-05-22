@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException
 } from '@nestjs/common';
@@ -9,6 +10,7 @@ import { UserService } from '@domains/users/services/user.service';
 import { OrganizationRole } from '../entities/organization-member.entity';
 import { Deorg } from '@deorg/node';
 import { HeliusService } from '@core/services/helius/helius.service';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class JoinOrganizationUsecase {
@@ -16,7 +18,9 @@ export class JoinOrganizationUsecase {
     private readonly organizationService: OrganizationService,
     private readonly organizationMemberService: OrganizationMemberService,
     private readonly userService: UserService,
-    private readonly heliusService: HeliusService
+    private readonly heliusService: HeliusService,
+    @Inject(CACHE_MANAGER)
+    private cacheManager: Cache
   ) {}
 
   async execute(accountAddress: string, userId: string) {
@@ -84,6 +88,9 @@ export class JoinOrganizationUsecase {
         userId,
         role: OrganizationRole.MEMBER
       });
+
+      await this.cacheManager.del(`organization-${accountAddress}`);
+      await this.cacheManager.del('organizations');
 
       return member;
     } catch (e) {
