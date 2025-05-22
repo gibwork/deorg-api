@@ -10,7 +10,6 @@ import { GetProjectDetailsUsecase } from '../usecases/get-project-details.usecas
 
 @Controller('projects')
 @ApiTags('Projects')
-@UseGuards(AuthGuard)
 export class ProjectsController {
   constructor(
     private readonly createProjectUsecase: CreateProjectUsecase,
@@ -24,6 +23,7 @@ export class ProjectsController {
   }
 
   @Post()
+  @UseGuards(AuthGuard)
   async createProject(
     @Body() body: CreateProjectDto,
     @UserDecorator() user: UserEntity

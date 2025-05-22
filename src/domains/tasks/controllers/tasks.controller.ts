@@ -16,7 +16,6 @@ import { GetTaskDetailsUsecase } from '../usecases/ge-task-details.usecase';
 
 @Controller('tasks')
 @ApiTags('Tasks')
-@UseGuards(AuthGuard)
 export class TasksController {
   constructor(
     private readonly createTaskUsecase: CreateTaskUsecase,
@@ -33,6 +32,7 @@ export class TasksController {
   }
 
   @Post()
+  @UseGuards(AuthGuard)
   async createTask(
     @Body() dto: CreateTaskDto,
     @UserDecorator() user: UserEntity
@@ -41,6 +41,7 @@ export class TasksController {
   }
 
   @Post('complete')
+  @UseGuards(AuthGuard)
   async completeTask(
     @Body() dto: CompleteTaskDto,
     @UserDecorator() user: UserEntity
@@ -49,6 +50,7 @@ export class TasksController {
   }
 
   @Post('enable-withdraw')
+  @UseGuards(AuthGuard)
   async enableWithdraw(
     @Body() dto: EnableWithdrawDto,
     @UserDecorator() user: UserEntity
@@ -57,6 +59,7 @@ export class TasksController {
   }
 
   @Post('withdraw-funds')
+  @UseGuards(AuthGuard)
   async withdrawFunds(
     @Body() dto: WithdrawTaskDto,
     @UserDecorator() user: UserEntity

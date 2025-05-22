@@ -1,13 +1,10 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { GetUserInfoUsecase } from '../usecases/get-user-info.usecase';
 import { Network } from '@utils/network';
-import { UserDecorator } from '@core/decorators/user.decorator';
 import { AuthGuard } from '@core/guards/auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { UserEntity } from '../entities/user.entity';
 import { GetUserBalanceUseCase } from '../usecases/get-user-balance.usecase';
 import { GetUserOrganizationsUsecase } from '../usecases/get-user-organizations.usecase';
-import { User } from '@core/decorators/types';
 import { GetUserTasksUsecase } from '../usecases/get-user-tasks.usecase';
 
 @Controller('users')
@@ -19,37 +16,36 @@ export class UsersController {
     private readonly getUserTasksUsecase: GetUserTasksUsecase
   ) {}
 
-  @Get('info')
+  @Get('info/:userWalletAddress')
   @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard)
-  async getUserInfo(@UserDecorator() user: User) {
-    return this.getUserInfoUsecase.execute(user.externalId);
+  async getUserInfo(@Param('userWalletAddress') userWalletAddress: string) {
+    return this.getUserInfoUsecase.execute(userWalletAddress);
   }
 
-  @Get('organizations')
+  @Get('organizations/:userWalletAddress')
   @ApiBearerAuth('access-token')
   @UseGuards(AuthGuard)
-  async getUserOrganizations(@UserDecorator() user: UserEntity) {
-    return this.getUserOrganizationsUsecase.execute(user);
+  async getUserOrganizations(
+    @Param('userWalletAddress') userWalletAddress: string
+  ) {
+    return this.getUserOrganizationsUsecase.execute(userWalletAddress);
   }
 
-  @Get('/balance')
+  @Get('/balance/:userWalletAddress')
   @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard)
   async getUserBalance(
-    @UserDecorator() user: UserEntity,
+    @Param('userWalletAddress') userWalletAddress: string,
     @Query('network') network: 'mainnet' | 'devnet'
   ) {
     return this.getUserBalanceUseCase.execute(
-      user.walletAddress,
+      userWalletAddress,
       'devnet' // Network.get(network ?? 'mainnet')
     );
   }
 
-  @Get('/tasks')
+  @Get('/tasks/:userWalletAddress')
   @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard)
-  async getUserTasks(@UserDecorator() user: UserEntity) {
-    return this.getUserTasksUsecase.execute(user);
+  async getUserTasks(@Param('userWalletAddress') userWalletAddress: string) {
+    return this.getUserTasksUsecase.execute(userWalletAddress);
   }
 }

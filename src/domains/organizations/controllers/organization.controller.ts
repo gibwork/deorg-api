@@ -40,14 +40,16 @@ export class OrganizationController {
     return this.getOrganizationMembersUseCase.execute(accountAddress);
   }
 
-  @Get(':accountAddress/check-membership')
-  @UseGuards(AuthGuard)
+  @Get(':accountAddress/check-membership/:userWalletAddress')
   @ApiBearerAuth()
   async checkMembership(
     @Param('accountAddress') accountAddress: string,
-    @UserDecorator() user: UserEntity
+    @Param('userWalletAddress') userWalletAddress: string
   ) {
-    return this.checkMembershipUsecase.execute(accountAddress, user);
+    return this.checkMembershipUsecase.execute(
+      accountAddress,
+      userWalletAddress
+    );
   }
 
   @Post()

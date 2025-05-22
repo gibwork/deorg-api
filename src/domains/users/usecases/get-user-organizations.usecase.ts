@@ -1,5 +1,4 @@
 import { OrganizationService } from '@domains/organizations/services/organization.service';
-import { UserEntity } from '@domains/users/entities/user.entity';
 import { Injectable } from '@nestjs/common';
 import { Deorg } from '@deorg/node';
 import { HeliusService } from '@core/services/helius/helius.service';
@@ -10,7 +9,7 @@ export class GetUserOrganizationsUsecase {
     private readonly heliusService: HeliusService
   ) {}
 
-  async execute(user: UserEntity) {
+  async execute(userWalletAddress: string) {
     // Get all organizations from voting program
     const deorg = new Deorg({
       rpcUrl: this.heliusService.devnetRpcUrl
@@ -25,10 +24,10 @@ export class GetUserOrganizationsUsecase {
 
     // Filter organizations where user is either a contributor or member
     const userOrgs = organizationsOnProgram.filter((org) => {
-      const isContributor = org.contributors.includes(user.walletAddress);
+      const isContributor = org.contributors.includes(userWalletAddress);
       const dbOrg = dbOrgs.find((e) => e.accountAddress === org.accountAddress);
       const isMember = dbOrg?.members.some(
-        (m) => m.user.walletAddress === user.walletAddress
+        (m) => m.user.walletAddress === userWalletAddress
       );
 
       return isContributor || isMember;
