@@ -24,7 +24,6 @@ export class UsersController {
 
   @Get('organizations/:userWalletAddress')
   @ApiBearerAuth('access-token')
-  @UseGuards(AuthGuard)
   async getUserOrganizations(
     @Param('userWalletAddress') userWalletAddress: string
   ) {
