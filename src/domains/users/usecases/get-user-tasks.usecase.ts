@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { UserEntity } from '../entities/user.entity';
 import { Connection, PublicKey } from '@solana/web3.js';
 import { HeliusService } from '@core/services/helius/helius.service';
 import { Deorg } from '@deorg/node';
@@ -10,12 +9,12 @@ export class GetUserTasksUsecase {
 
   private connection = new Connection(this.heliusService.devnetRpcUrl);
 
-  async execute(user: UserEntity) {
+  async execute(userWalletAddress: string) {
     const deorg = new Deorg({
       rpcUrl: this.heliusService.devnetRpcUrl
     });
 
-    const tasks = await deorg.getTasks(user.walletAddress);
+    const tasks = await deorg.getTasks(userWalletAddress);
 
     const tasksEnriched = await this.enrichTasks(tasks);
 

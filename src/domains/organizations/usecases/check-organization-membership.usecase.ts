@@ -1,20 +1,28 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { OrganizationService } from '../services/organization.service';
-import { UserEntity } from '@domains/users/entities/user.entity';
 import { OrganizationMemberService } from '../services/organization-member.service';
-
+import { UserService } from '@domains/users/services/user.service';
 @Injectable()
 export class CheckOrganizationMembershipUsecase {
   constructor(
     private readonly organizationService: OrganizationService,
+    private readonly userService: UserService,
     private readonly organizationMemberService: OrganizationMemberService
   ) {}
 
-  async execute(accountAddress: string, user: UserEntity) {
+  async execute(accountAddress: string, userWalletAddress: string) {
     const organization = await this.organizationService.findOne({
       where: { accountAddress },
       relations: { members: { user: true } }
     });
+
+    const user = await this.userService.findOne({
+      where: { walletAddress: userWalletAddress }
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
 
     if (!organization) {
       throw new NotFoundException('Organization not found');

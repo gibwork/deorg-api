@@ -5,7 +5,9 @@ import { UserService } from '../services/user.service';
 export class GetUserInfoUsecase {
   constructor(private readonly userService: UserService) {}
 
-  async execute(userId: string) {
-    return this.userService.findOne({ where: { externalId: userId } });
+  async execute(userWalletAddress: string) {
+    return this.userService.findOne({
+      where: { walletAddress: userWalletAddress }
+    });
   }
 }
