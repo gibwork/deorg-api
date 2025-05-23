@@ -1,4 +1,12 @@
-import { Controller, Post, Body, UseGuards, Get, Param } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Get,
+  Param,
+  Query
+} from '@nestjs/common';
 import { CreateOrganizationUsecase } from '../usecases/create-organization.usecase';
 import { CreateOrganizationDto } from '../dto/create-organization.dto';
 import { AuthGuard } from '@core/guards/auth.guard';
@@ -10,6 +18,7 @@ import { JoinOrganizationUsecase } from '../usecases/join-organization.usecase';
 import { GetOrganizationDetailsUsecase } from '../usecases/get-organization-details.usecase';
 import { CheckOrganizationMembershipUsecase } from '../usecases/check-organization-membership.usecase';
 import { GetOrganizationMembersUseCase } from '../usecases/get-organization-members.use-case';
+import { GetOrganizationBalanceUseCase } from '../usecases/get-organization-balance.usecase';
 
 @Controller('organizations')
 @ApiTags('Organizations')
@@ -20,7 +29,8 @@ export class OrganizationController {
     private readonly joinOrganizationUsecase: JoinOrganizationUsecase,
     private readonly getOrganizationDetailsUsecase: GetOrganizationDetailsUsecase,
     private readonly checkMembershipUsecase: CheckOrganizationMembershipUsecase,
-    private readonly getOrganizationMembersUseCase: GetOrganizationMembersUseCase
+    private readonly getOrganizationMembersUseCase: GetOrganizationMembersUseCase,
+    private readonly getOrganizationBalanceUseCase: GetOrganizationBalanceUseCase
   ) {}
 
   @Get()
@@ -31,6 +41,17 @@ export class OrganizationController {
   @Get(':accountAddress')
   async getOrganization(@Param('accountAddress') accountAddress: string) {
     return this.getOrganizationDetailsUsecase.execute(accountAddress);
+  }
+
+  @Get(':accountAddress/balance')
+  async getOrganizationBalance(
+    @Param('accountAddress') accountAddress: string,
+    @Query('revalidate') revalidate: boolean = false
+  ) {
+    return this.getOrganizationBalanceUseCase.execute(
+      accountAddress,
+      revalidate
+    );
   }
 
   @Get(':accountAddress/members')

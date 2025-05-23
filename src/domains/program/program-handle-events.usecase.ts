@@ -1,10 +1,11 @@
 import { BN, EventParser } from '@coral-xyz/anchor';
 import { DeorgVotingProgram, idl } from '@deorg/node';
 import { SocketGateway } from '@domains/gateway/socket.gateway';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Connection, PublicKey } from '@solana/web3.js';
 import * as anchor from '@coral-xyz/anchor';
 import { HeliusService } from '@core/services/helius/helius.service';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 
 interface TaskStatusChangeEvent {
   project: string;
@@ -60,14 +61,18 @@ interface Events {
 export class ProgramHandleEventsUsecase {
   constructor(
     private readonly socketGateway: SocketGateway,
-    private readonly heliusService: HeliusService
+    private readonly heliusService: HeliusService,
+    @Inject(CACHE_MANAGER)
+    private cacheManager: Cache
   ) {}
 
   async execute(body: { logMessages: string[] }) {
     const events = await this.parseEvents(body.logMessages);
+    console.log(JSON.stringify(body.logMessages, null, 2));
 
     for (const event of events) {
       console.log({ eventName: event.name, eventData: event.data });
+      this.clearCache();
       this.socketGateway.server.emit(event.name, event.data);
     }
   }
@@ -215,5 +220,18 @@ export class ProgramHandleEventsUsecase {
       return result;
     }
     return data;
+  }
+
+  private async clearCache() {
+    await new Promise((resolve) => setTimeout(resolve, 20000));
+
+    // delete all cache
+    if (this.cacheManager.store.keys) {
+      console.log('clearing cache');
+      const keys = await this.cacheManager.store.keys();
+      for (const key of keys) {
+        await this.cacheManager.del(key);
+      }
+    }
   }
 }

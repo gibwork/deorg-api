@@ -23,11 +23,11 @@ export const redisConfig: RedisConfig = {
   isGlobal: true,
   store: redisStore,
   url: redisPassword
-    ? `rediss://default:${redisPassword}@${redisHost}:${redisPort}`
+    ? `redis://default:${redisPassword}@${redisHost}:${redisPort}`
     : `redis://${redisHost}:${redisPort}`,
   ttl: env.REDIS_TTL ? parseInt(String(env.REDIS_TTL)) : 3600,
   enable: isCacheEnabled,
   socket: {
-    tls: true
+    tls: false
   }
 };

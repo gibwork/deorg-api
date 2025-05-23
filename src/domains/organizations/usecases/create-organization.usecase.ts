@@ -7,7 +7,6 @@ import { TransactionType } from '@domains/transactions/entities/transaction.enti
 import { Connection } from '@solana/web3.js';
 import { HeliusService } from '@core/services/helius/helius.service';
 import { OrganizationRole } from '../entities/organization-member.entity';
-import { ClerkService } from '@core/services/clerk/clerk.service';
 import { sendTransaction } from '@utils/sendTransaction';
 @Injectable()
 export class CreateOrganizationUsecase {
@@ -15,8 +14,7 @@ export class CreateOrganizationUsecase {
     private readonly organizationService: OrganizationService,
     private readonly userService: UserService,
     private readonly transactionService: TransactionService,
-    private readonly heliusService: HeliusService,
-    private readonly clerkService: ClerkService
+    private readonly heliusService: HeliusService
   ) {}
 
   private connection = new Connection(this.heliusService.devnetRpcUrl);
@@ -49,16 +47,8 @@ export class CreateOrganizationUsecase {
       response: { txHash: signature }
     });
 
-    // const clerkOrganization = await this.clerkService.createOrganization(
-    //   dto.name,
-    //   user.externalId
-    // );
-
     const organization = await this.organizationService.create({
       id: transaction.request['organizationId'],
-      // externalId: clerkOrganization.id,
-      // slug: clerkOrganization.slug || undefined,
-      // logoUrl: clerkOrganization.imageUrl || undefined,
       logoUrl:
         'https://img.clerk.com/eyJ0eXBlIjoiZGVmYXVsdCIsImlpZCI6Imluc18yd1ZyYWdzb2JOSHJaRDJNMHlYUHpKbW5pWloiLCJyaWQiOiJvcmdfMndvelhpdjRPcmxSMUxNdjN3akw0ZUtSOVEwIiwiaW5pdGlhbHMiOiJZIn0',
       externalId: transaction.request['organizationId'],

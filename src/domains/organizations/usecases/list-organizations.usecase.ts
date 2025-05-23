@@ -1,17 +1,25 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { OrganizationService } from '../services/organization.service';
 import { In } from 'typeorm';
 import { Deorg } from '@deorg/node';
 import { HeliusService } from '@core/services/helius/helius.service';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class ListOrganizationsUsecase {
   constructor(
     private readonly organizationService: OrganizationService,
-    private readonly heliusService: HeliusService
+    private readonly heliusService: HeliusService,
+    @Inject(CACHE_MANAGER)
+    private cacheManager: Cache
   ) {}
 
   async execute() {
+    const cachedOrganizations = await this.cacheManager.get('organizations');
+    if (cachedOrganizations) {
+      return cachedOrganizations;
+    }
+
     const deorg = new Deorg({
       rpcUrl: this.heliusService.devnetRpcUrl
     });
@@ -47,6 +55,12 @@ export class ListOrganizationsUsecase {
       };
     });
 
-    return organizationsEnriched.sort((a, b) => a.name.localeCompare(b.name));
+    const organizationsSorted = organizationsEnriched.sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
+
+    await this.cacheManager.set('organizations', organizationsSorted);
+
+    return organizationsSorted;
   }
 }
