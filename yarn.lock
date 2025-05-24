@@ -915,10 +915,10 @@
     bn.js "^5.2.2"
     bs58 "^6.0.0"
 
-"@deorg/node@^1.3.2":
-  version "1.3.2"
-  resolved "https://registry.yarnpkg.com/@deorg/node/-/node-1.3.2.tgz#995801578306377f4139c301172f25bdf0b83a0a"
-  integrity sha512-tFOz2Ux2ZLR75ZALk6/Jh2saki7ko8jHk9bdxvDcCoL+ILPinmq6vZzB7fWPNT1hSMNeEk6lf47WbfiotU67sw==
+"@deorg/node@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@deorg/node/-/node-1.4.0.tgz#bd9a0edfb57eea10312effcf08b0fbaeb8acad70"
+  integrity sha512-M0bQSXwW0+/pXX16FXnrI3569D0WMdNMdcQMVm3A98CP7D9qxK3ObLLwSU11vDB7aBXe3/KIqy3SKCkKZ5wKlw==
   dependencies:
     "@coral-xyz/anchor" "^0.31.1"
     "@deorg/node" "^1.1.0"
