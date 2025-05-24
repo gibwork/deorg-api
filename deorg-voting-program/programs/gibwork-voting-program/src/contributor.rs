@@ -5,7 +5,7 @@ use crate::errors::VotingError;
 use crate::utils::*;
 
 #[derive(Accounts)]
-#[instruction(proposed_rate: u64)]
+#[instruction(proposed_rate: u64, timestamp: i64)]
 pub struct ProposeContributor<'info> {
     #[account(mut)]
     pub proposer: Signer<'info>,
@@ -20,7 +20,8 @@ pub struct ProposeContributor<'info> {
         seeds = [
             b"contributor_proposal", 
             organization.key().as_ref(), 
-            candidate.key.as_ref()
+            candidate.key.as_ref(),
+            &timestamp.to_le_bytes()
         ],
         bump
     )]
@@ -112,6 +113,7 @@ pub struct RenewContributor<'info> {
 pub fn propose_contributor(
     ctx: Context<ProposeContributor>,
     proposed_rate: u64,
+    timestamp: i64,
 ) -> Result<()> {
     // Get key account identities and all required values first
     let proposer = ctx.accounts.proposer.key();
@@ -145,15 +147,21 @@ pub fn propose_contributor(
         );
     }
     
+    // Validate timestamp is recent (prevent replay attacks)
+    let clock = Clock::get()?;
+    require!(
+        (clock.unix_timestamp - timestamp).abs() < 300, // Within 5 minutes
+        VotingError::InvalidTimestamp
+    );
+    
     // Initialize the proposal
     let proposal = &mut ctx.accounts.proposal;
-    let clock = Clock::get()?;
     
     proposal.organization = organization_key;
     proposal.candidate = candidate;
     proposal.proposer = proposer;
     proposal.proposed_rate = proposed_rate;
-    proposal.created_at = clock.unix_timestamp;
+    proposal.created_at = timestamp;
     proposal.expires_at = clock.unix_timestamp.saturating_add(contributor_proposal_validity_period);
     proposal.votes_for = 0; // Proposer's vote is no longer automatically counted
     proposal.votes_against = 0;
