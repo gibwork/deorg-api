@@ -146,4 +146,7 @@ pub enum VotingError {
     
     #[msg("Invalid metadata description (too long)")]
     InvalidMetadataDescription,
+    
+    #[msg("Invalid timestamp provided (must be within 5 minutes of current time)")]
+    InvalidTimestamp,
 }

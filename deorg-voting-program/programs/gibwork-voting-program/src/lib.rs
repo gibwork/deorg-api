@@ -1,17 +1,17 @@
 use anchor_lang::prelude::*;
 
-pub mod contributor;
-pub mod errors;
-pub mod organization;
-pub mod project;
 pub mod state;
+pub mod errors;
+pub mod utils;
+pub mod organization;
+pub mod contributor;
+pub mod project;
 pub mod task;
 pub mod treasury;
-pub mod utils;
 
 // All module exports
-use contributor::*;
 use organization::*;
+use contributor::*;
 use project::*;
 use task::*;
 use treasury::*;
@@ -88,8 +88,12 @@ pub mod deorg_voting_program {
     }
 
     // Contributor Management
-    pub fn propose_contributor(ctx: Context<ProposeContributor>, proposed_rate: u64) -> Result<()> {
-        contributor::propose_contributor(ctx, proposed_rate)
+    pub fn propose_contributor(
+        ctx: Context<ProposeContributor>,
+        proposed_rate: u64,
+        timestamp: i64,
+    ) -> Result<()> {
+        contributor::propose_contributor(ctx, proposed_rate, timestamp)
     }
 
     pub fn vote_on_contributor_proposal(
@@ -122,11 +126,17 @@ pub mod deorg_voting_program {
         )
     }
 
-    pub fn vote_on_project_proposal(ctx: Context<VoteOnProjectProposal>, vote: bool) -> Result<()> {
+    pub fn vote_on_project_proposal(
+        ctx: Context<VoteOnProjectProposal>,
+        vote: bool,
+    ) -> Result<()> {
         project::vote_on_project_proposal(ctx, vote)
     }
-
-    pub fn create_project(ctx: Context<CreateProject>, project_uuid: [u8; 16]) -> Result<()> {
+    
+    pub fn create_project(
+        ctx: Context<CreateProject>,
+        project_uuid: [u8; 16],
+    ) -> Result<()> {
         project::create_project(ctx, project_uuid)
     }
 
@@ -139,17 +149,13 @@ pub mod deorg_voting_program {
         assignee: Pubkey,
         token_mint: Pubkey,
     ) -> Result<()> {
-        task::propose_task(
-            ctx,
-            title,
-            description,
-            payment_amount,
-            assignee,
-            token_mint,
-        )
+        task::propose_task(ctx, title, description, payment_amount, assignee, token_mint)
     }
-
-    pub fn vote_on_task_proposal(ctx: Context<VoteOnTaskProposal>, vote: bool) -> Result<()> {
+    
+    pub fn vote_on_task_proposal(
+        ctx: Context<VoteOnTaskProposal>,
+        vote: bool,
+    ) -> Result<()> {
         task::vote_on_task_proposal(ctx, vote)
     }
 
@@ -160,6 +166,7 @@ pub mod deorg_voting_program {
     pub fn complete_task(ctx: Context<CompleteTask>) -> Result<()> {
         task::complete_task(ctx)
     }
+    
 
     // Treasury Management
     pub fn initialize_treasury_registry(ctx: Context<InitializeTreasuryRegistry>) -> Result<()> {
@@ -191,7 +198,10 @@ pub mod deorg_voting_program {
         treasury::execute_funds_transfer(ctx)
     }
 
-    pub fn deposit_to_treasury(ctx: Context<DepositToTreasury>, amount: u64) -> Result<()> {
+    pub fn deposit_to_treasury(
+        ctx: Context<DepositToTreasury>,
+        amount: u64,
+    ) -> Result<()> {
         treasury::deposit_to_treasury(ctx, amount)
     }
 
